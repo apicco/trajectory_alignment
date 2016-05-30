@@ -1,0 +1,6 @@
+{
+  "name": "Trajectories-alignment",
+  "tagline": "Align enodocytic trajectories in space and time, compute their average trajectories, align different average trajectories together in space and time.",
+  "body": "### Endocytosis\r\nEndocytosis is an essential process in eukaryotic cells. It involves dozens of proteins and it is extremely fast: in yeasts, the endocytic process last 1-2 minutes but the actual pulling of the plasma membrane invagination and the pinching of the vesicle takes only 8 s. During these 8 s, the invagination grows up to 150 nm in length and the numerous endocytic proteins that are involved in bending the membrane, pulling the invagination and pinching the vesicle need to accommodate the changes in the membrane shape. The architecture of the endocytic machinery is thus very dynamic.\r\n\r\n### Fluorescence light microscopy\r\nLight microscopy is ideal to look at a dynamic process like endocytosis. However, light microscopy is diffraction limited and does not allow to resolve the small differences in the organisation of the endocytic proteins over time.\r\n\r\n### The trajectory-alignment software\r\nThe endocytic process is highly stereotypical in yeast cells. Our software allows you to align trajectories... \r\n",
+  "note": "Don't delete this file! It's used internally to help with page regeneration."
+}
