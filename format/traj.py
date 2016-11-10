@@ -1,5 +1,8 @@
 from numpy import array
 from numpy import transpose
+from numpy import matrix
+from numpy import square
+from numpy import sqrt
 from numpy import sin
 from numpy import cos
 from numpy import pi
@@ -8,6 +11,7 @@ from numpy import NaN
 from numpy import floor
 from numpy import insert
 from numpy import nanmean
+from numpy import nansum
 from math import isclose
 
 #definitionsusedtoloadtrajectories.Includethetrajectoryclass
@@ -231,8 +235,11 @@ class Traj:
 						i = i[0] #remove nested lists of lists of length 1
 					else:
 						i = tuple(i) #exit the while loop
-				for k in i:
-					new_items.append(k)
+				if isinstance(i,int) :
+					new_items.append(i)
+				else :
+					for k in i:
+						new_items.append(k)
 		if (len(new_items)==0): return self._coord
 		else: 
 			try:
@@ -284,8 +291,11 @@ class Traj:
 						i = i[0] #remove nested lists of lists of length 1
 					else:
 						i = tuple(i) #exit the while loop
-				for k in i:
-					new_items.append(k)
+				if isinstance(i,int) :
+					new_items.append(i)
+				else :
+					for k in i:
+						new_items.append(k)
 		if (len(items)==0): return self._coord_err
 		else: 
 			try:
@@ -322,6 +332,7 @@ class Traj:
 		"""
 
 		if (len(items)==0): raise IndexError('Please, specify the values you want to extract from the trajectory')
+		#elif (len(items)==1): 
 		else:
 			new_items = [] #items are enters as a tuple, and should be converted as list
 			for i in items:
@@ -330,11 +341,14 @@ class Traj:
 				else:
 					while isinstance(i,list):
 						if len(i) == 1:
-							i = i[0] #remove nested lists of lists of length 1
+							i = i[0] #remove nested lists of lists, which have length 1
 						else:
 							i = tuple(i) #exit the while loop
-					for k in i:
-						new_items.append(k)
+					if isinstance(i,int) :
+						new_items.append(i)
+					else:
+						for k in i:
+							new_items.append(k)
 			#create the output trajectory
 			if 'range' in self.annotations().keys():
 				output = Traj(range = self.annotations()['range']+' then '+str(new_items))
@@ -382,13 +396,31 @@ class Traj:
 		"""
 		if ('_'+name in self.__slots__[1:]):
 			if ((name=='frames') & (len(self._t)==0)):
-				setattr(self,"_"+name,array(x,dtype='int64')) # add the frames; no time present yet 
+				#copute the extent of gaps between frames (in general it is >= 1). If a 
+				#gap is negative it means that the chronological order of the frames
+				#is erroneous.
+				frame_gaps = [ x[ i + 1 ] - x[ i ] for i in range( 0 , len( x ) - 1 ) ]
+			
+				if len( x ) == 1 : #if there is only one frame it is not possible to compute frame_gaps
+					setattr(self,"_"+name,array(x,dtype='int64')) # add the frames; no time present yet 
+				elif min( frame_gaps ) > 0: 
+					setattr(self,"_"+name,array(x,dtype='int64')) # add the frames; no time present yet 
+				else: 
+					raise AttributeError('The chronological order of the frames is wrong')
 			elif ((name=='t') & (len(self._frames)==0)):
 				setattr(self,"_"+name,array(x,dtype='float64')) # add the time; no frames present yet
 				if ('t_unit' in self.annotations().keys()):
 					if (self._annotations['t_unit'] == ''): self._annotations['t_unit'] = unit
 				else: self._annotations['t_unit'] = unit
 			elif (name=='coord'):
+				if (len(x[0])==(len(self._frames) | len(self._t))):
+					setattr(self,"_"+name,array(x,dtype='float64')) # add the coords
+					if ('coord_unit' in self.annotations().keys()):
+						if (self._annotations['coord_unit'] == ''): self._annotations['coord_unit'] = unit
+					else: self._annotations['coord_unit'] = unit
+				else:
+					raise AttributeError('The input length of the attribute does not match frames or time array of non-zero length')
+			elif (name=='coord_err'):
 				if (len(x[0])==(len(self._frames) | len(self._t))):
 					setattr(self,"_"+name,array(x,dtype='float64')) # add the coords
 					if ('coord_unit' in self.annotations().keys()):
@@ -412,14 +444,24 @@ class Traj:
 		"""
 		self._f = ( self._f - min(self._f) ) / ( max(self._f) - min(self._f) )
 
-	def rotate(self,angle):
+	def rotate( self , angle , angle_err = 0):
 		"""
 		rotate(angle): rotates the coordinated of the trajectory \
 				by an angle in radiants.
 		"""
-		self._coord = transpose(transpose(self._coord)@\
-				[array([cos(angle), -sin(angle)],dtype='float64'),\
-					array([sin(angle),cos(angle)],dtype='float64')])
+
+		R = matrix( [[ cos( angle ) , - sin( angle ) ] , [ sin( angle ) , cos( angle ) ]] , dtype = 'float64' ) 
+		sR = square( R )
+		
+		self._coord = array( R @ self._coord )
+
+		#if the attribute _coord_err is not empty, then propagate the errors accordingly 
+		if ( self._coord_err.shape[ self._coord_err.ndim - 1 ] > 0 ) :
+
+			self._coord_err = array( sqrt( 
+					sR @ square( self._coord_err ) + \
+							square( angle_err * sqrt( 1 - sR ) @ matrix([[ 1 , 0 ] , [ 0 , -1 ]] ) @ self._coord )
+					))
 
 	def center_mass(self):
 		"""
@@ -428,15 +470,28 @@ class Traj:
 
 		return( array( [ nanmean( self._coord[0,] ), nanmean( self._coord[1,] ) ] ))
 
-	def translate(self,v):
+	def translate( self , v , v_err = ( 0 , 0) ):
 		"""
 		translate(v): translates the coordinates of the trajectory \
 				by a vector v: v[0] shifts .x[0,] while v[1] shifts \
 				.x[1,].
 		"""
 
-		self._coord[0,] = self._coord[0,] + v[0]
-		self._coord[1,] = self._coord[1,] + v[1]
+		self._coord[ 0 , ] = self._coord[ 0 , ] + v[ 0 ]
+		self._coord[ 1 , ] = self._coord[ 1 , ] + v[ 1 ]
+		if len( v_err ) != 2 :
+			raise AttributeError('The error must be a vector of length 2')
+		else :
+			if ( v_err[ 0 ] != 0 ) | ( v_err[ 1 ] != 0 ) :
+				#if the attribute _coord_err is not empty, then propagate the errors accordingly 
+				if ( self._coord_err.shape[self._coord_err.ndim-1] > 0 ) :
+					self._coord_err[ 0 , ] = sqrt( self._coord_err[ 0 , ] ** 2 + v_err[ 0 ] ** 2 )
+					self._coord_err[ 1 , ] = sqrt( self._coord_err[ 1 , ] ** 2 + v_err[ 1 ] ** 2 )
+				else :
+					setattr( self , '_coord_err' , array( [\
+							 [ v_err[ 0 ] ] * ( len( self )  ),
+							 [ v_err[ 1 ] ] * ( len( self )  )
+								] , dtype = 'float64' ) )
 	
 #	def scale_FI(self,t):
 #
@@ -468,11 +523,11 @@ class Traj:
 		start(t=None): the start time of the trajectory. If t is specified
 		the trajecotry points starting from t are extracted. 
 		"""
-			
+		
 		if len(self._t) > 0:
 			
-			if 'delat_t' in self._annotations.keys():
-				delta_t = self._annotations['delta_t']
+			if 'delta_t' in self._annotations.keys():
+				delta_t = float( self._annotations['delta_t'] )
 			else: 
 				delta_t = min( self._t[1:] - self._t[ 0 : ( len(self._t) - 1 ) ] )
 		
@@ -517,9 +572,9 @@ class Traj:
 								insert(self._coord[1],0,[float('NaN')]*len(new_t))
 								])
 					elif attribute == 'coord_err':
-						self._coor_errd = array([\
-								insert(self._coor_errd[0],0,[float('NaN')]*len(new_t)),
-								insert(self._coor_errd[1],0,[float('NaN')]*len(new_t))
+						self._coord_err = array([\
+								insert(self._coord_err[0],0,[float('NaN')]*len(new_t)),
+								insert(self._coord_err[1],0,[float('NaN')]*len(new_t))
 								])
 					elif attribute == 'frames':
 						new_frames = [self._frames[0] - f for f in range(len(new_t),0,-1)]
@@ -546,8 +601,8 @@ class Traj:
 		"""
 
 		if len(self._t) > 0:
-			if 'delat_t' in self._annotations.keys():
-				delta_t = self._annotations['delta_t']
+			if 'delta_t' in self._annotations.keys():
+				delta_t = float( self._annotations['delta_t'] )
 			else: 
 				delta_t = min(self._t[1:]-self._t[0:(len(self)-1)])
 			if t is None:
@@ -594,9 +649,9 @@ class Traj:
 								insert(self._coord[1],l,[float('NaN')]*len(new_t))
 								])
 					elif attribute == 'coord_err':
-						self._coor_errd = array([\
-								insert(self._coor_errd[0],l,[float('NaN')]*len(new_t)),
-								insert(self._coor_errd[1],l,[float('NaN')]*len(new_t))
+						self._coord_err = array([\
+								insert(self._coord_err[0],l,[float('NaN')]*len(new_t)),
+								insert(self._coord_err[1],l,[float('NaN')]*len(new_t))
 								])
 					elif attribute == 'frames':
 						new_frames = [self._frames[l-1] + f + 1 for f in range(0,len(new_t))]
@@ -666,13 +721,15 @@ class Traj:
 				output[a] = [[],[]]
 			else:
 				output[a] = []
-
-		with open(file_name,'r') as file:
+		
+		with open( file_name , 'r' ) as file:
+			
 			for line in file:
-				line_elements = line.split(sep)
-				if len(line_elements) > 0:
-					if (( len(attrs.keys()) == 0 ) & ( line_elements[0][0:len(comment_char)] == comment_char )):
-						attrs ={}
+				line_elements = line.split( sep )
+		
+				if len( line_elements ) > 0:
+					if ( ( len( attrs.keys() ) == 0 ) & ( line_elements[ 0 ][ 0:len( comment_char ) ] == comment_char ) ) :
+						attrs = {}
 						i = 0
 						for e in line_elements :
 							if e[0] not in ('#','(','y'):
@@ -700,7 +757,10 @@ class Traj:
 							except:
 								raise TypeError('The comment_char might be ill-defined. Default is "#".')
 		if 'frames' in output.keys():
-			self.input_values('frames',output['frames'])
+			try:
+				self.input_values('frames',output['frames'])
+			except:
+				raise AttributeError('.load_data: chronological disorder in trajectory "' + file_name + '".')
 		if 't' in output.keys():
 			if 't_unit' not in self._annotations.keys():
 				self.input_values('t',output['t'])
