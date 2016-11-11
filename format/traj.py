@@ -409,13 +409,13 @@ class Traj:
 					raise AttributeError('The chronological order of the frames is wrong')
 			elif ((name=='t') & (len(self._frames)==0)):
 				setattr(self,"_"+name,array(x,dtype='float64')) # add the time; no frames present yet
-				if ('t_unit' in self.annotations().keys()):
+				if ('t_unit' in self._annotations.keys()):
 					if (self._annotations['t_unit'] == ''): self._annotations['t_unit'] = unit
 				else: self._annotations['t_unit'] = unit
 			elif (name=='coord'):
 				if (len(x[0])==(len(self._frames) | len(self._t))):
 					setattr(self,"_"+name,array(x,dtype='float64')) # add the coords
-					if ('coord_unit' in self.annotations().keys()):
+					if ('coord_unit' in self._annotations.keys()):
 						if (self._annotations['coord_unit'] == ''): self._annotations['coord_unit'] = unit
 					else: self._annotations['coord_unit'] = unit
 				else:
@@ -423,7 +423,7 @@ class Traj:
 			elif (name=='coord_err'):
 				if (len(x[0])==(len(self._frames) | len(self._t))):
 					setattr(self,"_"+name,array(x,dtype='float64')) # add the coords
-					if ('coord_unit' in self.annotations().keys()):
+					if ('coord_unit' in self._annotations.keys()):
 						if (self._annotations['coord_unit'] == ''): self._annotations['coord_unit'] = unit
 					else: self._annotations['coord_unit'] = unit
 				else:
@@ -866,7 +866,8 @@ class Traj:
 		elif (annotation ==None) & (string != '') :
 			raise AttributeError('You annotate a string to nothing!')
 		elif (annotation !=None) & (string == '') :
-			print('Warning: you annotate an empty string to "'+annotation+'".')
+			#print('Warning: you annotate an empty string to "'+annotation+'".')
+			return( self._annotations[annotation] )
 		else:
 			self._annotations[annotation]=string
 
