@@ -792,7 +792,7 @@ class Traj:
 						for attribute in non_empty_attributes:
 							if attribute == 'frames' : #insert the missing frame
 								x = insert(getattr(self,'_frames'),i+1,self._frames[i+1]-1)
-								setattr(self,"_frames",array(x,dtype='float64')) # add the coords
+								setattr(self,"_frames",array(x,dtype='int64')) # add the coords
 							#insert a NaN in the attribute
 							elif attribute == 't' : #insert the missing time point
 								delta_t = min(self._t[1:]-self._t[0:(len(self._t)-1)])
