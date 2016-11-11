@@ -1,14 +1,13 @@
 #module of functions required to load and average the trajectories together
 from os import listdir
 from os import getcwd
-from tracking.format.traj import Traj
+from trajectory_alignment.format.traj import Traj
 from matplotlib import pyplot as plt
 import copy as cp
 import numpy as np
 import warnings as wr
 from sklearn import linear_model
 
-import time
 def load_directory(path,pattern = '.txt',sep = None,comment_char = '#',dt=None,t_unit='',coord_unit='',**attrs):
 
 	"""
