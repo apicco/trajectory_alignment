@@ -463,6 +463,10 @@ class Traj:
 							square( angle_err * sqrt( 1 - sR ) @ matrix([[ 1 , 0 ] , [ 0 , -1 ]] ) @ self._coord )
 					))
 
+		elif angle_err > 0 :
+			self.insert_values( 'coord_err' , array( square( angle_err * sqrt( 1 - sR ) @ matrix([[ 1 , 0 ] , [ 0 , -1 ]] ) @ self.coord() )
+					) )
+
 	def center_mass(self):
 		"""
 		center_mass(): centers the trajectory on its center of mass
@@ -584,14 +588,6 @@ class Traj:
 						setattr(self,'_'+attribute,x)	
 			else:
 				raise IndexError('The time attribute is empty')
-
-	def center_of_mass(self):
-		"""
-		center_of_mass(): translate the trajectory so that it's center of mass
-		sits on the x-y origin.
-		"""
-		self._coord[0] = self._coord[0] - nanmean( self._coord[0] )
-		self._coord[1] = self._coord[1] - nanmean( self._coord[1] )
 
 	def end(self,t=None):
 	
