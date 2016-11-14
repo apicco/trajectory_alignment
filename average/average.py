@@ -83,17 +83,20 @@ def MSD(input_t1 , input_t2):
 	A = ( Syx - Sxy )
 	B = ( Sxx + Syy )
 
-	M = - A / B
+	if ( ( A == 0 ) & ( B == 0 ) ):
+		theta = np.nan
+	else : 
+		theta = np.arctan2( - A , B )
+#		M = - A / B
+#
+#		theta1 = np.arctan( M )
+#		theta2 = theta1 + np.pi
+#		
+#		if B * np.cos(theta1) >= A * np.sin(theta1) :
+#			theta = theta1
+#		else:
+#			theta = theta2
 
-	theta1 = np.arctan(M)
-	theta2 = theta1 + np.pi
-
-
-	if B * np.cos(theta1) >= A * np.sin(theta1) :
-		theta = theta1
-	else:
-		theta = theta2
-	
 	msdt2.rotate( theta )
 
 	#the 'score' is the mean square displacement weighted on the cross correlation of the fluorescence intensities
@@ -202,7 +205,6 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 		return()
 
 	def lie_down( t ):
-
 		t.translate( 
 			( - np.nanmedian( t.coord()[0] ) ,- np.nanmedian( t.coord()[1] ) )
 			)
@@ -220,11 +222,6 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 		if I_x > I_y : theta = theta - np.pi/2
 		t.rotate( theta )
 
-		A = np.nanmedian( t.coord()[0][ t.coord()[0] > 0 ] ** 2 )
-		B = np.nanmedian( t.coord()[0][ t.coord()[0] < 0 ] ** 2 )
-
-		if B > A : t.rotate( np.pi )
-		
 		#X = np.nanmedian( t.coord()[0] ** 2 )  - np.nanmedian( t.coord()[0] ) **2 
 		#Y = np.nanmedian( t.coord()[0] * t.coord()[1] ) - np.nanmedian( t.coord()[0] ) * np.nanmedian( t.coord()[1] )
 		#c = np.nanmedian( t.coord()[1] ) - Y * np.nanmedian( t.coord()[0] ) / X
@@ -232,6 +229,14 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 		#t.translate( ( 0 , c ) )
 		#t.rotate( np.arctan2( Y , X ) )
 
+		with wr.catch_warnings():
+			# if a coord has nan then a waring is outputed when nan > 0 or nan < 0 is asked. Here we suppress such warnings.
+			wr.simplefilter("ignore", category=RuntimeWarning)
+			A = np.nanmedian( t.coord()[0][ t.coord()[0] > 0 ] ** 2 )
+			B = np.nanmedian( t.coord()[0][ t.coord()[0] < 0 ] ** 2 )
+
+			if B > A : t.rotate( np.pi )
+		
 		model = linear_model.LinearRegression()	
 		model_RANSACR = linear_model.RANSACRegressor( model )
 		
@@ -246,9 +251,12 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 					X = np.insert( X , 0 , t.coord()[ 0 ][ i ] , axis = 0 )
 					y = np.insert( y , 0 , t.coord()[ 1 ][ i ] , axis = 0 )
 
-		model_RANSACR.fit( X , y )
+		with wr.catch_warnings():
+			# also a bug warning occurs from linear models, RANSACR.
+			wr.simplefilter("ignore", category=RuntimeWarning)
+			model_RANSACR.fit( X , y )
+		
 		t.rotate( - np.arctan( model_RANSACR.estimator_.coef_[0] ) )
-
 		return( model_RANSACR )
 
 	#NOTE: the R code computed the time aligment by the CC of the FI filtered with a running filter of length 5 if FIMAX = TRUE. The score of the alignments was also fitered.
@@ -592,4 +600,4 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 	print(all_m_lags)
 	print(all_m_lags - all_m_lags[0])
 
-	return( best_averge , worst_average )
+	return( average_trajectory[ best_average ], average_trajectory[ worst_average] )
