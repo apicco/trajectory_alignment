@@ -21,7 +21,7 @@ def load_directory(path,pattern = '.txt',sep = None,comment_char = '#',dt=None,t
 	then the time column 't' is added, and the 't_unit' can be set.
 	If 'coord' is called then the unit must be added.
 	"""
-	#COORD UNIT IS UNNECESSARY, TO BE REMOVED	
+	
 	if ('coord' in attrs.keys()) & (len(coord_unit) == 0): 
 		raise AttributeError('Please, specify the coordinate unit \'coord_unit\'')
 	if ('t' in attrs.keys()) & (len(t_unit) == 0): 
@@ -96,19 +96,6 @@ def MSD(input_t1 , input_t2):
 	
 	msdt2.rotate( theta )
 
-#Shannon try	#distances from the two trajectories aligned
-#Shannon try	delta_coord = np.sqrt( ( msdt1.coord()[0] - msdt2.coord()[0] )**2 + ( msdt1.coord()[1] - msdt2.coord()[1] )**2 )
-#Shannon try	delta_f = np.sqrt( ( msdt1.f() - msdt2.f() ) ** 2 )
-#Shannon try	#the probability of finding a delta_distance or a delta_f are then the ratios:
-#Shannon try	p_coord = delta_coord / np.nansum( delta_coord )
-#Shannon try	p_f = delta_f / np.nansum( delta_f )
-#Shannon try	#when the two trajectories are well aligned the coordinates and f should be equally spaced
-#Shannon try	#along the different time points. If so, the probabilities will be almost all the same and
-#Shannon try	#the Shannon entropy is maximised. (possible to try alson on p_coord*p_f)
-#Shannon try	#shannon = - np.nansum( p_coord * np.log( p_coord ) + p_f * np.log( p_f ) )
-#Shannon try	shannon = np.nansum( p_coord * p_f * np.log( p_coord * p_f ) )
-#Shannon try	score = shannon
-
 	#the 'score' is the mean square displacement weighted on the cross correlation of the fluorescence intensities
 	score = np.nansum( w * ( msdt1.coord()[0] - msdt2.coord()[0] )**2 + w * ( msdt1.coord()[1] - msdt2.coord()[1] )**2 )
 	
@@ -125,9 +112,9 @@ def MSD(input_t1 , input_t2):
 		'score' : score
 		})
 
-def align_trajectories(trajectory_list,max_frame=500):#MIN_W is not needed anymore
+def average_trajectories( trajectory_list , max_frame=500 , output_file = 'average' ):
 	"""
-	align_trajectories(trajectory_list): align all the trajectories in the list together.
+	average_trajectories(trajectory_list): align all the trajectories in the list together, and average them.
 	"""
 
 	if len(trajectory_list) == 0 : 
@@ -453,14 +440,6 @@ def align_trajectories(trajectory_list,max_frame=500):#MIN_W is not needed anymo
 			trajectory_time_span[ 'old_end' ].append(aligned_trajectories[ r ][ j ].end())
 			
 			#compute the center of mass of the full trajectory
-			#DEPRECATED->#cm = aligned_trajectories[ r ][ j ].center_mass()
-			#DEPRECATED->#the center of mass of the complete trajectory can be different 
-			#DEPRECATED->#from the center of mass of the fraction of the trajectory 
-			#DEPRECATED->#from which the alignment was computed. To align the 
-			#DEPRECATED->#trajectories together this difference need to be corrected and
-			#DEPRECATED->#when the trajectory is aligned to the center of mass of the reference
-			#DEPRECATED->#(r_cm) a correction term needs to be added:
-			#DEPRECATED-># r_cm - ( l_cm - cm ) @ R(m_angles[j])  )
 
 			l_cm = np.mean([rcs[ j , r ] for r in range(l) if r != j ] , axis=0 )
 		
@@ -603,8 +582,7 @@ def align_trajectories(trajectory_list,max_frame=500):#MIN_W is not needed anymo
 
 	best_average = alignment_precision.index( min( alignment_precision ) ) 
 	worst_average = alignment_precision.index( max( alignment_precision ) ) 
-	average_trajectory[ best_average ].save('best_average')
-	average_trajectory[ worst_average ].save('worst_average')
+	average_trajectory[ best_average ].save( output_file )
 
 	print('alignment_precision')
 	print(alignment_precision)
@@ -614,6 +592,4 @@ def align_trajectories(trajectory_list,max_frame=500):#MIN_W is not needed anymo
 	print(all_m_lags)
 	print(all_m_lags - all_m_lags[0])
 
-	return(alignments)
-
-
+	return( best_averge , worst_average )
