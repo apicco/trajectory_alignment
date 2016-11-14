@@ -1,2 +1,3 @@
 # trajectory-alignment
-Align enodocytic trajectories in space and time; compute their average trajectories; align the average trajectories together in space and time.
+
+Trajectory alignment is a package to handle, align and average 2D trajectories of diffraction limited objects, which are imaged with fluorescence microscopy.
