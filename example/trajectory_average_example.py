@@ -3,7 +3,7 @@ from trajectory_alignment.average.average import load_directory
 from trajectory_alignment.average.average import average_trajectories
 from matplotlib import pyplot as plt
 
-
+#load the trajectories in the folder raw_trajectories as a list
 trajectory_list = load_directory(
 		path = 'raw_trajectories' , 
 		pattern = '.data' ,
@@ -20,7 +20,8 @@ trajectory_list = load_directory(
 
 print( trajectory_list[ 0 ] )
 
-best_average , worst_average = average_trajectories( trajectory_list )
+#compute the average of all the trajectories in the list
+best_average , worst_average = average_trajectories( trajectory_list , max_frame = 500 )
 
 plt.figure()
 plt.subplot(221)
