@@ -6,7 +6,7 @@ t = Traj(what="my first trajectory",mood="today is a beautiful day")
 print( t )
 t.annotations( 'mood' , 'all this seems pretty complicated, depressing!' )
 
-print( t.annotations( 'what' ) )# read the annotatio 'what'
+print( t.annotations( 'what' ) )# read the annotation 'what'
 
 # set the time  attribute of the trajectory
 t.input_values('t',[0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1]) 
@@ -52,7 +52,7 @@ print( max(
 	[ d.frames( i ) - d.frames( i - 1 ) 
 		for i in range(1, len( d )) ] 
 	))
-# there are some missing framess, let's fill them:
+# there are some missing frames, let's fill them:
 d.fill()
 print( max( 
 	[ d.frames( i ) - d.frames( i - 1 ) 
@@ -78,12 +78,12 @@ plt.plot( d.coord()[ 0 ] , d.coord()[ 1 ] ,\
 #create a new trajectory which is an extract of 'd'
 d_short = d.extract( range( 0 , 79 ) )
 plt.plot( d_short.coord()[ 0 ], d_short.coord()[ 1 ] ,\
-		'g--' , label = 'first 80 datapoints\nof the Rotated traj.')
+		'g--' , label = 'first 80 data points\nof the Rotated traj.')
 
 #start 'd' from time point 12 s
 d.start( 12 ) 
 plt.plot( d.coord()[ 0 ] , d.coord()[ 1 ] ,\
-		'y--' , label = 'datapoints of the Rotated\ntraj. after t = 12 s')
+		'y--' , label = 'data points of the Rotated\ntraj. after t = 12 s')
 
 plt.legend( loc = 'lower left' )
 plt.show()
