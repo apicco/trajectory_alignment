@@ -15,7 +15,7 @@ To start with `trajalign`, read first how to [install](Installation) it.
 
 * [An example of use of the trajectory class](Trajectory-class-example)
 
-* [Average trajectories together](Averaging-of-trajectories)
+* [Average trajectories together](Averaging-trajectories)
 
 * [An example of the averaging of the trajectories](Averaging-trajectories-example)
 
