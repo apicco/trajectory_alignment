@@ -9,7 +9,11 @@ Here, all the elementss of the trajectory class are listed. The trajectory class
 
 	from trajectory_alignment.format.traj import Traj
 
-##Trajectory definition
+# Trajectory definition
+
+## Trajectory definition
+
+### Trajectory definition
 
 **`Traj(annotations)`** creates a new empty trajectory. Annotations are an optional dictionary allowing whatever entries are needed about the trajectory (name, date, experiment,..)
 

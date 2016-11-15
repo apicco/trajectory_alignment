@@ -15,9 +15,7 @@ The functions necessary to average the different trajectories together are defin
 
 	from trajectory_alignment.average.average import load_directory
 	from trajectory_alignment.average.average import average_trajectories
-
-***
-
+    
 **`load_directory( path , pattern = '.txt' , sep = None , comment_char = '#' , dt = None , t_unit = '' , attrs...)`** loads all the trajectories listed in `path`, which have the same `pattern`, into a list of trajectories. The trajectories in `path` must be text files with the data organised in columns separated by `sep`. When `sep` is set to _None_ the separation can be an indefinite number of white spaces. Comment lines in the trajectory files must be identified by the the `comment_char` at their beginning. `comment_char` can be a string of any length. `attrs` is used to assigne each column of the trajectory file to the right attribute and it is used to add annotations, if necessary. The [attributes](https://github.com/apicco/trajectory_alignment/wiki/The-trajectory-class#trajectory-attributes) of a trajectory are _frames_, _t_, _coord_, _f_, _mol_, _n_, _t_err_, _coord_err_, _f_err_ and _mol_err_. 
 
 A trajectory file can look as such:
@@ -43,8 +41,6 @@ The trajectory _example.txt_ can be loaded with:
 		coord_unit = 'pixels of our EM-CCD camera')
 
 If the `dt` is given ( as a float or int ) and no _t_ attribute is later specified, then the time `.t()` attribute is created and it is computed from the frame numbers as t = ( frame_number - 1 ) * dt. As for the coordinates, a _t_unit_ attribute must be added, specifying the unit of time in which `dt` is expressed.
-
-***
 
 **`average_trajectories( trajectory_list , max_frame = 500 , output_file = 'average' )`** align all the trajectories in the list `trajectory_list` together and computes their average. 
 
