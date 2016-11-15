@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Andrea Picco
+title: trajectory alignment 
 ---
 
 ### Is this my title
