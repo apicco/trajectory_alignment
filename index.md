@@ -4,9 +4,9 @@ title: Home
 ---
 
 
-**Welcome to the trajectory alignment software homepage!**
+**Welcome to the Trajectory Alignment software homepage!**
 
-**** 
+
 
 You can [**Download**](https://github.com/apicco/trajectory_alignment/archive/master.zip) the software or visit the [github repository](https://github.com/apicco/trajectory_alignment/).
 
