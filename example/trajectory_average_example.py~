@@ -1,6 +1,6 @@
-from trajalign.traj import Traj
-from trajalign.average import load_directory
-from trajalign.average import average_trajectories
+from trajectory_alignment.format.traj import Traj
+from trajectory_alignment.average.average import load_directory
+from trajectory_alignment.average.average import average_trajectories
 from matplotlib import pyplot as plt
 
 #load the trajectories in the folder raw_trajectories as a list

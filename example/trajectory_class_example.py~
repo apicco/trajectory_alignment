@@ -1,4 +1,4 @@
-from trajalign.traj import Traj
+from trajectory_alignment.format.traj import Traj
 from matplotlib import pyplot as plt
 
 # when a trajectory is defined, we can enter annotations
