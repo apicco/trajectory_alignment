@@ -2,7 +2,7 @@
 name: Andrea Picco
 theme: minima
 #email: andrea.picco@unige.ch
-description: The trajalign package aligns, in space and in time, the trajectories of diffraction limited objects, which are imaged in living cells with fluorescence microscopy, to precisely estimate their average dynamical properties.
+description: trajalign is a Python module distribution that is used to align in space and in time, and to average, trajectories of diffraction limited object, which are recorded with fluorescence microscopy.
 
 baseurl: '/trajectory_alignment'
 twitter_username: g_trevize
