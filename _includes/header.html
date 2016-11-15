@@ -18,8 +18,10 @@
 			{% if my_page.title %}
 				{% if my_page.menu != "wiki" %}
 					<a class="page-link" href="{{ my_page.url | relative_url }}">{{ my_page.title | escape }}</a>
-				{% elif my_page.title == "Home" %}
-					<a class="page-link" href="{{ my_page.url | relative_url }}">Documentation</a>
+				{% else %}
+					{% if my_page.title == "Home" %}
+						<a class="page-link" href="{{ my_page.url | relative_url }}">Documentation</a>
+					{% endif %}
 				{% endif %}
 			{% endif %}
         {% endfor %}
