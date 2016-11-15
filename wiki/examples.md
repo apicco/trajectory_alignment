@@ -1,7 +1,7 @@
 ---
 layout: page
-title: examples
-wikiPageName: examples
+title: Examples
+wikiPageName: Examples
 menu: wiki
 ---
 
