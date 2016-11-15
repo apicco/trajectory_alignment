@@ -1,6 +1,6 @@
 ---
 layout: default 
-title: Software
+title: Home 
 ---
 
 **Welcome to the trajectory alignment software homepage!**
