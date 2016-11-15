@@ -1,5 +1,5 @@
 name: Andrea Picco
-theme: minima 
+##theme: minima
 
 baseurl: '/trajectory_alignment'
 
