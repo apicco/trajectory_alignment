@@ -1,7 +1,7 @@
 #module of functions required to load and average the trajectories together
 from os import listdir
 from os import getcwd
-from trajectory_alignment.format.traj import Traj
+from trajalign.traj import Traj
 from matplotlib import pyplot as plt
 import copy as cp
 import numpy as np

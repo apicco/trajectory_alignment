@@ -6,5 +6,5 @@ setup( name = 'trajectory alignment' ,
 		author = 'Andrea Picco',
 		author_email = 'andrea.picco@unige.ch',
 		url = 'http://apicco.github.io/trajectory_alignment/',
-		modules = [ 'trajalign.traj' , 'trajalign.average' ] ,
+		packages = [ 'trajalign' ] ,
 		)
