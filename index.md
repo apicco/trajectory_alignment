@@ -12,4 +12,6 @@ Read the [documentation](wiki/Home) to [install](wiki/Installation) and use the 
 
 **** 
 
-If you use this software, please cite: _Precise tracking of the dynamics of multiple proteins in endocytic events._ Picco, A., Kaksonen, M., Methods in Cell Biology, 2017.
+If you use this software, please cite: 
+
+Picco, A., Kaksonen, M., _Precise tracking of the dynamics of multiple proteins in endocytic events._,  Methods in Cell Biology, 2017.
