@@ -7,7 +7,7 @@ menu: wiki
 
 Here, all the elementss of the trajectory class are listed. The trajectory class is defined in [format/traj.py](https://github.com/apicco/trajectory_alignment/tree/master/format) and can be imported as
 
-	from trajectory_alignment.format.traj import Traj
+	from trajalign.traj import Traj
 
 ## Trajectory definition
 
