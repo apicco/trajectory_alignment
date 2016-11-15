@@ -19,14 +19,18 @@ To start with `trajalign`, read first how to [install](Installation) it.
 
 * [An example of the averaging of the trajectories](Averaging-trajectories-example)
 
-## External links:
+***
+
+### External links:
 
 [ Python ](https://docs.python.org/3/)
 
 [ Kaksonen laboratory ](http://cms.unige.ch/sciences/biochimie/-Marko-Kaksonen-.html)
 
-References:
+### References:
 
-[Picco, _et al._, eLife 2015](http://dx.doi.org/10.7554/eLife.04535)
+[Picco, _et al._, Methods in Cell Biology 2017](http://) (Submitted)
 
 [Kukulski, Picco, _et al._, eLife 2016](http://dx.doi.org/10.7554/eLife.16036)
+
+[Picco, _et al._, eLife 2015](http://dx.doi.org/10.7554/eLife.04535)
