@@ -7,7 +7,7 @@ menu: wiki
 
 Welcome to the trajectories-alignment **documentation** wiki!
 
-To start with `trajectory_alignment`, read first what are its [dependencies](https://github.com/apicco/trajectories-alignment/wiki/Dependencies).
+To start with `trajectory_alignment`, read first how to [install](Installation) it.
 
 ## Package content:
 

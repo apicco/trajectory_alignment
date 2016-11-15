@@ -10,9 +10,9 @@ Here is an **example** on the use of the averaging functions.
 The example can be run using the [raw data](https://github.com/apicco/trajectory_alignment/tree/master/example/raw_trajectories) in the [example folder](https://github.com/apicco/trajectory_alignment/tree/master/example) of [trajectory_alignment](https://github.com/apicco/trajectory_alignment). The example reported here is equivalent to [trajectory_average_example.py](https://github.com/apicco/trajectory_alignment/blob/master/example/trajectory_average_example.py) in the [example folder](https://github.com/apicco/trajectory_alignment/tree/master/example).
 
 ***
-	from trajectory_alignment.format.traj import Traj
-	from trajectory_alignment.average.average import load_directory
-	from trajectory_alignment.average.average import average_trajectories
+	from trajalign.traj import Traj
+	from trajalign.average import load_directory
+	from trajalign.average import average_trajectories
 	from matplotlib import pyplot as plt
 	
 	#load the trajectories in the folder raw_trajectories as a list

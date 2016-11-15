@@ -13,7 +13,7 @@ The examples can be run using the [raw data](https://github.com/apicco/trajector
 
 
 
-	from trajectory_alignment.format.traj import Traj
+	from trajalign.traj import Traj
 	from matplotlib import pyplot as plt
 	
 	# when a trajectory is defined, we can enter annotations
