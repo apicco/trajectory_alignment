@@ -1,7 +1,7 @@
 ---
 layout: default
-title: documentation
-permalink: doc
+title: Documentation
+permalink: _doc
 ---
 
 [home](home.md)
