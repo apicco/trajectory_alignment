@@ -1,7 +1,7 @@
 #title: trajalign package
 name: Andrea Picco
 theme: minima
-email: andrea.picco@unige.ch
+#email: andrea.picco@unige.ch
 description: The trajalign package aligns, in space and in time, the trajectories of diffraction limited objects, which are imaged in living cells with fluorescence microscopy, to precisely estimate their average dynamical properties.
 
 baseurl: '/trajectory_alignment'
