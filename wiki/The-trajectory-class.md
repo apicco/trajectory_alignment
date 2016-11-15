@@ -9,11 +9,7 @@ Here, all the elementss of the trajectory class are listed. The trajectory class
 
 	from trajectory_alignment.format.traj import Traj
 
-# Trajectory definition
-
 ## Trajectory definition
-
-### Trajectory definition
 
 **`Traj(annotations)`** creates a new empty trajectory. Annotations are an optional dictionary allowing whatever entries are needed about the trajectory (name, date, experiment,..)
 
@@ -23,7 +19,7 @@ Annotations can be read and modified at anytime (see `.annotations()`).
 
 `print(t)` prints the trajectory content and its annotations.
 
-##Trajectory attributes
+## Trajectory attributes
 
 A trajectory contains several attributes:
 
@@ -51,7 +47,7 @@ A trajectory contains several attributes:
 
 **`.norm_f()`** normalise the fluorescence intensity `.f()` between 0 and 1.
 
-##Properties of the trajectory class:
+## Properties of the trajectory class:
 
 Each attribute of the trajectory allows integer arguments to index elements in its array, which are then returned.
 
@@ -110,7 +106,7 @@ which is equivalent to (deprecated) `d.annotations()[ 'mood' ]= 'all this seems 
 `print( d.extract( range( 0 , len( d ) ) ) )` is the identity to `d`.
 
 
-##Operations on the trajectories
+## Operations on the trajectories
 
 **`.fill()`** fills attributes with NaN where there are missing frames.
 
@@ -126,7 +122,7 @@ which is equivalent to (deprecated) `d.annotations()[ 'mood' ]= 'all this seems 
 
 **`.time( delta_t , unit )`** times the trajectory using the frame information. Frames are spaced by delta_t of given unit. `.time()` operates only if the `.t()` attribute is empty. 
 
-##Input and output
+## Input and output
 
 **`.save( filename )`** saves the trajectory as txt to the filename.
 
