@@ -4,7 +4,7 @@ title: Home
 ---
 
 
-Welcome to the **`trajalign`** module dirstibution homepage! 
+Welcome to the `trajalign` module dirstibution homepage! 
 `trajalign` is a collection of Python modules that are used to align in space and in time, and to average, trajectories of diffraction limited object, which are recorded with fluorescence microscopy.
 
 You can [**Download**](https://github.com/apicco/trajectory_alignment/archive/master.zip) the software or visit the [github repository](https://github.com/apicco/trajectory_alignment/).
