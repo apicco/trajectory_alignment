@@ -3,21 +3,14 @@ layout: default
 title: Software
 ---
 
-### trajectory alignment software
+**Welcome to the trajectory alignment software homepage!**
 
-Here, you can [Download](https://github.com/apicco/trajectory_alignment/archive/master.zip) the software from the [github repository](https://github.com/apicco/trajectory_alignment/).
+You can [**Download**](https://github.com/apicco/trajectory_alignment/archive/master.zip) the software or visit the [github repository](https://github.com/apicco/trajectory_alignment/).
 
-Read the [domcumentation](wiki/Home)
+Read the [documentation](wiki/Home) to [install](wiki/Installation) and use the package.
 
-<ul class="wikiMenu">
-	{% for p in site.pages %}
-		{% if p.menu == "wiki" %}
-			{% if p.wikiPageName == "Home" %}
-	        <li><a class="post-link" href="{{ p.url | prepend: site.baseurl }}"> Documentation </a></li>
-	        {% endif %}
-	    {% endif %}
-	{% endfor %}
-</ul>.
+***
+**** 
 
 References:
 
