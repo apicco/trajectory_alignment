@@ -1,3 +1,9 @@
+---
+layout: default
+title: Andrea Picco
+permalink: Wiki
+---
+
 Welcome to the trajectories-alignment **documentation** wiki!
 
 To start with `trajectories-alignment`, read first what are its [dependencies](https://github.com/apicco/trajectories-alignment/wiki/Dependencies).
