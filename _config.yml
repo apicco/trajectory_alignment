@@ -1,5 +1,4 @@
 name: Andrea Picco
-markdown: redcarpet 
 theme: minima
 
 baseurl: '/trajectory_alignment'
