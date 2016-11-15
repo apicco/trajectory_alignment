@@ -11,7 +11,7 @@ The trajectories must obey to some important prerequisites, which are essential:
 * All the trajectories must share the same spatial and temporal units. It is not possible to align trajectories whose frames are spaced by different time intervals.
 * Trajectories need to describe an event that moves in a clear direction. Unmotile events cannot be reliably aligned in space. 
 
-The functions necessary to average the different trajectories together are defined in [average/average.py](https://github.com/apicco/trajectory_alignment/tree/master/average) and can be imported as
+The functions necessary to average the different trajectories together are defined in [average.py](https://github.com/apicco/trajectory_alignment/tree/master/trajalign) and can be imported as
 
 	from trajalign.average import load_directory
 	from trajalign.average import average_trajectories

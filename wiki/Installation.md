@@ -23,7 +23,7 @@ On a mac: if those libraries are not installed, you can install them with [macpo
 
 To plot the trajectories of the examples we use [matplotlib](http://matplotlib.org/). This library is not necessary to use the functionalities of the package.
 
-To install the Trajectory Alignment package download the latest version of the package from [here](https://github.com/apicco/trajectory_alignment/archive/master.zip) or visit my [github repository](https://github.com/apicco/trajectory_alignment).
+To install the Trajectory Alignment package download the latest version of the package from [here](https://github.com/apicco/trajectory_alignment/archive/master.zip) or visit the [github repository](https://github.com/apicco/trajectory_alignment).
 
 In the folder that you downloaded there is a `setup.py` file. From the shell type:
 

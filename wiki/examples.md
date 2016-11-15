@@ -5,7 +5,7 @@ wikiPageName: Examples
 menu: wiki
 ---
 
-Learn how to use the Trajectory Alignent package.
+Learn how to use the Trajectory Alignment package.
 
 To lear how to use the trajectory class go to the [trajectory class example](Trajectory-class-example)
 

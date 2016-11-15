@@ -97,8 +97,8 @@ The examples can be run using the [raw data](https://github.com/apicco/trajector
 	
 	#start 'd' from time point 12 s
 	d.start( 12 ) 
-	plt.plot( d.coord()[ 0 ] , d.coord()[ 1 ] ,\
-			'y--' , label = 'data points of the Rotated\ntraj. after t = 12 s')
+	plt.plot( d.coord()[ 0 ] , d.coord()[ 1 ] , 'y--' ,\
+			 label = 'data points of the Rotated\ntraj. after t = 12 s')
 	
 	plt.legend( loc = 'lower left' )
 	plt.show()
