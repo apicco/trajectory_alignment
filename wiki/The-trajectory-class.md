@@ -22,11 +22,17 @@ Annotations can be read and modified at anytime (see `.annotations()`).
 ##Trajectory attributes
 
 A trajectory contains several attributes:
+
 * **`.frames()`** is an array of frame indexes of the original image. If the time is present, then `.frames()` and `.t()` must have the same length.
+
 * **`.t()`** is an arrey of time values associated to each frame, if any. The array of `.t()` must have the same length as `.frames()`.
+
 * **`.coord()`** is a matrix of the spatial coordinate of the fluorescent spot centroid.
+
 * **`.f()`** an array of fluorescence intensities measured from the spots.
+
 * **`.mol()`** an array of number of molecules, if known.
+
 * **`.n()`** if traj() is an average trajectory, then `.n()` outputs an array containing the number of trajectories used to compute the average at each datapoint.
 
 `.t()`, `.coord()`, `.f()` and `.n()` have related attributes containing the measured errors, if known. The errors are called with `.t_err()`, `.coord_err()`, `.f_err()` and `.mol_err()` respectively.
