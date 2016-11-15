@@ -6,6 +6,7 @@ description: The trajalign package aligns, in space and in time, the trajectorie
 
 baseurl: '/trajectory_alignment'
 twitter_username: g_trevize
+github_username: apicco
 
 # Build settings
 
