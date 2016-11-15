@@ -4,12 +4,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <!--<title>{% if page.title %}{{ page.title | escape }}{% else %}{{ site.title | escape }}{% endif %}</title>-->
-  <title>{% for p in site.pages %}
+  <!--<title>{% for p in site.pages %}
 	  {% if p.menu != "wiki" %}
 	  {% if p.title %}{{ page.title | escape }}ciao{% endif %}
 	  {% endif %}
 	  {% endfor %}
-	  </title>
+  </title>-->
 
   <meta name="description" content="{{ page.excerpt | default: site.description | strip_html | normalize_whitespace | truncate: 160 | escape }}">
 
