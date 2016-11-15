@@ -2,7 +2,7 @@
 
   <div class="wrapper">
 
-	  <!--<a class="site-title" href="{{ "/" | relative_url}}">{{ site.title | escape }}</a>-->
+	  <a class="site-title" href="{{ "/" | relative_url}}">{{ site.title | escape }}</a>
 
     <nav class="site-nav">
       <span class="menu-icon">
@@ -18,6 +18,8 @@
 			{% if my_page.title %}
 				{% if my_page.menu != "wiki" %}
 					<a class="page-link" href="{{ my_page.url | relative_url }}">{{ my_page.title | escape }}</a>
+				{% else if my_page.title == "Home" %}
+					<a class="page-link" href="{{ my_page.url | relative_url }}">Document </a>
 				{% endif %}
 			{% endif %}
         {% endfor %}
