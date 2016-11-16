@@ -9,7 +9,7 @@ Welcome to the trajectories-alignment **documentation** wiki!
 
 To start with `trajalign`, read first how to [install](Installation) it.
 
-## `trajalign` content:
+## Content:
 
 * [The trajectory class](The-trajectory-class)
 
