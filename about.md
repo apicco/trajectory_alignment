@@ -9,4 +9,12 @@ The original version of the software was developed in [R](www.cran.org) and is n
 
 The software was developped and is currently mantained by Kaksonen [laboratory](http://cms.unige.ch/sciences/biochimie/-Marko-Kaksonen-.html).
 
+***
+
+If you use this software, please cite: 
+
+Picco, A., Kaksonen, M., _Precise tracking of the dynamics of multiple proteins in endocytic events._,  Methods in Cell Biology, 2017.
+
+***
+
 License
