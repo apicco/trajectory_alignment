@@ -21,7 +21,7 @@ def load_directory(path,pattern = '.txt',sep = None,comment_char = '#',dt=None,t
 	then the time column 't' is added, and the 't_unit' can be set.
 	If 'coord' is called then the unit must be added.
 	"""
-	
+
 	if ('coord' in attrs.keys()) & (len(coord_unit) == 0): 
 		raise AttributeError('Please, specify the coordinate unit \'coord_unit\'')
 	if ('t' in attrs.keys()) & (len(t_unit) == 0): 
@@ -343,7 +343,9 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 				
 				refined_alignments_2 =[]
 				lag = - refined_alignments_1[ refined_s_1.index( min( refined_s_1 ) ) ][ 'lag' ]
-				for refined_lag in range( lag - 10 , lag + 10 + 1 ):
+				
+				refine_span = 10 #int( min( len( t1 ) , len( t2 ) ) / 3)
+				for refined_lag in range( lag - refine_span , lag + refine_span + 1 ):
 
 					refine_alignment( t1 , t2 , refined_lag , refined_alignments_2 , WeightTrajOverlap = False )
 
@@ -443,7 +445,6 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 		##################################################	
 		for j in range(l):
 		
-		
 			trajectory_time_span[ 'old_start' ].append(aligned_trajectories[ r ][ j ].start())
 			trajectory_time_span[ 'old_end' ].append(aligned_trajectories[ r ][ j ].end())
 			
@@ -454,7 +455,6 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 			aligned_trajectories[ r ][ j ].translate( - l_cm )
 			aligned_trajectories[ r ][ j ].rotate( m_angles[ j ] )
 
-			#DEPRECATED->#aligned_trajectories[ r ][ j ].translate( r_cm -  R( m_angles[j] ) @ ( l_cm - cm ) )
 			aligned_trajectories[ r ][ j ].translate( r_cm )
 			aligned_trajectories[ r ][ j ].lag( m_lags[ j ] )
 			
@@ -473,7 +473,7 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 		#define the average trajectory and its time attribute
 		########################################################################	
 		average_trajectory.append( Traj() )
-		
+	
 		#inherit the annotations from the reference trajectory
 		for a in aligned_trajectories[ r ][ r ].annotations().keys(): #IT WAS [ r ][ 0 ]
 			if a == 'file':
@@ -486,22 +486,28 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 		#start and end of the aligned trajectories whose frame numbers are
 		# greater than 0 (i.e. that appeared after the movie recording was 
 		#started)
-		mean_start = np.mean([trajectory_time_span[ 'new_start' ][ j ]\
-				for j in range(l) if trajectory_time_span[ 'old_start' ][ j ] > 0])
-		#it can be that all trajectories start with 0 (old_start), which means they 
-		#started before the movie begun. If so the mean start is set as the latest 
-		#time between the two trajectories.
-		if np.isnan(mean_start):
+		traj_starts_to_average = [trajectory_time_span[ 'new_start' ][ j ] for j in range(l)\
+				if trajectory_time_span[ 'old_start' ][ j ] > 0]
+		if len( traj_starts_to_average ) > 0 : 
+			mean_start = np.mean( traj_starts_to_average )
+		else  : 
+			#it can be that all trajectories start with 0 (old_start), which means they 
+			#started before the movie begun. If so the mean start is set as the latest 
+			#time between the two trajectories.
 			mean_start = max(trajectory_time_span[ 'new_start' ])
-		mean_end = np.mean([trajectory_time_span[ 'new_end' ][ j ]\
-				for j in range(l) if trajectory_time_span[ 'old_end' ][ j ] < ( max_frame - 3 ) * float(aligned_trajectories[ r ][ 0 ].annotations()[ 'delta_t' ])])
+			average_trajectory[ r ].annotations( 'start_Warning' , 'all trajectory starts were trunkated' )
+		
 		#same as for nan mean_start. However, for the selected mean_end is the smallest
-		#new_ends
-		if np.isnan(mean_end):
+		traj_ends_to_average = [trajectory_time_span[ 'new_end' ][ j ] for j in range(l)\
+				if trajectory_time_span[ 'old_end' ][ j ] < ( max_frame - 3 ) * float(aligned_trajectories[ r ][ 0 ].annotations()[ 'delta_t' ])]
+		if len( traj_ends_to_average ) > 0 : 
+			mean_end = np.mean( traj_ends_to_average )
+		else  : 
 			mean_end = min(trajectory_time_span[ 'new_end' ])
+			average_trajectory[ r ].annotations( 'end_Warning' , 'all trajectory ends were trunkated' )
 
 		#group all the attributes of the aligned trajectories...
-		attributes = [ a for a in aligned_trajectories[ r ][ r ].attributes() if a not in ('t','frames')] #IT WAS [ r ][ 0 ]
+		attributes = [ a for a in aligned_trajectories[ r ][ r ].attributes() if a not in ('t','frames')] 
 		#create an empy dictionary where all the attributes that will be then averaged are stored
 		attributes_to_be_averaged = {}
 		for a in attributes:
