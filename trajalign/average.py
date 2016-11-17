@@ -329,7 +329,7 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 				s = [ a['score'] for a in alignments ]
 				lags = [ a['lag'] for a in alignments ]
 				sel_alignments = [ i for i in range(len(s)) if s[i] == min(s) ]
-
+				
 				#check which of the selected alignments best fit the trajectory t1 
 				#and not just its triplicate. Importantly, also recompute the alignment
 				#without repetitions of the trajectory, which alter the alignment output
@@ -344,7 +344,8 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 				refined_alignments_2 =[]
 				lag = - refined_alignments_1[ refined_s_1.index( min( refined_s_1 ) ) ][ 'lag' ]
 				
-				refine_span = 10 #int( min( len( t1 ) , len( t2 ) ) / 3)
+				#define a span, which is not too small, nor too big compared to the trajectory length
+				refine_span = int( min( len( t1 ) , len( t2 ) ) / 3)
 				for refined_lag in range( lag - refine_span , lag + refine_span + 1 ):
 
 					refine_alignment( t1 , t2 , refined_lag , refined_alignments_2 , WeightTrajOverlap = False )
@@ -495,7 +496,7 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 			#started before the movie begun. If so the mean start is set as the latest 
 			#time between the two trajectories.
 			mean_start = max(trajectory_time_span[ 'new_start' ])
-			average_trajectory[ r ].annotations( 'start_Warning' , 'all trajectory starts were trunkated' )
+			average_trajectory[ r ].annotations( 'Warning_start' , 'all trajectory starts were trunkated' )
 		
 		#same as for nan mean_start. However, for the selected mean_end is the smallest
 		traj_ends_to_average = [trajectory_time_span[ 'new_end' ][ j ] for j in range(l)\
@@ -504,7 +505,7 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 			mean_end = np.mean( traj_ends_to_average )
 		else  : 
 			mean_end = min(trajectory_time_span[ 'new_end' ])
-			average_trajectory[ r ].annotations( 'end_Warning' , 'all trajectory ends were trunkated' )
+			average_trajectory[ r ].annotations( 'Warning_end' , 'all trajectory ends were trunkated' )
 
 		#group all the attributes of the aligned trajectories...
 		attributes = [ a for a in aligned_trajectories[ r ][ r ].attributes() if a not in ('t','frames')] 
