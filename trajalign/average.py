@@ -2,11 +2,15 @@
 from os import listdir
 from os import getcwd
 from trajalign.traj import Traj
-from matplotlib import pyplot as plt
 import copy as cp
 import numpy as np
 import warnings as wr
+
 from sklearn import linear_model
+
+import matplotlib
+#matplotlib.use('Agg')
+from matplotlib import pyplot as plt
 
 def load_directory(path,pattern = '.txt',sep = None,comment_char = '#',dt=None,t_unit='',coord_unit='',**attrs):
 
@@ -148,18 +152,32 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 
 		output = cp.deepcopy(t)
 
+		print(' debug ')
+		print('start: ' + str( t.start() ) + " " + str( t.t()[0] ) )
+		print('end: ' + str( t.end() ) + " " + str( t.t()[ len( t )-1 ] ) )
+
 		duration = t.end() - t.start()
+		print('duration: ' + str( duration ) )
 		#anticipate the start of trajectory by the trajectory duration and a time interval (you need one time interval
 		#between the beginning of the real trajectory and the last point of the "anticipated" bit.
+		print('new start: ' + str( t.start() - ( duration + float(t.annotations()['delta_t']) )))
+		print('|||||||||||||||||||||||||||||||||')
 		output.start( t.start() - ( duration + float(t.annotations()['delta_t']) ) )
+		print('---------------------------------')
+		print('output start: ' + str( output.start() ) )
 		#delay the end of trajectory by the trajectory duration and a time interval (you need one time interval
 		output.end( t.end() + ( duration + float(t.annotations()['delta_t']) ) )
+		print('output end: ' + str( output.end() ) )
 		#coord
 		output.coord()[:,0:len(t)] = t.coord()
 		output.coord()[:,( len(output) - len(t) ):len(output)] = t.coord()
 		#f	
+		print('f before +-4: ' + str( output.f()[ range( len( t ) - 4 , len( t ) + 5 ) ] ) )
+		print('f before +-4: ' + str( output.f( range( len( t ) - 4 , len( t ) + 5 )  ) ) )
 		output.f()[0:len(t)] = t.f()
 		output.f()[( len(output) - len(t) ):len(output)] = t.f()
+		print('f after +-4: ' + str( output.f()[ range( len( t ) - 4 , len( t ) + 5 ) ] ) )
+		print('f after +-4: ' + str( output.f( range( len( t ) - 4 , len( t ) + 5 )  ) ) )
 
 		return(output)
 	def meanangle(angle_estimates):
@@ -185,6 +203,10 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 
 		t1_frames = t1.frames()
 		t2_frames = t2.frames() + lag
+
+		print('|||||||||||||||')
+		print(t1_frames)
+		print(t2_frames)
 	
 		sel_t1 = [ i for i in range( len(t1_frames) ) if t1_frames[i] in t2_frames ]
 		sel_t2 = [ i for i in range( len(t2_frames) ) if t2_frames[i] in t1_frames ]
@@ -204,11 +226,13 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 						alignments[ len( alignments ) - 1 ][ 'score' ] / np.sqrt( len( sel_t1 ) )
 		return()
 
+	def nanMAD( x , axis = None , k = 1.4826):
+		MAD = np.nanmedian( np.absolute( x - np.nanmedian( x , axis ) ) , axis )
+		return( k * MAD )
+
 	def lie_down( t ):
-		t.translate( 
-			( - np.nanmedian( t.coord()[0] ) ,- np.nanmedian( t.coord()[1] ) )
-			)
-		
+		translation_vector = ( - np.nanmedian( t.coord()[0] ) ,- np.nanmedian( t.coord()[1] ) )
+		t.translate( translation_vector )
 		
 		I_xx = np.nansum( t.f() * t.coord()[1] ** 2 )
 		I_yy = np.nansum( t.f() * t.coord()[0] ** 2 )
@@ -235,7 +259,9 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 			A = np.nanmedian( t.coord()[0][ t.coord()[0] > 0 ] ** 2 )
 			B = np.nanmedian( t.coord()[0][ t.coord()[0] < 0 ] ** 2 )
 
-			if B > A : t.rotate( np.pi )
+			if B > A : 
+				t.rotate( np.pi )
+				theta = theta + np.pi #to ouptput the angle
 		
 		model = linear_model.LinearRegression()	
 		model_RANSACR = linear_model.RANSACRegressor( model )
@@ -257,7 +283,7 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 			model_RANSACR.fit( X , y )
 		
 		t.rotate( - np.arctan( model_RANSACR.estimator_.coef_[0] ) )
-		return( model_RANSACR )
+		return( { 'translation' :  translation_vector , 'angle' : theta - np.arctan( model_RANSACR.estimator_.coef_[0] ) } )
 
 	#NOTE: the R code computed the time aligment by the CC of the FI filtered with a running filter of length 5 if FIMAX = TRUE. The score of the alignments was also fitered.
 	#If FIMAX = FALSE the score only was filtered.
@@ -325,10 +351,35 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 								MSD( y , x.extract( sel_frames ) )
 								)
 						alignments[ len(alignments)-1 ][ 'lag' ] = - lag
-
 				s = [ a['score'] for a in alignments ]
 				lags = [ a['lag'] for a in alignments ]
 				sel_alignments = [ i for i in range(len(s)) if s[i] == min(s) ]
+				
+				plt.figure()
+				
+				plt.subplot(211)
+				plt.plot( x.frames() , x.f() , '-' )
+				for j in sel_alignments :
+					plt.plot( y.frames() + lags[ j ] , y.f() , '-' , label = "lag: " + str(lags[ j ]) )
+				plt.legend( 'best' )
+				
+				plt.subplot(212)
+				plt.plot( lags , s )
+				for j in sel_alignments :
+					plt.plot( lags[ j ] , s[ j ] , 'o' )
+			
+				plt.show()
+
+
+
+				print( len( s ) )
+				print( len( x ) )
+				print('debug')
+				for j in sel_alignments:
+					print( 'aaaaaaaaaaaaaaaaa')
+					print( x.frames() )
+					print( y.frames() + lags[j] )
+					print( '---------------')
 				
 				#check which of the selected alignments best fit the trajectory t1 
 				#and not just its triplicate. Importantly, also recompute the alignment
@@ -538,12 +589,14 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 				if '_'+a+'_err' in average_trajectory[ r ].__slots__:
 			
 					#compute the mean
-					x = np.nanmean(attributes_to_be_averaged[a],axis = 0)
+					#x = np.nanmean( attributes_to_be_averaged[ a ] , axis = 0 )
+					x = np.nanmedian( attributes_to_be_averaged[ a ] , axis = 0 )
 					#compute the std
-					s = np.nanstd(attributes_to_be_averaged[a],axis = 0)
+					#s = np.nanstd( attributes_to_be_averaged[ a ] , axis = 0 )
+					s = nanMAD( attributes_to_be_averaged[ a ] , axis = 0 )
 					
-					setattr(average_trajectory[ r ],'_'+a,x)
-					setattr(average_trajectory[ r ],'_'+a+'_err',s)
+					setattr( average_trajectory[ r ] , '_'+a , x)
+					setattr( average_trajectory[ r ] , '_'+a+'_err' , s)
 
 		#compute the number of not-nan data points by dividing
 		#the nansum by the nanmean. The operation is performed
@@ -554,8 +607,11 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 		if len(x) == 2:
 			setattr(average_trajectory[ r ],'_n',y[0]/x[0])
 		else:
-			setattr(average_trajectory[ r ],'_n',y/x)
-		
+			with wr.catch_warnings():
+				# if both y[i] and x[i] are 0, then a waring is outputed. Here we suppress such warnings.
+				wr.simplefilter("ignore", category=RuntimeWarning)
+				setattr(average_trajectory[ r ],'_n',y/x)
+
 		#store the transformations of the trajectories in respect of the trajectory r.
 		if r == 0:
 			all_m_angles = np.array([ m_angles ])
@@ -571,32 +627,9 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 				)
 		alignment_precision.append(mean_precision)
 
-		#plt.figure()
-		#for j in range( len( aligned_trajectories[ r ] ) ) :
-		#	plt.plot( aligned_trajectories[ r ][ j ].coord()[ 0 ] , aligned_trajectories[ r ][ j ].coord()[ 1 ] , '-' )
-		#plt.plot( average_trajectory[ r ].coord()[ 0 ] , average_trajectory[ r ].coord()[ 1 ] , lw = 2 , c = 'k')
-		#plt.show()
-
-		lie_down_model = lie_down( average_trajectory[ r ] )
-		
-#		line_X = np.arange( min(average_trajectory[ r ].coord()[ 0 ]) , max(average_trajectory[ r ].coord()[ 0 ]), 0.01 )
-#		plt.figure()
-#		plt.plot( average_trajectory[ r ].t() , average_trajectory[ r ].coord()[ 0 ] , lw = 2 , c = 'k')
-#		tmp1 = cp.deepcopy(average_trajectory[ r ])
-#		tmp1.rotate( np.arctan( - liemodel.coef_[0] ) )
-#		plt.plot( tmp1.t() , tmp1.coord()[ 0 ] , lw = 2 , c = 'b')
-#		tmp2 = cp.deepcopy(average_trajectory[ r ])
-#		tmp2.rotate( np.arctan(  - liemodel_RAN.estimator_.coef_[0] ) )
-#		plt.plot( tmp2.t() , tmp2.coord()[ 0 ] , lw = 2 , c = 'r')
-
-		#plt.plot( line_X , liemodel.predict( line_X[ : , np.newaxis ] )) 
-		#plt.plot( line_X , liemodel_RAN.predict( line_X[ : , np.newaxis ] ), c = 'r' ) 
-		#plt.plot( average_trajectory[ r ].t() , average_trajectory[ r ].coord()[ 0 ] - average_trajectory[ r ].coord_err()[ 0 ] , '-' , lw = 1 , c = 'k')
-		#plt.plot( average_trajectory[ r ].t() , average_trajectory[ r ].coord()[ 0 ] + average_trajectory[ r ].coord_err()[ 0 ] , '-' , lw = 1 , c = 'k')
-#		plt.show()
-
 	best_average = alignment_precision.index( min( alignment_precision ) ) 
 	worst_average = alignment_precision.index( max( alignment_precision ) ) 
+	lie_down_transform = lie_down( average_trajectory[ best_average ] )
 	average_trajectory[ best_average ].save( output_file )
 
 	print('alignment_precision')
@@ -606,5 +639,23 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 	print('lags')
 	print(all_m_lags)
 	print(all_m_lags - all_m_lags[0])
+	
+	plt.figure()
+	plt.subplot(221)
+	for i in range(l):
+		aligned_trajectories[ best_average ][ i ].translate( lie_down_transform[ 'translation' ] )
+		aligned_trajectories[ best_average ][ i ].rotate( lie_down_transform[ 'angle' ] )
+		plt.plot( aligned_trajectories[ best_average ][ i ].coord()[ 0 ] , aligned_trajectories[ best_average ][ i ].coord()[ 1 ] , '-' , label = aligned_trajectories[ best_average ][ i ].annotations( 'file' ))
+	plt.plot( average_trajectory[ best_average ].coord()[ 0 ] , average_trajectory[ best_average ].coord()[ 1 ] , 'r-' , lw = 2)
+	plt.subplot(222)
+	for i in range(l):
+		plt.plot( aligned_trajectories[ best_average ][ i ].t() , aligned_trajectories[ best_average ][ i ].coord()[ 0 ] , '-' , label = aligned_trajectories[ best_average ][ i ].annotations( 'file' ))
+	plt.plot( average_trajectory[ best_average ].t() , average_trajectory[ best_average ].coord()[ 0 ] , 'r-' , lw = 2)
+	plt.subplot(224)
+	for i in range(l):
+		plt.plot( aligned_trajectories[ best_average ][ i ].t() , aligned_trajectories[ best_average ][ i ].f() , '-' , label = aligned_trajectories[ best_average ][ i ].annotations( 'file' ))
+	plt.plot( average_trajectory[ best_average ].t() , average_trajectory[ best_average ].f() , 'r-' , lw = 2)
+	
+	plt.savefig('average.pdf')
 
 	return( average_trajectory[ best_average ], average_trajectory[ worst_average] )

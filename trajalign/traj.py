@@ -561,13 +561,8 @@ class Traj:
 			elif t > self._t[len(self)-1]:
 				raise AttributeError('t is larger than the trajectory last time point')
 			elif t < self._t[0]:
-				def float_range(x,y,step): #an inline function to compute the float range
-					float_range_output = [];
-					while ( (x > y) | isclose(x,y) ) :
-						float_range_output.insert(0,x)
-						x -= step
-					return float_range_output
-				new_t = float_range(self._t[0]-delta_t,t,delta_t)
+				number_of_new_frames = int( (self._t[0] - t)/delta_t )
+				new_t = self._t[ 0 ] - [ i* delta_t for i in range( number_of_new_frames , 0 , -1 ) ] 
 				self._t = insert(self._t,0,new_t)
 				for attribute in self.attributes():
 					if attribute == 'coord':
