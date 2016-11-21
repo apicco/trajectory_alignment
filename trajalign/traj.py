@@ -562,7 +562,7 @@ class Traj:
 				raise AttributeError('t is larger than the trajectory last time point')
 			elif t < self._t[0]:
 				number_of_new_frames = int( (self._t[0] - t)/delta_t )
-				new_t = self._t[ 0 ] - [ i* delta_t for i in range( number_of_new_frames , 0 , -1 ) ] 
+				new_t = [ self._t[ 0 ] - i * delta_t for i in range( number_of_new_frames , 0 , -1 ) ] 
 				self._t = insert(self._t,0,new_t)
 				for attribute in self.attributes():
 					if attribute == 'coord':
