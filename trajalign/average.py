@@ -655,22 +655,24 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 	print(all_m_lags)
 	print(all_m_lags - all_m_lags[0])
 	
-	plt.figure()
-	plt.subplot(221)
 	for i in range(l):
 		aligned_trajectories[ best_average ][ i ].translate( lie_down_transform[ 'translation' ] )
 		aligned_trajectories[ best_average ][ i ].rotate( lie_down_transform[ 'angle' ] )
-		plt.plot( aligned_trajectories[ best_average ][ i ].coord()[ 0 ] , aligned_trajectories[ best_average ][ i ].coord()[ 1 ] , '-' , label = aligned_trajectories[ best_average ][ i ].annotations( 'file' ))
-	plt.plot( average_trajectory[ best_average ].coord()[ 0 ] , average_trajectory[ best_average ].coord()[ 1 ] , 'r-' , lw = 2)
-	plt.subplot(222)
-	for i in range(l):
-		plt.plot( aligned_trajectories[ best_average ][ i ].t() , aligned_trajectories[ best_average ][ i ].coord()[ 0 ] , '-' , label = aligned_trajectories[ best_average ][ i ].annotations( 'file' ))
-	plt.plot( average_trajectory[ best_average ].t() , average_trajectory[ best_average ].coord()[ 0 ] , 'r-' , lw = 2)
-	plt.subplot(224)
-	for i in range(l):
-		plt.plot( aligned_trajectories[ best_average ][ i ].t() , aligned_trajectories[ best_average ][ i ].f() , '-' , label = aligned_trajectories[ best_average ][ i ].annotations( 'file' ))
-	plt.plot( average_trajectory[ best_average ].t() , average_trajectory[ best_average ].f() , 'r-' , lw = 2)
 	
-	plt.savefig( output_file + '.pdf')
+#	plt.figure()
+#	plt.subplot(221)
+#	for i in range(l):
+#		plt.plot( aligned_trajectories[ best_average ][ i ].coord()[ 0 ] , aligned_trajectories[ best_average ][ i ].coord()[ 1 ] , '-' , label = aligned_trajectories[ best_average ][ i ].annotations( 'file' ))
+#	plt.plot( average_trajectory[ best_average ].coord()[ 0 ] , average_trajectory[ best_average ].coord()[ 1 ] , 'r-' , lw = 2)
+#	plt.subplot(222)
+#	for i in range(l):
+#		plt.plot( aligned_trajectories[ best_average ][ i ].t() , aligned_trajectories[ best_average ][ i ].coord()[ 0 ] , '-' , label = aligned_trajectories[ best_average ][ i ].annotations( 'file' ))
+#	plt.plot( average_trajectory[ best_average ].t() , average_trajectory[ best_average ].coord()[ 0 ] , 'r-' , lw = 2)
+#	plt.subplot(224)
+#	for i in range(l):
+#		plt.plot( aligned_trajectories[ best_average ][ i ].t() , aligned_trajectories[ best_average ][ i ].f() , '-' , label = aligned_trajectories[ best_average ][ i ].annotations( 'file' ))
+#	plt.plot( average_trajectory[ best_average ].t() , average_trajectory[ best_average ].f() , 'r-' , lw = 2)
+#	
+#	plt.savefig( output_file + '.pdf')
 
 	return( average_trajectory[ best_average ], average_trajectory[ worst_average] , aligned_trajectories[ best_average ] )
