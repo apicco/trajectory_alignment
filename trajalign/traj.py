@@ -5,22 +5,13 @@ from numpy import square
 from numpy import sqrt
 from numpy import sin
 from numpy import cos
-from numpy import pi
 from numpy import insert
 from numpy import NaN
-from numpy import floor
 from numpy import insert
 from numpy import nanmean
-from numpy import nansum
+from numpy import float64 
 from math import isclose
 
-#definitionsusedtoloadtrajectories.Includethetrajectoryclass
-#if__name__=="__main__":
-#importsys
-#directory=str(sys.argv[1])
-#traj(directory)#testthetrajfunctiononthedirectoryinput
-#importjson
-#
 class Traj:
 	"""Trajectory OBJECT:
 		traj(**annotations) -> creates a new empty trajectory. **annotations are
@@ -497,11 +488,6 @@ class Traj:
 							 [ v_err[ 1 ] ] * ( len( self )  )
 								] , dtype = 'float64' ) )
 	
-#	def scale_FI(self,t):
-#
-#		s = nansum( nansum( t.f() ) * self._f ** 2 ) /  nansum( nansum( self._f ) * t.f() ** 2 )
-#		print(s)
-#		self._f = s * self._f
 	def lag(self,shift):
 		"""
 		lag(shift): shifts the time of the trajectory by 'shift', in the trajectory units. Shift is an integer that measure the number of time intervals, or frames, the trajectory has to be shifted. 
@@ -531,7 +517,7 @@ class Traj:
 		if len(self._t) > 0:
 			
 			if 'delta_t' in self._annotations.keys():
-				delta_t = float( self._annotations['delta_t'] )
+				delta_t = float64( self._annotations['delta_t'] )
 			else: 
 				delta_t = min( self._t[1:] - self._t[ 0 : ( len(self._t) - 1 ) ] )
 		
@@ -561,7 +547,20 @@ class Traj:
 			elif t > self._t[len(self)-1]:
 				raise AttributeError('t is larger than the trajectory last time point')
 			elif t < self._t[0]:
-				number_of_new_frames = int( (self._t[0] - t)/delta_t )
+
+				number_of_new_frames = float64( (self._t[0]  - t)/delta_t )
+				
+				#the difference between the time at which the trajectory starts and the time
+				#of the new starting point is divided by the time interval delta_t to compute the
+				#number of correspondent frames, which is a float. Because of the representation of 
+				#float numbers a time interval which corresponds, for exampe to an exact number of 
+				# 5 frames might be computed as  4.999999999999999 instead of 5, which would round 
+				#to the wrong integer. Here, we makes sure that the number_of_new_frames is 
+				#rounded to the right integer.
+				if int( number_of_new_frames + 0.01 ) != int( number_of_new_frames) :
+					number_of_new_frames = int( number_of_new_frames + 0.01)
+				else :
+					number_of_new_frames = int( number_of_new_frames)
 				new_t = [ self._t[ 0 ] - i * delta_t for i in range( number_of_new_frames , 0 , -1 ) ] 
 				self._t = insert(self._t,0,new_t)
 				for attribute in self.attributes():
@@ -861,7 +860,6 @@ class Traj:
 		elif (annotation ==None) & (string != '') :
 			raise AttributeError('You annotate a string to nothing!')
 		elif (annotation !=None) & (string == '') :
-			#print('Warning: you annotate an empty string to "'+annotation+'".')
 			return( self._annotations[annotation] )
 		else:
 			self._annotations[annotation]=string
