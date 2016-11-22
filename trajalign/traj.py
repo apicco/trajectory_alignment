@@ -701,7 +701,7 @@ class Traj:
 		t.load('filename.txt',frames=0,t=1,x=(2,3),description='A nice trajectory', 
 		date = 'Yesterday')
 
-		Note that 'coord' requires two valuse and the column indexing starts 
+		Note that 'coord' requires two values and the column indexing starts 
 		from 0.
 		"""
 
@@ -718,6 +718,7 @@ class Traj:
 				line_elements = line.split( sep )
 		
 				if len( line_elements ) > 0:
+					#if the attributes are empty, the first commented line is the one with the column names
 					if ( ( len( attrs.keys() ) == 0 ) & ( line_elements[ 0 ][ 0:len( comment_char ) ] == comment_char ) ) :
 						attrs = {}
 						i = 0
@@ -734,7 +735,7 @@ class Traj:
 								output[a] = [[],[]]
 							else:
 								output[a] = []
-					if (( len(attrs.keys()) > 0 ) & ( line_elements[0][0:len(comment_char)] != comment_char )):
+					elif (( len(attrs.keys()) > 0 ) & ( line_elements[0][0:len(comment_char)] != comment_char )):
 						for a in [a for a in attrs.keys() if '_'+a in self.__slots__[1:]]:
 							try:
 								if (a == 'coord') | (a == 'coord_err'):
@@ -746,6 +747,20 @@ class Traj:
 									output[a].append(float(line_elements[attrs[a]]))
 							except:
 								raise TypeError('The comment_char might be ill-defined. Default is "#".')
+					elif  line_elements[ 0 ][ 0:len( comment_char ) ] == comment_char  :
+						if not ( ( sep == None ) | ( sep == " " ) ) :
+							line_elements = line.split( None ) #annotations are split with spaces
+						if len( line_elements ) > 1 :
+							last_character = len( line_elements[ 1 ] ) - 1
+							if line_elements[ 1 ][ last_character ] == ":" :
+								annotation_name = line_elements[ 1 ][ 0 : last_character  ]
+								annotation = str("")
+								for i in range( 2 , len( line_elements ) ):
+									if i != len( line_elements ) - 1 :
+										annotation = annotation + str(line_elements[ i ]) + " "
+									else :
+										annotation = annotation + str(line_elements[ i ]) #the last element has not space following
+								self.annotations( annotation_name , annotation ) 
 		if 'frames' in output.keys():
 			try:
 				self.input_values('frames',output['frames'])
