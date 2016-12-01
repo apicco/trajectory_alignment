@@ -1,6 +1,5 @@
 #module of functions required to load and average the trajectories together
-from os import listdir
-from os import getcwd
+import os 
 from trajalign.traj import Traj
 import copy as cp
 import numpy as np
@@ -36,12 +35,12 @@ def load_directory(path,pattern = '.txt',sep = None,comment_char = '#',dt=None,t
 		raise AttributeError('Time is already loaded by the trajectories, you cannot also compute it from frames. Please, either remove the dt option or do not load the \'t\' column from the trajectories')
 	trajectories = [] #the list of trajectories
 	if ( pattern[ len( pattern ) - 1 ] == '$' ) : 
-		files = [ f for f in listdir(path) if f.endswith( pattern[ : - 1 ] ) ] #list all the files in path that have pattern
+		files = [ f for f in os.listdir(path) if f.endswith( pattern[ : - 1 ] ) ] #list all the files in path that have pattern
 	else : 
-		files = [ f for f in listdir(path) if pattern in f] #list all the files in path that have pattern
+		files = [ f for f in os.listdir(path) if pattern in f] #list all the files in path that have pattern
 
 	for file in files:
-		trajectory = Traj(experiment = path, path = getcwd()+'/'+path, file = file)
+		trajectory = Traj(experiment = path, path = os.getcwd()+'/'+path, file = file)
 		trajectory.load(path+'/'+file,sep = sep, comment_char = comment_char, **attrs)
 		if (dt != None):
 			trajectory.time(dt,t_unit)
@@ -123,8 +122,15 @@ def MSD(input_t1 , input_t2):
 		})
 
 def average_trajectories( trajectory_list , max_frame=500 , output_file = 'average' , median = False ):
+
 	"""
-	average_trajectories(trajectory_list): align all the trajectories in the list together, and average them.
+	average_trajectories( trajectory_list , max_frame = 500 , output_file = 'average' , median = False ): align all the 
+	trajectories in the list together, and average them. 'max_frame' is the max number of frames the movies from which 
+	the trajctories have been extracted has. It is used to check whether some trajectories are trunkated at the end.
+	'output_file' is the name of the output. average_trajectories outputs a txt file with the average trajectroy and 
+	a directory with all the raw trajectories that have been used to compute the average aligned together in space and time.
+	median is an option to compute the median instead of the average of the aligned trajectories. It is useful in case 
+	of noisy datasets.
 	"""
 
 	if len(trajectory_list) == 0 : 
@@ -654,25 +660,16 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 	print('lags')
 	print(all_m_lags)
 	print(all_m_lags - all_m_lags[0])
-	
+
+	#save the trajectories use to compute the average, lied down as the average trajectory
 	for i in range(l):
 		aligned_trajectories[ best_average ][ i ].translate( lie_down_transform[ 'translation' ] )
 		aligned_trajectories[ best_average ][ i ].rotate( lie_down_transform[ 'angle' ] )
-	
-#	plt.figure()
-#	plt.subplot(221)
-#	for i in range(l):
-#		plt.plot( aligned_trajectories[ best_average ][ i ].coord()[ 0 ] , aligned_trajectories[ best_average ][ i ].coord()[ 1 ] , '-' , label = aligned_trajectories[ best_average ][ i ].annotations( 'file' ))
-#	plt.plot( average_trajectory[ best_average ].coord()[ 0 ] , average_trajectory[ best_average ].coord()[ 1 ] , 'r-' , lw = 2)
-#	plt.subplot(222)
-#	for i in range(l):
-#		plt.plot( aligned_trajectories[ best_average ][ i ].t() , aligned_trajectories[ best_average ][ i ].coord()[ 0 ] , '-' , label = aligned_trajectories[ best_average ][ i ].annotations( 'file' ))
-#	plt.plot( average_trajectory[ best_average ].t() , average_trajectory[ best_average ].coord()[ 0 ] , 'r-' , lw = 2)
-#	plt.subplot(224)
-#	for i in range(l):
-#		plt.plot( aligned_trajectories[ best_average ][ i ].t() , aligned_trajectories[ best_average ][ i ].f() , '-' , label = aligned_trajectories[ best_average ][ i ].annotations( 'file' ))
-#	plt.plot( average_trajectory[ best_average ].t() , average_trajectory[ best_average ].f() , 'r-' , lw = 2)
-#	
-#	plt.savefig( output_file + '.pdf')
+		filename = "./" + output_file + "/" + aligned_trajectories[ best_average ][ i ].annotations( 'file' )
+		if i == 0 :
+			directory = os.path.dirname( filename )
+			if not os.path.exists( directory ) :
+				os.makedirs( directory )
+		aligned_trajectories[ best_average ][ i ].save( filename )
 
 	return( average_trajectory[ best_average ], average_trajectory[ worst_average] , aligned_trajectories[ best_average ] )
