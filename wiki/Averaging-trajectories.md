@@ -42,7 +42,7 @@ The trajectory _example.txt_ can be loaded with:
 
 If the `dt` is given ( as a float or int ) and no _t_ attribute is later specified, then the time `.t()` attribute is created and it is computed from the frame numbers as t = ( frame_number - 1 ) * dt. As for the coordinates, a _t_unit_ attribute must be added, specifying the unit of time in which `dt` is expressed.
 
-**`average_trajectories( trajectory_list , max_frame = 500 , output_file = 'average' )`** align all the trajectories in the list `trajectory_list` together and computes their average. 
+**`average_trajectories( trajectory_list , max_frame = 500 , output_file = 'average' , median = False )`** align all the trajectories in the list `trajectory_list` together and computes their average. 
 
 `max_frame` is the largest frame number to be expected for the trajectories and it is used to estimate whether a trajectory is truncated at its end. Trajectories that are truncated at their start are recognised by the frame index that starts as 0. If the trajectory are complete the frame indexes should be included between 0 and `max_frame`. 
 Trajectories that start with 0 are not considered when computing the start of the average trajectory, which is the average start of non-trucated trajectories.
@@ -50,4 +50,7 @@ Similarly, trajectories that end with 'max_frame' are not considered when comput
 
 All trajectories are used as a reference to align all the remaining trajectories together. The best alignment, which is the one that minimise the dispersion of the aligned trajectories, is saved in a file named as in `output_file`. 
 
-`average_trajectories` returns also two trajectories: one is the best average, which is also saved to a .txt file, the other is the worst average, which can be used as a control of the sensitivity to the alignment and averaging procedure to the trajectories that are taken as reference. The average trajectories inherit the annotations of the trajectory that is used as a reference. In addition, the annotation _reference_file_ is added to record which is the that file has been used as reference.
+By default `average_trajectories` computes the average of the trajectories and their standard deviation. However, it can be useful to compute the median instead of the average, in particular when trajectories are noisy and few can be badly aligned affecting the mean. To compute the median, change the default `median = False` to `median = True`. Together with the median, the softward will compute the median absolute deviation (MAD) adjusted for asymptotically normal consistency instead of the standard deviation.
+
+`average_trajectories` returns two trajectories, the best average and the worst average, and all the raw trajectories aligned together to compute the best average, which are oriented in space and time as the best average for comparison. 
+The best average is saved as a txt file named from `output_file`. All the raw trajectories are saved in a folder names as `output_file`. The average trajectories inherit the annotations of the trajectory that is used as a reference. In addition, a new annotation _reference_file_ is added to record which is the file has been used as reference.
