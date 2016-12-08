@@ -7,9 +7,9 @@ import warnings as wr
 
 from sklearn import linear_model
 
-import matplotlib
+#import matplotlib
 #matplotlib.use('Agg')
-from matplotlib import pyplot as plt
+#from matplotlib import pyplot as plt
 
 def load_directory(path,pattern = '.txt',sep = None,comment_char = '#',dt=None,t_unit='',coord_unit='',**attrs):
 
