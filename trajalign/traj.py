@@ -875,7 +875,11 @@ class Traj:
 		elif (annotation ==None) & (string != '') :
 			raise AttributeError('You annotate a string to nothing!')
 		elif (annotation !=None) & (string == '') :
-			return( self._annotations[annotation] )
+			if type( annotation ) == type( dict() ) :
+				for key in annotation.keys() :
+					self._annotations[ key ] = annotation[ key ]
+			else :
+				return( self._annotations[annotation] )
 		else:
-			self._annotations[annotation]=string
+			self._annotations[annotation] = string
 
