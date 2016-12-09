@@ -201,6 +201,7 @@ class Traj:
 
 	def frames(self,*items):
 		if (len(items)==0): return self._frames
+		elif len( items ) == 1 : return self._frames[ items ]
 		else: 
 			try:
 				return(self._frames[[item for item in items]])
@@ -209,6 +210,7 @@ class Traj:
 
 	def t(self,*items):
 		if (len(items)==0): return self._t
+		elif len( items ) == 1 : return self._t[ items ]
 		else: 
 			try:
 				return(self._t[[item for item in items]])
@@ -241,6 +243,7 @@ class Traj:
 
 	def f(self,*items):
 		if (len(items)==0): return self._f
+		elif len(items) == 1 : return self._f[ items ]
 		else: 
 			try:
 				return(self._f[[item for item in items]])
@@ -248,6 +251,7 @@ class Traj:
 				print('Indexes in Traj().f are out of bounds')
 	def mol(self,*items):
 		if (len(items)==0): return self._mol
+		elif len(items) == 1 : return self._mol[ items ]
 		else: 
 			try:
 				return(self._mol[[item for item in items]])
@@ -257,6 +261,7 @@ class Traj:
 
 	def n(self,*items):
 		if (len(items)==0): return self._n
+		elif len(items) == 1 : return self._n[ items ]
 		else: 
 			try:
 				return(self._n[[item for item in items]])
@@ -265,6 +270,7 @@ class Traj:
 
 	def t_err(self,*items):
 		if (len(items)==0): return self._t_err
+		elif len(items) == 1 : return self._t_err[ items ]
 		else: 
 			try:
 				return(self._t_err[[item for item in items]])
@@ -287,7 +293,7 @@ class Traj:
 				else :
 					for k in i:
 						new_items.append(k)
-		if (len(items)==0): return self._coord_err
+		if (len(new_items)==0): return self._coord_err
 		else: 
 			try:
 				output=self._coord_err[:,[item for item in new_items]]
@@ -295,10 +301,9 @@ class Traj:
 			except IndexError:
 				print('Indexes in Traj().coord_err are out of bounds')
 
-
-
 	def f_err(self,*items):
 		if (len(items)==0): return self._f_err
+		elif len(items) == 1 : return self._f_err[ items ]
 		else:
 			try:
 				return(self._f_err[[item for item in items]])
@@ -307,6 +312,7 @@ class Traj:
 	
 	def mol_err(self,*items):
 		if (len(items)==0): return self._mol_err
+		elif len(items) == 1 : return self._mol_err[ items ]
 		else: 
 			try: 
 				return(self._mol_err[[item for item in items]])
