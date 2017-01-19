@@ -487,7 +487,18 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 			#compute the center of mass of the full trajectory
 
 			l_cm = np.mean([rcs[ j , r ] for r in range(l) if r != j ] , axis=0 )
-		
+	
+			# the following is equivalent to
+			#
+			# R( m_angles ) @ aligned_trajectories + T
+			#
+			# where R would be the rotation matrix computed from m_angles
+			# and T is the translation computed as
+			#
+			# r_cm - R( m_angles ) @ l_cm
+			#
+			# see Horn 1987 for details.
+			
 			aligned_trajectories[ r ][ j ].translate( - l_cm )
 			aligned_trajectories[ r ][ j ].rotate( m_angles[ j ] )
 
