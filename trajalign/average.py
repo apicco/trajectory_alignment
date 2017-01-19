@@ -121,6 +121,10 @@ def MSD(input_t1 , input_t2):
 		'score' : score
 		})
 
+def nanMAD( x , axis = None , k = 1.4826):
+	MAD = np.nanmedian( np.absolute( x - np.nanmedian( x , axis ) ) , axis )
+	return( k * MAD )
+
 def average_trajectories( trajectory_list , max_frame=500 , output_file = 'average' , median = False ):
 
 	"""
@@ -218,10 +222,6 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 				alignments[ len( alignments ) - 1 ][ 'score' ] =\
 						alignments[ len( alignments ) - 1 ][ 'score' ] / np.sqrt( len( sel_t1 ) )
 		return()
-
-	def nanMAD( x , axis = None , k = 1.4826):
-		MAD = np.nanmedian( np.absolute( x - np.nanmedian( x , axis ) ) , axis )
-		return( k * MAD )
 
 	def lie_down( t ):
 		translation_vector = ( - np.nanmedian( t.coord()[0] ) ,- np.nanmedian( t.coord()[1] ) )
