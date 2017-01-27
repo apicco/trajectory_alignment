@@ -475,7 +475,7 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 
 		#make a copy of the trajectory_list, whose trajectories need to be aligned
 		aligned_trajectories.append( cp.deepcopy( trajectory_list ) )
-		#aligned_trajectories.insert( r ,cp.deepcopy(trajectory_list))
+
 		##################################################	
 		#align the trajectoris together in space and time
 		##################################################	
@@ -580,17 +580,17 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 		
 			for a in attributes: 
 
-				#if _a_err is in the trajectories slots, it means that the attribute a is not 
-				#an error attribute (i.e. an attribute ending by _err; in fact if a would end by '_err'
-				#then _a_err would have twice the appendix _err (i.e. _err_err) and would have 
-				#no equivalent in the trajectory __slots__. If _a_err is then in the trajectory
-				#slots, then both the mean and the std can be computed. There is no std without mean.
-	
 				if a[len(a)-4:len(a)] == '_err' :
 					
 					raise AttributeError('The trajectories to be averaged have already an non empty error element, suggeting that they are already the result of an average. These error currently are not propagated. Check that your trajectories are correct')
 				
-				if '_' + a in average_trajectory[ r ].__slots__:
+				#if _a_err is in the trajectories slots, it means that the attribute a is not 
+				#an error attribute (i.e. an attribute ending by _err; in fact if a would end by '_err'
+				#then _a_err would have twice the appendix _err (i.e. _err_err) and would have 
+				#no equivalent in the trajectory __slots__. If _a_err is then in the trajectory
+				#slots, then both the mean and the sem can be computed. There is no sem without mean.
+	
+				if '_' + a + '_err' in average_trajectory[ r ].__slots__:
 
 					if median :
 
@@ -604,17 +604,39 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 								np.nanmean( attributes_to_be_averaged[ a ], axis = 0 )
 							)
 
+					#if there is no n defined yet, it computes it
+					if not average_trajectory[ r ].n() : 
+						#compute the number of not-nan data points by dividing
+						#the nansum by the nanmean. The operation is performed
+						#on the last attribute in the loop that can either have 
+						#two dimensions (as 'coord') or one. In case of two dims
+						#only one is used to compute '_n'.
+						
+						x = np.nanmean( attributes_to_be_averaged[ a ] , axis = 0 )
+						y = np.nansum( attributes_to_be_averaged[a] , axis = 0 )
+				
+						if len(x) == 2:
+							#setattr(average_trajectory[ r ],'_n',y[0]/x[0])
+							average_trajectory[ r ].input_values( 'n' , y[0]/x[0] )
+						else:
+							with wr.catch_warnings():
+								# if both y[i] and x[i] are 0, then a waring is outputed. Here we suppress such warnings.
+								wr.simplefilter("ignore", category=RuntimeWarning)
+								#setattr(average_trajectory[ r ],'_n',y/x)
+								average_trajectory[ r ].input_values( 'n' , y/x )
+
+					#compute the errors as standard errors of the mean/median
 					try :
 						if median :
 
 							average_trajectory[ r ].input_values( a + '_err' ,
-								nanMAD( attributes_to_be_averaged[ a ], axis = 0 )
+								nanMAD( attributes_to_be_averaged[ a ], axis = 0 ) / sqrt( average_trajectory[ r ].n() )
 								)
 
 						else :
 
 							average_trajectory[ r ].input_values( a + '_err' ,
-								np.nanstd( attributes_to_be_averaged[ a ], axis = 0 )
+								np.nanstd( attributes_to_be_averaged[ a ], axis = 0 ) / sqrt( average_trajectory[ r ].n() )
 								)
 
 					except :
@@ -624,25 +646,6 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 				else :
 
 					raise AttributeError( 'The attribute ' + a + ' is not recongnised as an attribute' )
-
-		#compute the number of not-nan data points by dividing
-		#the nansum by the nanmean. The operation is performed
-		#on the last attribute in the loop that can either have 
-		#two dimensions (as 'coord') or one. In case of two dims
-		#only one is used to compute '_n'.
-		
-		x = np.nanmean( attributes_to_be_averaged[ a ] , axis = 0 )
-		y = np.nansum( attributes_to_be_averaged[a] , axis = 0 )
-
-		if len(x) == 2:
-			#setattr(average_trajectory[ r ],'_n',y[0]/x[0])
-			average_trajectory[ r ].input_values( 'n' , y[0]/x[0] )
-		else:
-			with wr.catch_warnings():
-				# if both y[i] and x[i] are 0, then a waring is outputed. Here we suppress such warnings.
-				wr.simplefilter("ignore", category=RuntimeWarning)
-				#setattr(average_trajectory[ r ],'_n',y/x)
-				average_trajectory[ r ].input_values( 'n' , y/x )
 
 		#store the transformations of the trajectories in respect of the trajectory r.
 		if r == 0:
