@@ -508,13 +508,6 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 			trajectory_time_span[ 'new_start' ].append(aligned_trajectories[ r ][ j ].start())
 			trajectory_time_span[ 'new_end' ].append(aligned_trajectories[ r ][ j ].end())
 			
-#			if ( j != r ):
-#				plt.plot(trajectory_list[ r ].coord()[ 0 ] ,trajectory_list[ r ].coord()[ 1 ] , 'r' )
-#				plt.plot(aligned_trajectories[ r ][ j ].coord()[ 0 ],aligned_trajectories[ r ][ j ].coord()[ 1 ] , 'g' )
-#				plt.plot(trajectory_list[ r ].t(),trajectory_list[ r ].f() , 'r' )
-#				plt.plot(aligned_trajectories[ r ][ j ].t(),aligned_trajectories[ r ][ j ].f() , 'g' )
-#				plt.show()
-
 		########################################################################	
 		#compute the average of the trajectories aligned to the r-th trajectory
 		#define the average trajectory and its time attribute
@@ -522,7 +515,7 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 		average_trajectory.append( Traj() )
 	
 		#inherit the annotations from the reference trajectory
-		for a in aligned_trajectories[ r ][ r ].annotations().keys(): #IT WAS [ r ][ 0 ]
+		for a in aligned_trajectories[ r ][ r ].annotations().keys(): 
 			if a == 'file':
 				average_trajectory[ r ].annotations( 'reference_file' , aligned_trajectories[ r ][ r ].annotations()[ a ])
 			else :
@@ -605,7 +598,7 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 							)
 
 					#if there is no n defined yet, it computes it
-					if not average_trajectory[ r ].n() : 
+					if not average_trajectory[ r ].n().any() : 
 						#compute the number of not-nan data points by dividing
 						#the nansum by the nanmean. The operation is performed
 						#on the last attribute in the loop that can either have 
