@@ -630,13 +630,13 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 						if median :
 
 							average_trajectory[ r ].input_values( a + '_err' ,
-								nanMAD( attributes_to_be_averaged[ a ], axis = 0 ) / sqrt( average_trajectory[ r ].n() )
+								nanMAD( attributes_to_be_averaged[ a ], axis = 0 ) / np.sqrt( average_trajectory[ r ].n() )
 								)
 
 						else :
 
 							average_trajectory[ r ].input_values( a + '_err' ,
-								np.nanstd( attributes_to_be_averaged[ a ], axis = 0 ) / sqrt( average_trajectory[ r ].n() )
+								np.nanstd( attributes_to_be_averaged[ a ], axis = 0 ) / np.sqrt( average_trajectory[ r ].n() )
 								)
 
 					except :
