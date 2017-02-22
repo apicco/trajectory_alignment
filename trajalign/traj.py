@@ -465,8 +465,8 @@ class Traj:
 					sR @ square( self._coord_err ) + \
 							square( angle_err * sqrt( 1 - sR ) @ matrix([[ 1 , 0 ] , [ 0 , -1 ]] ) @ self._coord )
 					))
-
-		elif angle_err > 0 :
+		
+		elif angle_err > 0 : #if there is not attribute _coord_err, but there is an error then
 			self.insert_values( 'coord_err' , array( square( angle_err * sqrt( 1 - sR ) @ matrix([[ 1 , 0 ] , [ 0 , -1 ]] ) @ self.coord() )
 					) )
 
