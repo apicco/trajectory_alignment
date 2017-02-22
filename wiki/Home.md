@@ -21,11 +21,13 @@ Picco, A., Kaksonen, M., _Precise tracking of the dynamics of multiple proteins 
 
 * [The trajectory class](The-trajectory-class)
 
-* [An example of use of the trajectory class](Trajectory-class-example)
-
 * [Average trajectories together](Averaging-trajectories)
 
-* [An example of the averaging of the trajectories](Averaging-trajectories-example)
+## Examples:
+
+* [An example of use of the trajectory class](Trajectory-class-example)
+
+* [An example of the averaging of the trajectories](Example-of-trajectory-average)
 
 ***
 
