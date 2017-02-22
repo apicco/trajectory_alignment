@@ -7,7 +7,7 @@ menu: wiki
 
 Here is an **example** on the use of the averaging functions.
 
-The example can be run using the [raw data](https://github.com/apicco/trajectory_alignment/tree/master/example/trajectory_average_example/raw_trajectories) in the [example folder](https://github.com/apicco/trajectory_alignment/tree/master/example/trajectory_average_example) of [trajectory_alignment](https://github.com/apicco/trajectory_alignment). The example reported here is equivalent to [trajectory_average_example.py](https://github.com/apicco/trajectory_alignment/blob/master/example/trajectory_average_example/trajectory_average_example.py) in the [example folder](https://github.com/apicco/trajectory_alignment/tree/master/example/trajectory_average_example).
+The example can be run using the [raw data](https://github.com/apicco/trajectory_alignment/tree/master/example/trajectory_average_example/raw_trajectories) in the [example folder](https://github.com/apicco/trajectory_alignment/tree/master/example/trajectory_average_example) of [trajectory_alignment](https://github.com/apicco/trajectory_alignment). The example reported here is the same as [trajectory_average_example.py](https://github.com/apicco/trajectory_alignment/blob/master/example/trajectory_average_example/trajectory_average_example.py) in the [example folder](https://github.com/apicco/trajectory_alignment/tree/master/example/trajectory_average_example).
 
 ***
 
