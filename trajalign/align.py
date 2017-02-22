@@ -9,17 +9,17 @@ import copy as cp
 from matplotlib import pyplot as plt
 
 
-def align( path_traj1 , path_traj2 , ch1 , ch2 ):
+def align( path_target , path_reference , ch1 , ch2 ):
 	"""
-	align( path_traj1 , path_traj2 , ch1 , ch2 , ):
-	aligns in space and in time the trajectories identified by path_traj1 to path_traj2,
+	align( path_target , path_reference , ch1 , ch2 , ):
+	aligns in space and in time the trajectories identified by path_target to path_reference,
 	which is the reference trajectory. As a convention within the align function trajectories 
 	labeled with 1 are the target trajectories that need to be ligned to the reference 
 	trajectories, which are labelled with 2.The alignment uses the trajectories in ch1 
 	and ch2, which have been acquired simultaneously and whose alignment has been 
 	corrected for chormatic aberrations and imaging misalignments. 'ch1' refers to 
-	the trajectories that need to be aligned to the average trajectory in 'path_traj1'. 
-	'ch2' refers to 'path_traj2'.
+	the trajectories that need to be aligned to the average trajectory in 'path_target'. 
+	'ch2' refers to 'path_reference'.
 	"""
 
 	def spline( t1 , t2 ) :
@@ -169,10 +169,10 @@ def align( path_traj1 , path_traj2 , ch1 , ch2 ):
 	#----------------------------------------------------------------
 
 	t1 = Traj()
-	t1.load( path_traj1 )
+	t1.load( path_target )
 
 	t2 = Traj()
-	t2.load( path_traj2 )
+	t2.load( path_reference )
 
 	#average trajectories are centered on their center of mass to minimise inaccuracies
 	#that can derive from the approximation of the rotation and traslation
@@ -195,7 +195,7 @@ def align( path_traj1 , path_traj2 , ch1 , ch2 ):
 	#l = 6 #DEBUG
 	for i in range( l ) :
 
-		print( "Align " + path_traj1 + " to " + ch1[ i ].annotations( 'file' ) + " and " + path_traj2 + " to " + ch2[ i ].annotations( 'file' ) ) 
+		print( "Align " + path_target + " to " + ch1[ i ].annotations( 'file' ) + " and " + path_reference + " to " + ch2[ i ].annotations( 'file' ) ) 
 
 		#spline the trajectories, to reduce the noise
 		spline_t1 , spline_ch1 = spline( t1 , ch1[ i ] )
@@ -278,13 +278,13 @@ def align( path_traj1 , path_traj2 , ch1 , ch2 ):
 			)
 	t1.input_values( 't' , t1.t() + T_median[ 'lag' ] )
 
-	dot_positions = [ i for i in range(len( path_traj1 )) if path_traj1[i] == '.' ]
+	dot_positions = [ i for i in range(len( path_target )) if path_target[i] == '.' ]
 	file_ending = dot_positions[ len(dot_positions) - 1 ] #there could be more than one dot in the file name. Pick the last.
-	file_name =  path_traj1[ 0 : file_ending ] + '_aligned' + path_traj1[ file_ending : len( path_traj1 ) ]
+	file_name =  path_target[ 0 : file_ending ] + '_aligned' + path_target[ file_ending : len( path_target ) ]
 
 	# annotations
-	t1.annotations( 'aligned_to' , str( path_traj2 ) )
-	t1.annotations( 'original_file' , str( path_traj1 ) )
+	t1.annotations( 'aligned_to' , str( path_reference ) )
+	t1.annotations( 'original_file' , str( path_target ) )
 	t1.annotations( 'alignment_angle' , str( T_median[ 'angle' ] ) + ' rad' )
 	t1.annotations( 'alignment_angle_MAD' , str( T_median[ 'angle_MAD' ] ) + ' rad' )
 	t1.annotations( 'alignment_translation' , str( T_median[ 'translation' ] ) + ' ' + t1.annotations()[ 'coord_unit' ] )
@@ -294,5 +294,5 @@ def align( path_traj1 , path_traj2 , ch1 , ch2 ):
 
 	t1.save( file_name )
 
-	print( 'The trajectory aligned to ' + path_traj2 + ' has been saved as ' + file_name )
+	print( 'The trajectory aligned to ' + path_reference + ' has been saved as ' + file_name )
 
