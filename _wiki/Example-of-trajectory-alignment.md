@@ -5,8 +5,8 @@ The goal of the example is to align in space and time the average trajectories o
 ![example](images/plot_aligned_trajectories.png)
 *The inward movement and the fluorescence intensity profile of the endocytic coat protein Sla1, the N-BAR protein Rvs167, and the actin binding protein Abp1.
 
-The average trajectories are aligned together using raw trajectories acquired simultaneously for both the pairs Abp1 and Rvs167 and Abp1 and Sla1. The raw trajectories are found in the folders [abp1_and_rvs167](https://github.com/apicco/trajectory_alignment/tree/master/example/align_trajectories_example/raw_trajectories) and [abp1_and_sla1](https://github.com/apicco/trajectory_alignment/tree/master/example/align_trajectories_example/raw_trajectories).
-The average trajectories are [sla1.txt](https://github.com/apicco/trajectory_alignment/tree/master/example/align_trajectories_example/raw_trajectories), [rvs167.txt](https://github.com/apicco/trajectory_alignment/tree/master/example/align_trajectories_example/raw_trajectories) and [abp1.txt](https://github.com/apicco/trajectory_alignment/tree/master/example/align_trajectories_example/raw_trajectories). Following the convention in the [documentation](Align-average-trajectories), Sla1 and Rvs167 are the target proteins that need to be aligned to Abp1, the reference protein.
+The average trajectories are aligned together using raw trajectories acquired simultaneously for both the pairs Abp1 and Rvs167 and Abp1 and Sla1. The raw trajectories are found in the folders [abp1_and_rvs167](https://github.com/apicco/trajectory_alignment/tree/master/example/align_trajectories_example/) and [abp1_and_sla1](https://github.com/apicco/trajectory_alignment/tree/master/example/align_trajectories_example/).
+The average trajectories are [sla1.txt](https://github.com/apicco/trajectory_alignment/tree/master/example/align_trajectories_example/), [rvs167.txt](https://github.com/apicco/trajectory_alignment/tree/master/example/align_trajectories_example/) and [abp1.txt](https://github.com/apicco/trajectory_alignment/tree/master/example/align_trajectories_example/). Following the convention in the [documentation](Align-average-trajectories), Sla1 and Rvs167 are the target proteins that need to be aligned to Abp1, the reference protein.
 
 To align Sla1 to Abp1 one needs to load first the trajectory pairs that are used to compute the alignment as two list, one list contains the trajectories for Sla1 and the other list contains the trajectories for Abp1. The ordering of the trajectories in the two list must match the pairing of the trajectories (the first trajectory in the Sla1 list is paired with the first trajectory in the Abp1 list and so on). 
 
@@ -46,8 +46,8 @@ Once the trajectory pairs are loaded, the alignment can be computed by calling t
 
 	align( path_target = 'sla1.txt' , path_reference = 'abp1.txt' , ch1 = sla1_trajectories , ch2 = abp1_trajectories )
 
-*ch1* and *ch2* are the variables that are used to enter the trajectories of the target and reference proteins, respectively. These code lines are found in the  alignment script [align_abp1_and_sla1.py](https://github.com/apicco/trajectory_alignment/tree/master/example/align_trajectories_example/raw_trajectories).
-Similarly the alignmet of Rvs167 to Abp1 is in [align_abp1_and_rvs167.py](https://github.com/apicco/trajectory_alignment/tree/master/example/align_trajectories_example/raw_trajectories).
+*ch1* and *ch2* are the variables that are used to enter the trajectories of the target and reference proteins, respectively. These code lines are found in the  alignment script [align_abp1_and_sla1.py](https://github.com/apicco/trajectory_alignment/tree/master/example/align_trajectories_example/).
+Similarly the alignmet of Rvs167 to Abp1 is in [align_abp1_and_rvs167.py](https://github.com/apicco/trajectory_alignment/tree/master/example/align_trajectories_example/).
 
 
 
