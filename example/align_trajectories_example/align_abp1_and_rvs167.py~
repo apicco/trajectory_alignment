@@ -12,7 +12,7 @@ rvs167_trajectories = load_directory(
 		coord = ( 1 , 2 ) , 
 		f = 3 , 
 		protein = 'Rvs167-GFP' , 
-		date = '01/01/00' , 
+		date = '10/10/13' , 
 		notes = 'the trajectory of the target protein')
 
 abp1_trajectories = load_directory(
@@ -26,7 +26,7 @@ abp1_trajectories = load_directory(
 		coord = ( 1 , 2 ) , 
 		f = 3 , 
 		protein = 'Abp1-mCherry' , 
-		date = '01/01/00' , 
+		date = '10/10/13' , 
 		notes = 'the trajectory of the reference protein')
 
 align( path_target = 'rvs167.txt' , path_reference = 'abp1.txt' , ch1 = rvs167_trajectories , ch2 = abp1_trajectories )
