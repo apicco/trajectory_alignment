@@ -17,4 +17,5 @@ Read the [documentation](wiki/Home) to [install](wiki/Installation) and use the 
 ***
 
 If you use this software, please cite: 
+
 [Picco and Kaksonen, Methods in Cell Biology, Vol. 139, pages 51-68 (2017)](http://www.sciencedirect.com/science/article/pii/S0091679X16301546) 
