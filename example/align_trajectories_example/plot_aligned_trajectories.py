@@ -58,8 +58,6 @@ rvs167.input_values( 't' , rvs167.t() - t_0 )
 #plot
 f, ( trj , fi ) = plt.subplots( 2 , 1 , gridspec_kw = { 'height_ratios' : [ 2 , 1 ] } , figsize = ( 8 , 11 ) , sharex = True )
 
-#abp1
-
 myplot( trj , abp1 , what = 'coord' , col = '#D7110E' , label = 'Abp1' )
 myplot( trj , sla1 , what = 'coord' , col = '#336CFF' , label = 'Sla1' )
 myplot( trj , rvs167 , what = 'coord' , col = '#006400' , label = 'Rvs167' )
