@@ -13,7 +13,7 @@ To start with `trajalign`, read first how to [install](Installation) it.
 
 If you use this software, please cite:
 
-Picco, A., Kaksonen, M., _Precise tracking of the dynamics of multiple proteins in endocytic events._,  Methods in Cell Biology, 2017.
+[Picco, A., Kaksonen, M., _Precise tracking of the dynamics of multiple proteins in endocytic events._,  Methods in Cell Biology, Vol. 139, pages 51-68, 2017](http://www.sciencedirect.com/science/article/pii/S0091679X16301546)
 
 ***
 
@@ -35,15 +35,15 @@ Picco, A., Kaksonen, M., _Precise tracking of the dynamics of multiple proteins 
 
 ***
 
-### External links:
+## External links:
 
 [ Python ](https://docs.python.org/3/)
 
 [ Kaksonen laboratory ](http://cms.unige.ch/sciences/biochimie/-Marko-Kaksonen-.html)
 
-### References:
+## References:
 
-[Picco, _et al._, Methods in Cell Biology 2017](http://) (Submitted)
+[Picco, _et al._, Methods in Cell Biology, Vol. 139, pages 51-68, 2017](http://www.sciencedirect.com/science/article/pii/S0091679X16301546) 
 
 [Kukulski, Picco, _et al._, eLife 2016](http://dx.doi.org/10.7554/eLife.16036)
 
