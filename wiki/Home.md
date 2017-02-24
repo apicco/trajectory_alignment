@@ -31,7 +31,7 @@ If you use this software, please cite:
 
 * [An example of the averaging of trajectories](Example-of-trajectory-average)
 
-* [An example of the alignment of average trajectories](Example-of-trajectory-alignment
+* [An example of the alignment of average trajectories](Example-of-trajectory-alignment)
 
 ***
 
