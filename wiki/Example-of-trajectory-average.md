@@ -7,9 +7,8 @@ menu: wiki
 
 Here is an **example** about the use of the [averaging functions](Averaging-trajectories).
 
-The example can be run using the [raw data](https://github.com/apicco/trajectory_alignment/tree/master/example/trajectory_average_example/raw_trajectories) in the [example folder](https://github.com/apicco/trajectory_alignment/tree/master/example/trajectory_average_example) of [trajectory_alignment](https://github.com/apicco/trajectory_alignment). The example reported here is the same as [trajectory_average_example.py](https://github.com/apicco/trajectory_alignment/blob/master/example/trajectory_average_example/trajectory_average_example.py) in the [example folder](https://github.com/apicco/trajectory_alignment/tree/master/example/trajectory_average_example).
-
-***
+The example can be run using the [raw data](https://github.com/apicco/trajectory_alignment/tree/master/example/trajectory_average_example/raw_trajectories) in the [example folder](https://github.com/apicco/trajectory_alignment/tree/master/example/trajectory_average_example) of [trajectory_alignment](https://github.com/apicco/trajectory_alignment). 
+The example reported here is the same as [trajectory_average_example.py](https://github.com/apicco/trajectory_alignment/blob/master/example/trajectory_average_example/trajectory_average_example.py) in the [example folder](https://github.com/apicco/trajectory_alignment/tree/master/example/trajectory_average_example).
 
 	from trajalign.traj import Traj
 	from trajalign.average import load_directory
@@ -71,4 +70,7 @@ The example can be run using the [raw data](https://github.com/apicco/trajectory
 	
 	plt.legend( loc = 'best' )
 	plt.savefig( 'plot.png')
-	
+
+To run [trajectory_average_example.py](https://github.com/apicco/trajectory_alignment/blob/master/example/trajectory_average_example/trajectory_average_example.py) access through the shell the folder that contains it and type
+
+	python3.5 trajectory_average_example.py

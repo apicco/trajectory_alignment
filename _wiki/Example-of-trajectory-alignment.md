@@ -53,6 +53,15 @@ Once the trajectory pairs are loaded, the alignment can be computed by calling t
 
 *ch1* and *ch2* are the variables that are used to enter the trajectories of the target and reference proteins, respectively. These lines of code are found in the  alignment script [align_abp1_and_sla1.py](https://github.com/apicco/trajectory_alignment/tree/master/example/align_trajectories_example/align_abp1_and_sla1.py) in the [example folder](https://github.com/apicco/trajectory_alignment/tree/master/example/align_trajectories_example).
 Similarly the alignmet of Rvs167 to Abp1 is in [align_abp1_and_rvs167.py](https://github.com/apicco/trajectory_alignment/tree/master/example/align_trajectories_example/align_abp1_and_rvs167.py) in the [example folder](https://github.com/apicco/trajectory_alignment/tree/master/example/align_trajectories_example/).
+
+To run the alignment script access through the shell the folder that contains them and type
+	
+	python3.5 align_abp1_and_sla1.py
+
+and
+	
+	python3.5 align_abp1_and_rvs167.py
+
 Aligned trajectories are saved with the same name as the target trajectory, followed by "_aligned". Hence, the trajectories of Sla1 and Rvs167 aligned to Abp1 will be called Sla1_aligned.txt and Rvs167_aligned.txt. These trajectories store new annotations: the name of the target trajectory, the name of the reference trajectory and the angle, translation, and lag, as well as their errors, which are used aligns the target trajectory to the reference trajectory. 
 
 To plot the aligned trajectories together you can use the following script, where we found convenient to define an *ad hoc* function, *myplot*, which is used to plot the average trajectories and their 95% confidence interval.
@@ -136,4 +145,8 @@ To plot the aligned trajectories together you can use the following script, wher
 	
 	f.tight_layout()
 	f.savefig( 'plot_aligned_trajectories.png' )
+	
+To run the plot script access through the shell the folder that contains it and type
+
+	python3.5 plot_aligned_trajectories.py
 	

@@ -16,12 +16,14 @@ On a mac: if those libraries are not installed, you can install them with [macpo
 
 To plot the trajectories of the examples we use [matplotlib](http://matplotlib.org/). This library is not necessary to use the functionalities of the package.
 
-To install the Trajectory Alignment package download the latest version of the package from [here](https://github.com/apicco/trajectory_alignment/archive/master.zip) or visit the [github repository](https://github.com/apicco/trajectory_alignment).
+To install the `trajalign` package, please download the latest version of the package from [here](https://github.com/apicco/trajectory_alignment/archive/master.zip) or visit the [github repository](https://github.com/apicco/trajectory_alignment).
 
-In the folder that you downloaded there is a `setup.py` file. From the shell type:
+In the folder that you downloaded you will find a `setup.py` file. From the shell type:
 
 	sudo python3.5 setup.py install
 
-The Trajectory Alignment package is now ready to use. Refer to the [documentation](Home), to these [examples](Examples) and to the example in the folder you downloaded to learn how to use the package.
+The `trajalign` package is now ready to use. Refer to the [documentation](Home) and to these [examples](Examples), which are also present in the folder you downloaded, to learn how to use the package.
+
+Have fun!
 
 

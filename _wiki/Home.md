@@ -12,6 +12,8 @@ If you use this software, please cite:
 
 ## Content:
 
+* [Installation](Installation)
+
 * [The trajectory class](The-trajectory-class)
 
 * [Average trajectories together](Averaging-trajectories)
