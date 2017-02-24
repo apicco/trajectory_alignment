@@ -32,4 +32,5 @@ _path_target_ to the reference average trajectory, identified by the path _path_
 the lists of the trajectories for the reference and target protein that have been acquired symultaneosly and which 
 are used to compute the alignment.
 
-Aligned trajectories are saved with the same name as the target trajectory (path_target), followed by "_aligned". These trajectories store also new  annotations: the name of the target trajectory, the name of the reference trajectory and the transformation and its error that aligns the target trajectory to the reference trajectory. The transformation is computed as the median and the errors are the standard errors computed from the MAD adjusted for asymptotically normal consistency (_k = 1.4826_). 
+Aligned trajectories are saved with the same name as the target trajectory (path_target), followed by "aligned". 
+These trajectories store also new  annotations: the name of the target trajectory, the name of the reference trajectory and the transformation and its error that aligns the target trajectory to the reference trajectory. The transformation is computed as the median and the errors are the standard errors computed from the MAD adjusted for asymptotically normal consistency (_k = 1.4826_). 
