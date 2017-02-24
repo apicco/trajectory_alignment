@@ -13,7 +13,7 @@ To start with `trajalign`, read first how to [install](Installation) it.
 
 If you use this software, please cite:
 
-[Picco, A., Kaksonen, M., _Precise tracking of the dynamics of multiple proteins in endocytic events._,  Methods in Cell Biology, Vol. 139, pages 51-68 (2017)](http://www.sciencedirect.com/science/article/pii/S0091679X16301546)
+[Picco, A., Kaksonen, M., _Precise tracking of the dynamics of multiple proteins in endocytic events_,  Methods in Cell Biology, Vol. 139, pages 51-68 (2017)](http://www.sciencedirect.com/science/article/pii/S0091679X16301546)
 
 ***
 
@@ -31,7 +31,7 @@ If you use this software, please cite:
 
 * [An example of the averaging of trajectories](Example-of-trajectory-average)
 
-* [An example of the alignment of average trajectories](Example-of-trajectory-alignment)
+* [An example of the alignment of average trajectories](Example-of-trajectory-alignment
 
 ***
 
