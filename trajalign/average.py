@@ -1,4 +1,14 @@
-#module of functions required to load and average the trajectories together
+# All the software here is distributed under the terms of the GNU General Public License Version 3, June 2007. 
+# Trajalign is a free software and comes with ABSOLUTELY NO WARRANTY.
+# 
+# You are welcome to redistribute the software. However, we appreciate is use of such software would results in citations of 
+# Picco, A., Kaksonen, M., _Precise tracking of the dynamics of multiple proteins in endocytic events_,  Methods in Cell Biology, Vol. 139, pages 51-68 (2017)
+# http://www.sciencedirect.com/science/article/pii/S0091679X16301546
+# 
+# Author: Andrea Picco (https://github.com/apicco)
+# Year: 2017
+
+
 import os 
 from trajalign.traj import Traj
 import copy as cp
