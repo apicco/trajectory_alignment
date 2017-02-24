@@ -253,28 +253,28 @@ def align( path_target , path_reference , ch1 , ch2 ):
 		#lag
 		T[ 'lag' ].append( ch2_lag - ch1_lag )
 	
-	#compute the median and the MAD of the transformations
+	#compute the median and the standard error (SE) of the transformations
 	T_median = { 
 			'angle' : np.median( T[ 'angle' ] ) ,
-			'angle_MAD' : nanMAD( T[ 'angle' ] ) / np.sqrt( l ) ,
+			'angle_SE' : nanMAD( T[ 'angle' ] ) / np.sqrt( l ) ,
 			'translation' : [
 				np.median( [ T[ 'translation' ][ i ][ 0 ] for i in range( l ) ] ) ,
 				np.median( [ T[ 'translation' ][ i ][ 1 ] for i in range( l ) ] )
 				] ,
-			'translation_MAD' : [
+			'translation_SE' : [
 				nanMAD( [ T[ 'translation' ][ i ][ 0 ] for i in range( l ) ] ) / np.sqrt( l ),
 				nanMAD( [ T[ 'translation' ][ i ][ 1 ] for i in range( l ) ] ) / np.sqrt( l ) 
 				] ,
 			'lag' : np.median( T[ 'lag' ] ) , 
-			'lag_MAD' : nanMAD( T[ 'lag' ] ) ,
+			'lag_SE' : nanMAD( T[ 'lag' ] ) / np.sqrt( l ) ,,
 			'n' : l
 			}
 
 	t1.rotate( T_median[ 'angle' ] , 
-			angle_err = T_median[ 'angle_MAD' ]
+			angle_err = T_median[ 'angle_SE' ]
 			)
 	t1.translate( T_median[ 'translation' ] , 
-			v_err = ( T_median[ 'translation_MAD' ][ 0 ] , T_median[ 'translation_MAD' ][ 1 ] )
+			v_err = ( T_median[ 'translation_SE' ][ 0 ] , T_median[ 'translation_SE' ][ 1 ] )
 			)
 	t1.input_values( 't' , t1.t() + T_median[ 'lag' ] )
 
@@ -286,11 +286,11 @@ def align( path_target , path_reference , ch1 , ch2 ):
 	t1.annotations( 'aligned_to' , str( path_reference ) )
 	t1.annotations( 'original_file' , str( path_target ) )
 	t1.annotations( 'alignment_angle' , str( T_median[ 'angle' ] ) + ' rad' )
-	t1.annotations( 'alignment_angle_MAD' , str( T_median[ 'angle_MAD' ] ) + ' rad' )
+	t1.annotations( 'alignment_angle_SE' , str( T_median[ 'angle_SE' ] ) + ' rad' )
 	t1.annotations( 'alignment_translation' , str( T_median[ 'translation' ] ) + ' ' + t1.annotations()[ 'coord_unit' ] )
-	t1.annotations( 'alignment_translation_MAD' , str( T_median[ 'translation_MAD' ] ) + ' ' + t1.annotations()[ 'coord_unit' ] )
+	t1.annotations( 'alignment_translation_SE' , str( T_median[ 'translation_SE' ] ) + ' ' + t1.annotations()[ 'coord_unit' ] )
 	t1.annotations( 'alignment_lag' , str( T_median[ 'lag' ] ) + ' ' + t1.annotations()[ 't_unit' ] )
-	t1.annotations( 'alignment_lag_MAD' , str( T_median[ 'lag_MAD' ] ) + ' ' + t1.annotations()[ 't_unit' ] )
+	t1.annotations( 'alignment_lag_SE' , str( T_median[ 'lag_SE' ] ) + ' ' + t1.annotations()[ 't_unit' ] )
 
 	t1.save( file_name )
 
