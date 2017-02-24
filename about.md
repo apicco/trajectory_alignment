@@ -12,12 +12,6 @@ The new version of the software here is rewritten in python, to software is more
 The software was developped and is currently mantained by [Andrea Picco](https://github.com/apicco) in the [Kaksonen laboratory](http://cms.unige.ch/sciences/biochimie/-Marko-Kaksonen-.html).
 
 ***
-
-If you use this software, please cite: 
-
-[Picco, A., Kaksonen, M., _Precise tracking of the dynamics of multiple proteins in endocytic events_,  Methods in Cell Biology, Vol. 139, pages 51-68 (2017)](http://www.sciencedirect.com/science/article/pii/S0091679X16301546)
-
-***
 # About the author
 
 I am a physicist who has always been fascinated by biology and its complexity. In the field of cellular biology, I strongly believe that the careful design of quantitative microscopy experiments and a rigorous data analysis can allow scientists to visualise and understand the molecular details, and dynamics, that operate molecular machineries in biological processes, directly in living cells. Currently, I am a Mâitre assistant in the group of Professor Kaksonen. Some external links:
