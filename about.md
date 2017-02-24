@@ -18,14 +18,16 @@ If you use this software, please cite:
 Picco, A., Kaksonen, M., _Precise tracking of the dynamics of multiple proteins in endocytic events._,  Methods in Cell Biology, 2017.
 
 ***
-#About the author
+# About the author
 
-I am a physicist who has always been fascinated by biology and its complexity. In the field of cellular biology, I strongly believe that the careful design of quantitative microscopy experiments and a rigorous data analysis can allow scientists to visualise and understand the molecular details, and dynamics, that operate molecular machineries in biological processes, directly in living cells.
-[Google scholar](https://scholar.google.ch/citations?user=LpvPoGIAAAAJ&hl=en)
-[LinkedIN](https://ch.linkedin.com/in/andrea-picco-9b62a274)
-[Github repository](https://github.com/apicco)
+I am a physicist who has always been fascinated by biology and its complexity. In the field of cellular biology, I strongly believe that the careful design of quantitative microscopy experiments and a rigorous data analysis can allow scientists to visualise and understand the molecular details, and dynamics, that operate molecular machineries in biological processes, directly in living cells. Some external links:
+* [Google scholar](https://scholar.google.ch/citations?user=LpvPoGIAAAAJ&hl=en)
+* [LinkedIN](https://ch.linkedin.com/in/andrea-picco-9b62a274)
+* [Github repository](https://github.com/apicco)
 
-#Licence
+***
+
+# Licence
 
 All the software here is distributed under the terms of the [GNU General Public License Version 3, June 2007](https://www.gnu.org/licenses/gpl.html). `trajalign` is a free software and comes with ABSOLUTELY NO WARRANTY. You are welcome to redistribute the software. However, we deeply appreciate is the use of our software would results in citations of [Picco, A., Kaksonen, M., _Precise tracking of the dynamics of multiple proteins in endocytic events_,  Methods in Cell Biology, Vol. 139, pages 51-68 (2017)](http://www.sciencedirect.com/science/article/pii/S0091679X16301546).
 Enjoy!
