@@ -9,7 +9,7 @@ The original version of the software was developed in [R](www.cran.org) and is n
 
 The new version of the software here is rewritten in python, to software is more efficient, it is easier to use and its code is clearer than in the original version. 
 
-The software was developped and is currently mantained by [Andrea Picco](https://github.com/apicco) in the Kaksonen [laboratory](http://cms.unige.ch/sciences/biochimie/-Marko-Kaksonen-.html).
+The software was developped and is currently mantained by [Andrea Picco](https://github.com/apicco) in the [Kaksonen laboratory](http://cms.unige.ch/sciences/biochimie/-Marko-Kaksonen-.html).
 
 ***
 
@@ -20,10 +20,11 @@ Picco, A., Kaksonen, M., _Precise tracking of the dynamics of multiple proteins 
 ***
 # About the author
 
-I am a physicist who has always been fascinated by biology and its complexity. In the field of cellular biology, I strongly believe that the careful design of quantitative microscopy experiments and a rigorous data analysis can allow scientists to visualise and understand the molecular details, and dynamics, that operate molecular machineries in biological processes, directly in living cells. Some external links:
+I am a physicist who has always been fascinated by biology and its complexity. In the field of cellular biology, I strongly believe that the careful design of quantitative microscopy experiments and a rigorous data analysis can allow scientists to visualise and understand the molecular details, and dynamics, that operate molecular machineries in biological processes, directly in living cells. Currently, I am a M\^aitre assistant in the group of Prof. Kaksonen. Some external links:
 * [Google scholar](https://scholar.google.ch/citations?user=LpvPoGIAAAAJ&hl=en)
 * [LinkedIN](https://ch.linkedin.com/in/andrea-picco-9b62a274)
 * [Github repository](https://github.com/apicco)
+* [Kaksonen laboratory](http://cms.unige.ch/sciences/biochimie/-Marko-Kaksonen-.html)
 
 ***
 
