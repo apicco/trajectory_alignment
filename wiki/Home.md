@@ -5,7 +5,7 @@ wikiPageName: Home
 menu: wiki
 ---
 
-Welcome to the trajectories-alignment **documentation** wiki!
+Welcome to the `trajalign` **documentation** wiki!
 
 To start with `trajalign`, read first how to [install](Installation) it.
 
@@ -29,7 +29,9 @@ If you use this software, please cite:
 
 ## Examples:
 
-* [An example of use of the trajectory class](Trajectory-class-example)
+* [The examples](All the examples.md)
+
+* [An example of the use of the trajectory class](Trajectory-class-example)
 
 * [An example of the averaging of trajectories](Example-of-trajectory-average)
 

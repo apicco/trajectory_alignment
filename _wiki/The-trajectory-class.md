@@ -1,10 +1,10 @@
-Here, all the elementss of the trajectory class are listed. The trajectory class is defined in [traj.py](https://github.com/apicco/trajectory_alignment/tree/master/trajalign) and can be imported as
+All the elements of the trajectory class are listed here. The trajectory class is defined in [traj.py](https://github.com/apicco/trajectory_alignment/tree/master/trajalign) and can be imported as
 
 	from trajalign.traj import Traj
 
 ## Trajectory definition
 
-**`Traj(annotations)`** creates a new empty trajectory. Annotations are an optional dictionary allowing whatever entries are needed about the trajectory (name, date, experiment,..)
+**`Traj( annotations )`** creates a new empty trajectory. Annotations are an optional dictionary that allow the user to  add whatever entries are needed about the trajectory (name, date, experiment, notes, ...)
 
 `t = Traj( what = 'my first trajectory' , folder = 'home/foo/' , experiment = 'very important' , mood = 'today is a beautiful day' )`
 
@@ -16,19 +16,19 @@ Annotations can be read and modified at anytime (see `.annotations()`).
 
 A trajectory contains several attributes:
 
-* **`.frames()`** is an array of frame indexes of the original image. If the time is present, then `.frames()` and `.t()` must have the same length.
+* **`.frames()`** is the array of indexes that identify the frames of the original image. Frames are temporally spaced by a time interval `delta_t` or by multipes of such time interval. It can be, in fact, that a spot is allowed to be  missing in one or few frames, depending on the linking properties of the tracking algorithm. If the time is present, then `.frames()` and `.t()`, which contains the time information, must have the same length.
 
-* **`.t()`** is an arrey of time values associated to each frame, if any. The array of `.t()` must have the same length as `.frames()`.
+* **`.t()`** is the array of time values associated to each frame. The array of `.t()` must have the same length as `.frames()`. Elements in `.t()` are spaced by `delta_t` or multiples of if.
 
-* **`.coord()`** is a matrix of the spatial coordinate of the fluorescent spot centroid.
+* **`.coord()`** is a matrix of the spatial coordinates of the fluorescent spot centroid, over time or across the different frames.
 
-* **`.f()`** an array of fluorescence intensities measured from the spots.
+* **`.f()`** an array of fluorescence intensities of the spots measured across the different frames.
 
 * **`.mol()`** an array of number of molecules, if known.
 
 * **`.n()`** if traj() is an average trajectory, then `.n()` outputs an array containing the number of trajectories used to compute the average at each datapoint.
 
-`.t()`, `.coord()`, `.f()` and `.n()` have related attributes containing the measured errors, if known. The errors are called with `.t_err()`, `.coord_err()`, `.f_err()` and `.mol_err()` respectively.
+`.t()`, `.coord()`, `.f()` and `.n()` have related attributes containing the measured errors, if known. The errors are called with `.t_err()`, `.coord_err()`, `.f_err()` and `.mol_err()` respectively and they are calculated as described in the documentation about how to [align average trajectories together](Align-average-trajectories).
 
 **`.attributes()`** lists the attributes of the trajectory that are not empty.
 
@@ -58,15 +58,19 @@ or (deprecated) `print( d.t()[ range( 0 , 3 ) ] )`
 
 `print( d.coord( range( 0 , 3 ) ) )`
 
-or (deprecated) `print( [ d.coord()[ 0 ][ range( 0 , 3 ) ] , d.coord()[ i ][ range( 0 , 3 ) ] ] )`
+or (deprecated) `print( [ d.coord()[ 0 ][ range( 0 , 3 ) ] , d.coord()[ 1 ][ range( 0 , 3 ) ] ] )`
 
 **`.annotations( annotation = None , string = '')`**: output the dictionary of the annotations associate to the trajectory (equivalent to `.__dict__()`). If an annotation is inputed it changes the value of the annotation with string. If the annotation is not defined it defines it.
 
-Annotations can be outputted:
+Output all annotations:
+
+`print( d.annotations() )`
+
+Print the content of the annotation named 'what', if any:
 
 `print( d.annotations()[ 'what' ])`
 
-They can be added
+They can be inputed  
 
 `d.annotations( 'goals' , 'Understand the meaning of live' )`
 
@@ -76,13 +80,13 @@ or modified
 
 which is equivalent to (deprecated) `d.annotations()[ 'mood' ]= 'all this seems pretty complicated. But it is not!'`
 
-**`.start( t = None )`** returns the start of the trajectory if the time attribute is defined. If t is specified then it returns the trajectory attributes starting from t.
+**`.start( t = None )`** returns the start of the trajectory if the time attribute is defined. If `t` is specified, it returns the trajectory attributes starting from `t`.
 
 `print( d.start() )`
 
 `print( d.start( t = 0.5 ) )`
 
-**`.end( t = None )`** returns the end of the trajectory if the time attribute is defined. If t is specified then it returns the trajectory attributes ending at t.
+**`.end( t = None )`** returns the end of the trajectory if the time attribute is defined. If `t` is specified, it returns the trajectory attributes ending at `t`.
 
 `print( d.end() )`
 
@@ -101,13 +105,13 @@ which is equivalent to (deprecated) `d.annotations()[ 'mood' ]= 'all this seems 
 
 ## Operations on the trajectories
 
-**`.fill()`** fills attributes with NaN where there are missing frames.
+**`.fill()`** fills attributes with NaN where there are missing frames and add the corresponding frame number and/or time value to `.frames()` and `.t()`.
 
 **`.rotate( angle , angle_err = 0 )`** rotates the coordinates by an angle expressed in radiants and propagate the errors accordingly if `.coord_err()` is not empty or if angle_err is not 0.
 
 **`.translate( v , v_err = ( 0 , 0 ) )`** translate the trajectory by a vector v. If v_err is not 0 it propagates the error accordingly.
 
-**`.lag( time_shift )`** shift in time of the trajectory by time_shift, in the trajectory time units.
+**`.lag( time_shift )`** shift in time of the trajectory by time_shift, which must be expressed in the trajectory time units.
 
 **`.center_of_mass()`** translate the trajectory so that its cententer of mass sits on the origin.
 
@@ -121,7 +125,7 @@ which is equivalent to (deprecated) `d.annotations()[ 'mood' ]= 'all this seems 
 
 `t.save( filename = 'my_first_trajectory.txt' )`
 
-**`.load( filename , sep = None , comment_char = '#' , attribute_names... )`**: loads data from a txt table. Data must be ordered in columns. Columns can be separated by spaces or tabs or comas (for .csv files). The separator can be entered in sep as a string. The default for sep is None, which will recognise columns separated by an arbitrary number of spaces. The strings starting with the comment_char string will be disregarded. Attribute_names associate each column to the right attribute. Attribute_names can be only: 'frames', 't', 'coord', 'f', 'n', 'mol','t_err', 'coord_err', 'f_err', 'mol_err'.
+**`.load( filename , sep = None , comment_char = '#' , attribute_names... )`** loads data from a .txt table. Data must be ordered in columns. Columns can be separated by spaces or tabs or comas (for .csv files). The separator can be entered in sep as a string. The default for sep is None, which will recognise columns separated by an arbitrary number of spaces. The strings starting with the comment_char string will be disregarded. Attribute_names associate each column to the right attribute. Attribute_names can be only: 'frames', 't', 'coord', 'f', 'n', 'mol','t_err', 'coord_err', 'f_err', 'mol_err'.
 
 	t = Traj() #empty trajectory
 	t.load( 'my_first_trajectory.txt' , frames = 0 , t = 1 , coord = ( 2 , 3 ) )
