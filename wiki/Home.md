@@ -29,7 +29,7 @@ If you use this software, please cite:
 
 ## Examples:
 
-* [The examples](All the examples.md)
+* [All the examples](Examples.md)
 
 * [An example of the use of the trajectory class](Trajectory-class-example)
 
