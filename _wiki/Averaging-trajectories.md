@@ -1,5 +1,5 @@
-Trajectories that describe the spatio-temporal properties of an event can be aligned in space and in time together to estimate what is their average behaviour. 
-The trajectories must obey to some important prerequisites, which are essential:
+Trajectories of events whose dynamics are regular can be aligned in space and in time together and averaged to estimate what is their average behaviour and the variability between the different events. 
+To be aligned and averaged, the trajectories must obey to some important prerequisites, which are essential:
 * The event that the trajecotories describe must be homogeneous. Trajectories describing heterogeneous events cannot be obviously averaged together.
 * All the trajectories must share the same spatial and temporal units. It is not possible to align trajectories whose frames are spaced by different time intervals.
 * Trajectories need to describe an event that moves in a clear direction. Unmotile events cannot be reliably aligned in space. 
@@ -9,7 +9,7 @@ The functions necessary to average the different trajectories together are defin
 	from trajalign.average import load_directory
 	from trajalign.average import average_trajectories
     
-**`load_directory( path , pattern = '.txt' , sep = None , comment_char = '#' , dt = None , t_unit = '' , attrs...)`** loads all the trajectories listed in `path`, which have the same `pattern`, into a list of trajectories. The trajectories in `path` must be text files with the data organised in columns separated by `sep`. When `sep` is set to _None_ the separation can be an indefinite number of white spaces. Comment lines in the trajectory files must be identified by the the `comment_char` at their beginning. `comment_char` can be a string of any length. `attrs` is used to assigne each column of the trajectory file to the right attribute and it is used to add annotations, if necessary. The [attributes](The-trajectory-class#trajectory-attributes) of a trajectory are _frames_, _t_, _coord_, _f_, _mol_, _n_, _t_err_, _coord_err_, _f_err_ and _mol_err_. 
+**`load_directory( path , pattern = '.txt' , sep = None , comment_char = '#' , dt = None , t_unit = '' , attrs...)`** loads all the trajectories listed in `path`, which have the same `pattern`, into a list of trajectories. The trajectories in `path` must be text files with the data organised in columns separated by `sep`. When `sep` is set to _None_ the separation can be an indefinite number of white spaces. Comment lines in the trajectory files must be identified by the `comment_char` at their beginning. `comment_char` can be a string of any length. `attrs` is used to assigne each column of the trajectory file to the right attribute and it is used to add annotations, if necessary. The [attributes](The-trajectory-class#trajectory-attributes) of a trajectory are _frames_, _t_, _coord_, _f_, _mol_, _n_, _t_err_, _coord_err_, _f_err_ and _mol_err_. 
 
 A trajectory file can look as such:
 
