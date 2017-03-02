@@ -20,4 +20,3 @@ If you use this software, please cite:
 
 [Picco, A., Kaksonen, M., _Precise tracking of the dynamics of multiple proteins in endocytic events_,  Methods in Cell Biology, Vol. 139, pages 51-68 (2017)](http://www.sciencedirect.com/science/article/pii/S0091679X16301546)
 
-img[alt=drawing] { width: 20px; }
