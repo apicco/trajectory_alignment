@@ -26,8 +26,9 @@ Enjoy!
 
 # About the author
 
-<img src="images/me.jpg" alt="me" align="left" style="width: 160px;" hspace="15"/>
+<img src="images/me.jpg" alt="me" align="left" style="width: 150px;" hspace="20"/>
 I am a physicist who has always been fascinated by biology and its complexity. I believe that the careful design of quantitative microscopy experiments and a rigorous data analysis can allow scientists to visualise and understand the molecular details of biological processes, directly in living cells. Currently, I am a Mâitre assistant in the group of Professor Kaksonen. 
+
 
 Some external links:
 * [my Google scholar](https://scholar.google.ch/citations?user=LpvPoGIAAAAJ&hl=en)
