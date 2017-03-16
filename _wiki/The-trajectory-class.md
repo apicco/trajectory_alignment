@@ -28,7 +28,7 @@ A trajectory contains several attributes:
 
 * **`.n()`** if traj() is an average trajectory, then `.n()` outputs an array containing the number of trajectories used to compute the average at each datapoint.
 
-`.t()`, `.coord()`, `.f()` and `.n()` have related attributes containing the measured errors, if known. The errors are called with `.t_err()`, `.coord_err()`, `.f_err()` and `.mol_err()` respectively and they are calculated as described in the documentation about how to [align average trajectories together](Align-average-trajectories).
+`.t()`, `.coord()`, `.f()` and `.mol()` have related attributes containing the measured errors, if known. The errors are called with `.t_err()`, `.coord_err()`, `.f_err()` and `.mol_err()` respectively and they are calculated as described in the documentation about how to [align average trajectories together](Align-average-trajectories).
 
 **`.attributes()`** lists the attributes of the trajectory that are not empty.
 
