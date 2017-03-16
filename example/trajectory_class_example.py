@@ -28,7 +28,7 @@ d = Traj(
 		temperature = 'cold!' , 
 		note = 'Happy new millenium' )
 
-d.load(file_name='raw_trajectories/02.data',
+d.load(file_name='trajectory_average_example/raw_trajectories/02.data',
 		frames = 0, coord = (1,2), f = 3, 
 		comment_char='%', weather = 'clear and sunny' )
 print(d) 
