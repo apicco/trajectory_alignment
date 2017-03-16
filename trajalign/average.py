@@ -154,8 +154,8 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 		"""
 		R(alpha): returns the rotation matrix:
 		
-			/	cos(alpha)	-sin(alpha) \
-		R =	|							| 
+			/	cos(alpha)	-sin(alpha) 	\
+		R =	|					| 
 			\	sin(alpha)	cos(alpha)	/
 		"""
 		return(np.matrix([[np.cos(alpha),-np.sin(alpha)], [np.sin(alpha),np.cos(alpha)]]))
@@ -249,13 +249,6 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 		if I_x > I_y : theta = theta - np.pi/2
 		t.rotate( theta )
 
-		#X = np.nanmedian( t.coord()[0] ** 2 )  - np.nanmedian( t.coord()[0] ) **2 
-		#Y = np.nanmedian( t.coord()[0] * t.coord()[1] ) - np.nanmedian( t.coord()[0] ) * np.nanmedian( t.coord()[1] )
-		#c = np.nanmedian( t.coord()[1] ) - Y * np.nanmedian( t.coord()[0] ) / X
-	
-		#t.translate( ( 0 , c ) )
-		#t.rotate( np.arctan2( Y , X ) )
-
 		with wr.catch_warnings():
 			# if a coord has nan then a waring is outputed when nan > 0 or nan < 0 is asked. Here we suppress such warnings.
 			wr.simplefilter("ignore", category=RuntimeWarning)
@@ -288,8 +281,6 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 		t.rotate( - np.arctan( model_RANSACR.estimator_.coef_[0] ) )
 		return( { 'translation' :  translation_vector , 'angle' : theta - np.arctan( model_RANSACR.estimator_.coef_[0] ) } )
 
-	#NOTE: the R code computed the time aligment by the CC of the FI filtered with a running filter of length 5 if FIMAX = TRUE. The score of the alignments was also fitered.
-	#If FIMAX = FALSE the score only was filtered.
 	transformations = {
 			'angles' : np.array([]),
 			'rcs' : np.array([np.array([]),np.array([])]),#note that the matric rcs is the transpose of the lcs
@@ -337,6 +328,7 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 					lag = int( x.frames( 0 ) - y.frames( 0 ) + i )
 					x_frames = x.frames()
 					y_frames = y.frames() + lag
+					
 					#select the frames that are overlapping 
 					sel_frames = [ i for i in range( len( x_frames) ) if x_frames[ i ] in y_frames ]
 			
@@ -383,18 +375,6 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 			
 				selected_alignments.append( refined_alignments_2[ refined_s_2.index( min( refined_s_2 ) ) ] )
 
-
-#				plt.figure()
-#				plt.subplot(211)
-#				plt.plot( t1.frames() , t1.f() , '-' )
-#				plt.plot( t2.frames() + lag , t2.f() , '-' )
-#				plt.plot( t2.frames() + refined_alignments_2[ refined_s_2.index( min( refined_s_2 ) ) ]['lag'] , t2.f() , '-' )
-#				plt.subplot(212)
-#				plt.plot( lags , s )
-#				plt.plot( [ a['lag'] for a in refined_alignments_2 ] , refined_s_2 )
-#				plt.show()
-
-				
 		print('________________')
 
 		#Create a matrix with all the transformations: angle, lag and center of masses. 
@@ -529,7 +509,7 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 			if a == 'file':
 				average_trajectory[ r ].annotations( 'reference_file' , aligned_trajectories[ r ][ r ].annotations()[ a ])
 			else :
-				average_trajectory[ r ].annotations( a , aligned_trajectories[ r ][ r ].annotations()[ a ]) #IT WAS [ r ][ 0 ]
+				average_trajectory[ r ].annotations( a , aligned_trajectories[ r ][ r ].annotations()[ a ]) 
 
 		# Define the START and the END of the average trajectory:
 		#compute the start and the end of the average trajectory using the 
@@ -571,7 +551,7 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 				attributes_to_be_averaged[a].append(getattr(aligned_trajectories[ r ][ j ],'_'+a))
 	
 		#all the aligned trajectories are set to start at mean_start and finish at mean_end
-		#setattr(average_trajectory[ r ],'_t',aligned_trajectories[ r ][ r ].t()) #IT WAS [ r ][ j ]
+		#setattr(average_trajectory[ r ],'_t',aligned_trajectories[ r ][ r ].t()) 
 		average_trajectory[ r ].input_values( 't' , aligned_trajectories[ r ][ r ].t()) 
 			
 		#average the attributes of the trajectories and assign 
@@ -619,13 +599,11 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 						y = np.nansum( attributes_to_be_averaged[a] , axis = 0 )
 				
 						if len(x) == 2:
-							#setattr(average_trajectory[ r ],'_n',y[0]/x[0])
 							average_trajectory[ r ].input_values( 'n' , y[0]/x[0] )
 						else:
 							with wr.catch_warnings():
 								# if both y[i] and x[i] are 0, then a waring is outputed. Here we suppress such warnings.
 								wr.simplefilter("ignore", category=RuntimeWarning)
-								#setattr(average_trajectory[ r ],'_n',y/x)
 								average_trajectory[ r ].input_values( 'n' , y/x )
 
 					#compute the errors as standard errors of the mean/median
