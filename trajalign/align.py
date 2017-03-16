@@ -183,11 +183,16 @@ def align( path_target , path_reference , ch1 , ch2 ):
 
 	t2 = Traj()
 	t2.load( path_reference )
-
-	#average trajectories are centered on their center of mass to minimise inaccuracies
-	#that can derive from the approximation of the rotation and traslation
-	#(see Picco et al. 2015, Material and Methods section for further reference).
-	#Ideally, rotations should be computer with quaternions.
+	
+	#################################################################################################################
+	#average trajectories are centered on their center of mass and must have been previously lied down 
+	#(lie_down function in trajalign/average.py) so that they are orientad in the same way. The 
+	# average transformation that align the left trajectory to the rigth trajectory (we use the notation in 
+	#Horn 1987 and Picco 2015) is only true for small rotations and it is important to minimise inaccuracies
+	#that can derive from the approximation of the rotation and traslation. For more details see 
+	#Picco et al. 2015, Material and Methods, Two color alignment procedure, Estimate of the average trasformations).
+	#################################################################################################################
+	
 	t1_center_of_mass = t1.center_mass()
 	t1.translate( - t1_center_of_mass )
 	t2.translate( - t2.center_mass() )
