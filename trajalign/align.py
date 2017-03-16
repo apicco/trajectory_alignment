@@ -281,7 +281,7 @@ def align( path_target , path_reference , ch1 , ch2 ):
 				nanMAD( [ T[ 'translation' ][ i ][ 1 ] for i in range( l ) ] ) / np.sqrt( l ) 
 				] ,
 			'lag' : np.median( T[ 'lag' ] ) , 
-			'lag_SE' : nanMAD( T[ 'lag' ] ) / np.sqrt( l ) ,,
+			'lag_SE' : nanMAD( T[ 'lag' ] ) / np.sqrt( l ) ,
 			'n' : l
 			}
 
