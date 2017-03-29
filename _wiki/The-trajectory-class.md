@@ -102,6 +102,8 @@ which is equivalent to (deprecated) `d.annotations()[ 'mood' ]= 'all this seems 
 
 `print( d.extract( range( 0 , len( d ) ) ) )` is the identity to `d`.
 
+Note and important difference between `.start()`, `.end()` and `.extract()`: When `.start()` and `.end()` are used to define a new start and end, the information on the time points before the new start or after the new end is lost.
+`.extract()` instead creates a completely new trajectory and does not alter the original trajectory.
 
 ## Operations on the trajectories
 
