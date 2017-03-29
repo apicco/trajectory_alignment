@@ -406,14 +406,14 @@ class Traj:
 
 			raise AttributeError('The fluorescence intensity attribute is empty!')
 	
-	
-		#running mean over fi. The same mean is run over the frame number to find the 
-		#frame at which the max in fi is.
+		#running mean over fi. The same mean is run over the row numbers to find the 
+		#row at which the max in fi is.
 		fi = array( convolve( self.f() , filter , 'valid' ) )
-		x = array( convolve( self.frames() , filter , 'valid' ) )
+		row = array( convolve( range( 0 , len( fi ) ) , filter , 'valid' ) )
 		
-		x_where_fi_max_is = int( x[ nanargmax( fi ) ] )
-		output = self.extract( range( 0 , x_where_fi_max_is + 1 ) )
+		row_where_fi_max_is = row[ nanargmax( fi ) ]
+
+		output = self.extract( range( int( row[ 0 ] ) , int( row_where_fi_max_is + 1 ) ) )
 		
 		#create annotation
 		output.annotations( 'fimax' , 'TRUE' )
