@@ -411,9 +411,6 @@ class Traj:
 		#frame at which the max in fi is.
 		fi = array( convolve( self.f() , filter , 'valid' ) )
 		x = array( convolve( self.frames() , filter , 'valid' ) )
-		print( self.frames() )
-		print( '-- -- -- -- --' )
-		print( x ) 
 		
 		x_where_fi_max_is = int( x[ nanargmax( fi ) ] )
 		output = self.extract( range( 0 , x_where_fi_max_is + 1 ) )
