@@ -20,6 +20,8 @@ from numpy import NaN
 from numpy import insert
 from numpy import nanmean
 from numpy import float64 
+from numpy import convolve
+from numpy import nanargmax
 from math import isclose
 
 class Traj:
@@ -392,8 +394,33 @@ class Traj:
 
 		return output
 
-	#Setters
+	def fimax( self , filter = [ 1 ] ):
 
+		"""
+		.fimax( self , filter = [ 1 ] ) : extracts a trajectory that stops at the max of the fluorescence intensity, included.
+		'filter' defines the  filter used to smooth the fluorescence intensity profile. Default is no filter ( filter = [ 1 ] ).
+		"""
+
+		#check that the trajectory has a fluorescence intensity attribute which is not empty
+		if not len( self.f() ) :
+
+			raise AttributeError('The fluorescence intensity attribute is empty!')
+	
+	
+		#running mean over fi. The same mean is run over the frame number to find the 
+		#frame at which the max in fi is.
+		fi = array( convolve( self.f() , filter , 'valid' ) )
+		x = array( convolve( self.frames() , filter , 'valid' ) )
+		
+		x_where_fi_max_is = x[ nanargmax( fi ) ] 
+		output = self.extract( range( 0 , x_where_fi_max_is + 1 ) )
+		
+		#create annotation
+		output.annotations( 'fimax' , 'TRUE' )
+
+		return output
+
+	#Setters
 	#Input values in the Traj object as arrays. Array length must be equal to the length of frames and time
 	def input_values(self,name,x,unit=''):
 		"""
