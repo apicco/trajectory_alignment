@@ -338,8 +338,8 @@ class Traj:
 		.extract(range(10,20)) extracts all the rows from 10 to 19. 
 		"""
 
-		if (len(items)==0): raise IndexError('Please, specify the values you want to extract from the trajectory')
-		#elif (len(items)==1): 
+		if (len(items)==0): 
+			raise IndexError('Please, specify the values you want to extract from the trajectory')
 		else:
 			new_items = [] #items are enters as a tuple, and should be converted as list
 			for i in items:
