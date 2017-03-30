@@ -409,10 +409,10 @@ class Traj:
 		#running mean over fi. The same mean is run over the row numbers to find the 
 		#row at which the max in fi is.
 		fi = array( convolve( self.f() , filter , 'valid' ) )
-		row = array( convolve( range( 0 , len( fi ) ) , filter , 'valid' ) )
-		
-		row_where_fi_max_is = row[ nanargmax( fi ) ]
+		row = array( convolve( range( 0 , len( self.f() ) ) , filter , 'valid' ) )
 
+		row_where_fi_max_is = row[ nanargmax( fi ) ]
+		
 		output = self.extract( range( int( row[ 0 ] ) , int( row_where_fi_max_is + 1 ) ) )
 		
 		#create annotation
