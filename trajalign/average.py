@@ -135,7 +135,7 @@ def nanMAD( x , axis = None , k = 1.4826):
 	MAD = np.nanmedian( np.absolute( x - np.nanmedian( x , axis ) ) , axis )
 	return( k * MAD )
 
-def average_trajectories( trajectory_list , max_frame=500 , output_file = 'average' , median = False ):
+def average_trajectories( trajectory_list , max_frame=500 , output_file = 'average' , median = False , fimax = False , fimax_filter = [ -3/35 , 12/35 , 17/35 , 12/35 , -3/35 ] ):
 
 	"""
 	average_trajectories( trajectory_list , max_frame = 500 , output_file = 'average' , median = False ): align all the 
@@ -154,9 +154,9 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 		"""
 		R(alpha): returns the rotation matrix:
 		
-			/	cos(alpha)	-sin(alpha) 	\
-		R =	|					| 
-			\	sin(alpha)	cos(alpha)	/
+			/	cos(alpha)	-sin(alpha)		\
+		R =	|								| 
+			\	sin(alpha)	cos(alpha)		/
 		"""
 		return(np.matrix([[np.cos(alpha),-np.sin(alpha)], [np.sin(alpha),np.cos(alpha)]]))
 
@@ -165,16 +165,21 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 			yield x
 			x += step
 	def compute_score(average_t,t_list):
+
 		s = []
+	
 		for t in t_list:
+
 			w = average_t.f() * t.f() / np.nansum( average_t.f() * t.f() )
 			s.append(np.nansum(w * np.nansum((average_t.coord() - t.coord())**2)))
+		
 		return(s)
-	def triplicate_trajectory(t):
+
+	def triplicate_trajectory( t ):
 		#triplicate t adding itself at its beginning and at its end
 	
-		output = cp.deepcopy(t)
-		
+		output = cp.deepcopy( t )
+	
 		#anticipate the start of trajectory by the trajectory duration and a time interval (you need one time interval
 		#between the beginning of the real trajectory and the last point of the "anticipated" bit.
 		#as len(t) is the number of frames + 1, then len(t) *dt is the duration of the trajectory + one dt interval, which is needed to
@@ -280,23 +285,39 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 		
 		t.rotate( - np.arctan( model_RANSACR.estimator_.coef_[0] ) )
 		return( { 'translation' :  translation_vector , 'angle' : theta - np.arctan( model_RANSACR.estimator_.coef_[0] ) } )
+	
+	#-------------------------------------END-OF-DEFINITIONS-in-average_trajectories-----------------------------------
 
+	#define the list where transformations are stored
 	transformations = {
-			'angles' : np.array([]),
-			'rcs' : np.array([np.array([]),np.array([])]),#note that the matric rcs is the transpose of the lcs
-			'lcs' : np.array([np.array([]),np.array([])]),
-			'lags' : np.array([]),
-			'lag_units' : np.array([])
+			'angles' : np.array( [] ),
+			'rcs' : np.array( [ np.array( [] ) , np.array( [] ) ] ),#note that the matric rcs is the transpose of the lcs
+			'lcs' : np.array( [ np.array( [] ) , np.array( [] ) ] ),
+			'lags' : np.array( [] ),
+			'lag_units' : np.array( [] )
 			}
+
 	for t1 in trajectory_list: 
 
 		#t1 is the reference trajectory to which all the other trajectories are alinged
 		#The loop goes on all trajectories as all of them are eligible to be used as reference
 
 		selected_alignments = []
+		
+		#the index need to be computed now, becuase if fi_max is true, then t1 will be replaced 
+		#by the part of t1 trajectory that stops at the peak of fluorescence intensity. This 
+		#new trajectory cannot be found animore in trajectory_list. Hence, we must compute the 
+		#index before.
+		t1_index = trajectory_list.index(t1) 
+		
+		if ( fimax ) :
+			
+			t1 = t1.fimax( fimax_filter )
 
-		for t2 in [ t2 for t2 in trajectory_list]:
-			if trajectory_list.index(t2) >= trajectory_list.index(t1):
+		for t2 in [ t2 for t2 in trajectory_list ]:
+			
+			if trajectory_list.index(t2) >= t1_index :
+				
 				#list of trajectories called in the second loop; as the transformation matrices are 
 				#symmetric, transformations are computed only in the upper diagonal. 
 				selected_alignments.append(
@@ -308,10 +329,16 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 						'lag_unit' : 'frames',
 						'score' : np.NaN
 						})
+
 			else :
+
 				print( 'ref. traj.:\t' + t1.annotations()['file'] )
 				print( 'aligned traj.:\t' + t2.annotations()['file'] )
 				alignments = []
+
+				if ( fimax ) : 
+
+					t2 = t2.fimax( fimax_filter )
 
 				#triplicate the longest trajectory by adding itself at its beginning and at its end
 				if ( len(t1)  >= len(t2) ) :
@@ -322,6 +349,7 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 					y = t1
 
 				convolution_steps = len(x) - len(y) 
+				
 				for i in range( 0 , convolution_steps ) :
 					#by triplicating the longest trajectory we can test all possible alignments in
 					#space and time starting with the entire trajectories x and y.
@@ -375,13 +403,17 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 			
 				selected_alignments.append( refined_alignments_2[ refined_s_2.index( min( refined_s_2 ) ) ] )
 
+		if ( fimax ) :
+			
+			print('\nfimax = True; Transformations were computed using only the trajectory information up to the max in fluorescence intensity.')
+
 		print('________________')
 
 		#Create a matrix with all the transformations: angle, lag and center of masses. 
 		#As a convention the element i,j in the matrix contains the elements for the
 		#rototranslation and temporal shift to align the trajectori i to j, j being the
 		#reference.
-		if trajectory_list.index(t1) == 0:
+		if t1_index == 0:
 
 			transformations['angles'] = np.array(
 					[a['angle'] for a in selected_alignments]
