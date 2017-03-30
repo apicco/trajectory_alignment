@@ -401,6 +401,11 @@ class Traj:
 		'filter' defines the  filter used to smooth the fluorescence intensity profile. Default is no filter ( filter = [ 1 ] ).
 		"""
 
+		#check that the filter is properly defined
+		if sum( filter ) != 1 :
+
+			raise TypeError( 'The filter ' + str( filter ) + ' is not correctly defined and does not sum to 1' )
+
 		#check that the trajectory has a fluorescence intensity attribute which is not empty
 		if not len( self.f() ) :
 
