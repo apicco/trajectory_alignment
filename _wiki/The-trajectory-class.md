@@ -102,8 +102,10 @@ which is equivalent to (deprecated) `d.annotations()[ 'mood' ]= 'all this seems 
 
 `print( d.extract( range( 0 , len( d ) ) ) )` is the identity to `d`.
 
-Note an important difference between `.start()`, `.end()` and `.extract()`: When `.start()` and `.end()` are used to define a new start and end, the information on the time points before the new start or after the new end is lost.
-`.extract()` instead creates a completely new trajectory and does not alter the original trajectory.
+**`.fimax( filter = [ 1 ] )`** returns the part of the trajectory until the maximun in fluorescence intensity. `filter` specifies a filter that is used to smooth the fluorescence intensity profile. No smoothing is done if `filter = [ 1 ]`, which is the default. The sum of the elements of the filter must equal one. 
+
+Note an important difference between `.start()`, `.end()`, `.extract()` and `.fimax()`: When `.start()` and `.end()` are used to define a new start and end, the trajectory on which they are used is modified and the information on the time points before the new start or after the new end is lost.
+`.extract()` and `.fimax()` instead creates a completely new trajectory, which does not alter the original trajectory.
 
 ## Operations on the trajectories
 
