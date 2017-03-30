@@ -698,5 +698,12 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 			if not os.path.exists( directory ) :
 				os.makedirs( directory )
 		aligned_trajectories[ best_average ][ i ].save( filename )
+	
+	with open( "./" + output_file + "/alignment_precision.txt" , 'w' ) as f :
+
+		for ap in alignment_precision :	
+			f.write( repr( ap ) + '\n' )
+	
+	f.close()
 
 	return( average_trajectory[ best_average ], average_trajectory[ worst_average] , aligned_trajectories[ best_average ] )
