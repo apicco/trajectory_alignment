@@ -288,172 +288,175 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 	
 	#-------------------------------------END-OF-DEFINITIONS-in-average_trajectories-----------------------------------
 
-	def compute_transformations( t1 , t1_index , trajectory_list , transformations , fimax ) :
+	def compute_transformations( trajectory_list , fimax ) :
 		
-		selected_alignments = []
-		
-		if ( fimax ) :
+		#define the list where transformations are stored
+		transformations = {
+				'angles' : np.array( [] ),
+				'rcs' : np.array( [ np.array( [] ) , np.array( [] ) ] ),#note that the matric rcs is the transpose of the lcs
+				'lcs' : np.array( [ np.array( [] ) , np.array( [] ) ] ),
+				'lags' : np.array( [] ),
+				'lag_units' : np.array( [] )
+				}
+	
+		for t1 in trajectory_list: 
+	
+			#t1 is the reference trajectory to which all the other trajectories are alinged
+			#The loop goes on all trajectories as all of them are eligible to be used as reference
+	
+			selected_alignments = []
 			
-			t1 = t1.fimax( fimax_filter )
-
-		for t2 in [ t2 for t2 in trajectory_list ]:
+			#the index need to be computed now, becuase if fi_max is true, then t1 will be replaced 
+			#by the part of t1 trajectory that stops at the peak of fluorescence intensity. This 
+			#new trajectory cannot be found animore in trajectory_list. Hence, we must compute the 
+			#index before.
+			t1_index = trajectory_list.index(t1) 	
 			
-			if trajectory_list.index(t2) >= t1_index :
+			if ( fimax ) :
 				
-				#list of trajectories called in the second loop; as the transformation matrices are 
-				#symmetric, transformations are computed only in the upper diagonal. 
-				selected_alignments.append(
-					{
-						'angle' : 0,
-						'rc' : np.array([0,0]),
-						'lc' : np.array([0,0]),
-						'lag' : 0,
-						'lag_unit' : 'frames',
-						'score' : np.NaN
-						})
-
-			else :
-
-				print( 'ref. traj.:\t' + t1.annotations()['file'] )
-				print( 'aligned traj.:\t' + t2.annotations()['file'] )
-				alignments = []
-
-				if ( fimax ) : 
-
-					t2 = t2.fimax( fimax_filter )
-
-				#triplicate the longest trajectory by adding itself at its beginning and at its end
-				if ( len(t1)  >= len(t2) ) :
-					x = triplicate_trajectory(t1)
-					y = t2
+				t1 = t1.fimax( fimax_filter )
+	
+			for t2 in [ t2 for t2 in trajectory_list ]:
+				
+				if trajectory_list.index(t2) >= t1_index :
+					
+					#list of trajectories called in the second loop; as the transformation matrices are 
+					#symmetric, transformations are computed only in the upper diagonal. 
+					selected_alignments.append(
+						{
+							'angle' : 0,
+							'rc' : np.array([0,0]),
+							'lc' : np.array([0,0]),
+							'lag' : 0,
+							'lag_unit' : 'frames',
+							'score' : np.NaN
+							})
+	
 				else :
-					x = triplicate_trajectory(t2)
-					y = t1
-
-				convolution_steps = len(x) - len(y) 
-				
-				for i in range( 0 , convolution_steps ) :
-					#by triplicating the longest trajectory we can test all possible alignments in
-					#space and time starting with the entire trajectories x and y.
-					lag = int( x.frames( 0 ) - y.frames( 0 ) + i )
-					x_frames = x.frames()
-					y_frames = y.frames() + lag
-					
-					#select the frames that are overlapping 
-					sel_frames = [ i for i in range( len( x_frames) ) if x_frames[ i ] in y_frames ]
-			
-					#which trajectory was triplicated decides the sign of the lag
+	
+					print( 'ref. traj.:\t' + t1.annotations()['file'] )
+					print( 'aligned traj.:\t' + t2.annotations()['file'] )
+					alignments = []
+	
+					if ( fimax ) : 
+	
+						t2 = t2.fimax( fimax_filter )
+	
+					#triplicate the longest trajectory by adding itself at its beginning and at its end
 					if ( len(t1)  >= len(t2) ) :
-
-						alignments.append(
-								MSD( x.extract( sel_frames ) , y )
-								)
-						alignments[ len(alignments)-1 ][ 'lag' ] = lag
-					
+						x = triplicate_trajectory(t1)
+						y = t2
 					else :
+						x = triplicate_trajectory(t2)
+						y = t1
+	
+					convolution_steps = len(x) - len(y) 
 					
-						alignments.append(
-								MSD( y , x.extract( sel_frames ) )
-								)
-						alignments[ len(alignments)-1 ][ 'lag' ] = - lag
+					for i in range( 0 , convolution_steps ) :
+						#by triplicating the longest trajectory we can test all possible alignments in
+						#space and time starting with the entire trajectories x and y.
+						lag = int( x.frames( 0 ) - y.frames( 0 ) + i )
+						x_frames = x.frames()
+						y_frames = y.frames() + lag
+						
+						#select the frames that are overlapping 
+						sel_frames = [ i for i in range( len( x_frames) ) if x_frames[ i ] in y_frames ]
 				
-				s = [ a['score'] for a in alignments ]
-				lags = [ a['lag'] for a in alignments ]
-				sel_alignments = [ i for i in range(len(s)) if s[i] == min(s) ]
-			
-				#check which of the selected alignments best fit the trajectory t1 
-				#and not just its triplicate. Importantly, also recompute the alignment
-				#without repetitions of the trajectory, which alter the alignment output
-				refined_alignments_1 = []
-				t1_frames = t1.frames()
-				for sa in sel_alignments: 
-
-					refine_alignment( t1 , t2 , lags[ sa ] , refined_alignments_1 , WeightTrajOverlap = True ) 
+						#which trajectory was triplicated decides the sign of the lag
+						if ( len(t1)  >= len(t2) ) :
+	
+							alignments.append(
+									MSD( x.extract( sel_frames ) , y )
+									)
+							alignments[ len(alignments)-1 ][ 'lag' ] = lag
+						
+						else :
+						
+							alignments.append(
+									MSD( y , x.extract( sel_frames ) )
+									)
+							alignments[ len(alignments)-1 ][ 'lag' ] = - lag
+					
+					s = [ a['score'] for a in alignments ]
+					lags = [ a['lag'] for a in alignments ]
+					sel_alignments = [ i for i in range(len(s)) if s[i] == min(s) ]
 				
-				refined_s_1 = [  a['score'] for a in refined_alignments_1 ]
+					#check which of the selected alignments best fit the trajectory t1 
+					#and not just its triplicate. Importantly, also recompute the alignment
+					#without repetitions of the trajectory, which alter the alignment output
+					refined_alignments_1 = []
+					t1_frames = t1.frames()
+					for sa in sel_alignments: 
+	
+						refine_alignment( t1 , t2 , lags[ sa ] , refined_alignments_1 , WeightTrajOverlap = True ) 
+					
+					refined_s_1 = [  a['score'] for a in refined_alignments_1 ]
+					
+					refined_alignments_2 =[]
+					lag = refined_alignments_1[ refined_s_1.index( min( refined_s_1 ) ) ][ 'lag' ]
+	
+					#define a span, which is not too small, nor too big compared to the trajectory length
+					refine_span = int( min( len( t1 ) , len( t2 ) ) / 10 )
+					for refined_lag in range( lag - refine_span , lag + refine_span + 1 ):
+	
+						refine_alignment( t1 , t2 , refined_lag , refined_alignments_2 , WeightTrajOverlap = False )
+	
+					refined_s_2 = [  a['score'] for a in refined_alignments_2 ]
 				
-				refined_alignments_2 =[]
-				lag = refined_alignments_1[ refined_s_1.index( min( refined_s_1 ) ) ][ 'lag' ]
-
-				#define a span, which is not too small, nor too big compared to the trajectory length
-				refine_span = int( min( len( t1 ) , len( t2 ) ) / 10 )
-				for refined_lag in range( lag - refine_span , lag + refine_span + 1 ):
-
-					refine_alignment( t1 , t2 , refined_lag , refined_alignments_2 , WeightTrajOverlap = False )
-
-				refined_s_2 = [  a['score'] for a in refined_alignments_2 ]
-			
-				selected_alignments.append( refined_alignments_2[ refined_s_2.index( min( refined_s_2 ) ) ] )
-
-		if ( fimax ) :
-			
-			print('\nfimax = True; Transformations were computed using only the trajectory information up to the max in fluorescence intensity.')
-
-		print('________________')
-
-		#Create a matrix with all the transformations: angle, lag and center of masses. 
-		#As a convention the element i,j in the matrix contains the elements for the
-		#rototranslation and temporal shift to align the trajectori i to j, j being the
-		#reference.
-		if t1_index == 0:
-
-			transformations['angles'] = np.array(
-					[a['angle'] for a in selected_alignments]
-					)
-			transformations['rcs'] = np.array([
-					np.array([a['rc'] for a in selected_alignments])
+					selected_alignments.append( refined_alignments_2[ refined_s_2.index( min( refined_s_2 ) ) ] )
+	
+			if ( fimax ) :
+				
+				print('\nfimax = True; Transformations were computed using only the trajectory information up to the max in fluorescence intensity.')
+	
+			print('________________')
+	
+			#Create a matrix with all the transformations: angle, lag and center of masses. 
+			#As a convention the element i,j in the matrix contains the elements for the
+			#rototranslation and temporal shift to align the trajectori i to j, j being the
+			#reference.
+			if t1_index == 0:
+	
+				transformations['angles'] = np.array(
+						[a['angle'] for a in selected_alignments]
+						)
+				transformations['rcs'] = np.array([
+						np.array([a['rc'] for a in selected_alignments])
+						])
+				transformations['lcs'] = np.array([
+						np.array([a['lc'] for a in selected_alignments])
+						])
+				transformations['lags'] = np.array(
+						[a['lag'] for a in selected_alignments]
+						)
+			else:
+	
+				transformations['angles'] = np.vstack([
+					transformations['angles'],
+					np.array([
+						np.array([a['angle'] for a in selected_alignments])
+						])
 					])
-			transformations['lcs'] = np.array([
-					np.array([a['lc'] for a in selected_alignments])
+				transformations['rcs'] = np.vstack([
+					transformations['rcs'],
+						[[a['rc'] for a in selected_alignments]]
 					])
-			transformations['lags'] = np.array(
-					[a['lag'] for a in selected_alignments]
-					)
-		else:
+				transformations['lcs'] = np.vstack([
+					transformations['lcs'],
+						[[a['lc'] for a in selected_alignments]]
+					])
+				transformations['lags'] = np.vstack([
+					transformations['lags'],
+					np.array(
+						[a['lag'] for a in selected_alignments]
+						)
+					])
 
-			transformations['angles'] = np.vstack([
-				transformations['angles'],
-				np.array([
-					np.array([a['angle'] for a in selected_alignments])
-					])
-				])
-			transformations['rcs'] = np.vstack([
-				transformations['rcs'],
-					[[a['rc'] for a in selected_alignments]]
-				])
-			transformations['lcs'] = np.vstack([
-				transformations['lcs'],
-					[[a['lc'] for a in selected_alignments]]
-				])
-			transformations['lags'] = np.vstack([
-				transformations['lags'],
-				np.array(
-					[a['lag'] for a in selected_alignments]
-					)
-				])
+		return( transformations )
 	#-------------------------------------END-OF-DEFINITIONS-in-compute_transformations-----------------------------------
 
 
-	#define the list where transformations are stored
-	transformations = {
-			'angles' : np.array( [] ),
-			'rcs' : np.array( [ np.array( [] ) , np.array( [] ) ] ),#note that the matric rcs is the transpose of the lcs
-			'lcs' : np.array( [ np.array( [] ) , np.array( [] ) ] ),
-			'lags' : np.array( [] ),
-			'lag_units' : np.array( [] )
-			}
-
-	for t1 in trajectory_list: 
-
-		#t1 is the reference trajectory to which all the other trajectories are alinged
-		#The loop goes on all trajectories as all of them are eligible to be used as reference
-
-		#the index need to be computed now, becuase if fi_max is true, then t1 will be replaced 
-		#by the part of t1 trajectory that stops at the peak of fluorescence intensity. This 
-		#new trajectory cannot be found animore in trajectory_list. Hence, we must compute the 
-		#index before.
-		t1_index = trajectory_list.index(t1) 
-		compute_transformations( t1 , t1_index , trajectory_list , transformations , fimax )
+	transformations = compute_transformations( trajectory_list , fimax )
 
 	print( transformations )
 	transformations['angles'] = transformations['angles']-np.transpose(transformations['angles'])
