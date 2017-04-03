@@ -288,27 +288,9 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 	
 	#-------------------------------------END-OF-DEFINITIONS-in-average_trajectories-----------------------------------
 
-	#define the list where transformations are stored
-	transformations = {
-			'angles' : np.array( [] ),
-			'rcs' : np.array( [ np.array( [] ) , np.array( [] ) ] ),#note that the matric rcs is the transpose of the lcs
-			'lcs' : np.array( [ np.array( [] ) , np.array( [] ) ] ),
-			'lags' : np.array( [] ),
-			'lag_units' : np.array( [] )
-			}
-
-	for t1 in trajectory_list: 
-
-		#t1 is the reference trajectory to which all the other trajectories are alinged
-		#The loop goes on all trajectories as all of them are eligible to be used as reference
-
-		selected_alignments = []
+	def compute_transformations( t1 , t1_index , trajectory_list , transformations , fimax ) :
 		
-		#the index need to be computed now, becuase if fi_max is true, then t1 will be replaced 
-		#by the part of t1 trajectory that stops at the peak of fluorescence intensity. This 
-		#new trajectory cannot be found animore in trajectory_list. Hence, we must compute the 
-		#index before.
-		t1_index = trajectory_list.index(t1) 
+		selected_alignments = []
 		
 		if ( fimax ) :
 			
@@ -449,7 +431,31 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 					[a['lag'] for a in selected_alignments]
 					)
 				])
+	#-------------------------------------END-OF-DEFINITIONS-in-compute_transformations-----------------------------------
 
+
+	#define the list where transformations are stored
+	transformations = {
+			'angles' : np.array( [] ),
+			'rcs' : np.array( [ np.array( [] ) , np.array( [] ) ] ),#note that the matric rcs is the transpose of the lcs
+			'lcs' : np.array( [ np.array( [] ) , np.array( [] ) ] ),
+			'lags' : np.array( [] ),
+			'lag_units' : np.array( [] )
+			}
+
+	for t1 in trajectory_list: 
+
+		#t1 is the reference trajectory to which all the other trajectories are alinged
+		#The loop goes on all trajectories as all of them are eligible to be used as reference
+
+		#the index need to be computed now, becuase if fi_max is true, then t1 will be replaced 
+		#by the part of t1 trajectory that stops at the peak of fluorescence intensity. This 
+		#new trajectory cannot be found animore in trajectory_list. Hence, we must compute the 
+		#index before.
+		t1_index = trajectory_list.index(t1) 
+		compute_transformations( t1 , t1_index , trajectory_list , transformations , fimax )
+
+	print( transformations )
 	transformations['angles'] = transformations['angles']-np.transpose(transformations['angles'])
 	transformations['lags'] = transformations['lags']-np.transpose(transformations['lags'])
 
@@ -461,14 +467,6 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 	#from rcs and its transpose (i.e. the aligning trajectory
 	#becomes the aligned trajectory).
 	rcs = transformations['rcs'] + np.transpose(transformations['lcs'],axes=(1,0,2))
-
-	#transformations
-	print('--angles--')
-	print(transformations['angles'])
-	print('--lags--')
-	print(transformations['lags'])
-	print('full rcs')
-	print(rcs)
 
 	#compute the average transformation using each trajectory as possible reference
 	aligned_trajectories = [] #contains all the alignments in respect to each trajectory
