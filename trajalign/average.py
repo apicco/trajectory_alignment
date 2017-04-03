@@ -278,6 +278,9 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 					X = np.insert( X , 0 , t.coord()[ 0 ][ i ] , axis = 0 )
 					y = np.insert( y , 0 , t.coord()[ 1 ][ i ] , axis = 0 )
 
+		print( l )
+		print( X )
+		print( y )
 		with wr.catch_warnings():
 			# also a bug warning occurs from linear models, RANSACR.
 			wr.simplefilter("ignore", category=RuntimeWarning)
@@ -285,8 +288,6 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 		
 		t.rotate( - np.arctan( model_RANSACR.estimator_.coef_[0] ) )
 
-		print( theta )
-		print( model_RANSACR.estimator_.coef_[0] )
 		return( { 'translation' :  translation_vector , 'angle' : theta - np.arctan( model_RANSACR.estimator_.coef_[0] ) } )
 	
 	#-------------------------------------END-OF-DEFINITIONS-in-average_trajectories-----------------------------------
