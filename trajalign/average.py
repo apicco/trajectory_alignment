@@ -696,6 +696,7 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 
 	best_average = alignment_precision.index( min( alignment_precision ) ) 
 	worst_average = alignment_precision.index( max( alignment_precision ) ) 
+	print( average_trajectory[ best_average ] )
 	lie_down_transform = lie_down( average_trajectory[ best_average ] )
 	print( lie_down_transform )
 	average_trajectory[ best_average ].save( output_file )
