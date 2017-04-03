@@ -284,6 +284,7 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 			model_RANSACR.fit( X , y )
 		
 		t.rotate( - np.arctan( model_RANSACR.estimator_.coef_[0] ) )
+
 		return( { 'translation' :  translation_vector , 'angle' : theta - np.arctan( model_RANSACR.estimator_.coef_[0] ) } )
 	
 	#-------------------------------------END-OF-DEFINITIONS-in-average_trajectories-----------------------------------
@@ -654,7 +655,6 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 	
 	#-------------------------------------END-OF-DEFINITIONS-in-compute_average-----------------------------------
 	
-
 	#define the list where transformations are stored
 	transformations = {
 			'angles' : np.array( [] ),
@@ -697,6 +697,7 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 	best_average = alignment_precision.index( min( alignment_precision ) ) 
 	worst_average = alignment_precision.index( max( alignment_precision ) ) 
 	lie_down_transform = lie_down( average_trajectory[ best_average ] )
+	print( lie_down_transform )
 	average_trajectory[ best_average ].save( output_file )
 
 	#save the trajectories use to compute the average, lied down as the average trajectory
