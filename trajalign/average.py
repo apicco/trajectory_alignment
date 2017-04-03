@@ -285,6 +285,8 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 		
 		t.rotate( - np.arctan( model_RANSACR.estimator_.coef_[0] ) )
 
+		print( theta )
+		print( model_RANSACR.estimator_.coef_[0] )
 		return( { 'translation' :  translation_vector , 'angle' : theta - np.arctan( model_RANSACR.estimator_.coef_[0] ) } )
 	
 	#-------------------------------------END-OF-DEFINITIONS-in-average_trajectories-----------------------------------
