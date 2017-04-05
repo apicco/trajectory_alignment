@@ -265,7 +265,7 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 				theta = theta + np.pi #to ouptput the angle
 		
 		model = linear_model.LinearRegression()	
-		model_RANSACR = linear_model.RANSACRegressor( model )
+		model_RANSACR = linear_model.RANSACRegressor( model , random_state = 53 )
 		
 		l = len( t )
 		
@@ -506,131 +506,8 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 			#define the average trajectory and its time attribute
 			########################################################################	
 			average_trajectory.append( Traj() )
-		
-			#inherit the annotations from the reference trajectory
-			for a in aligned_trajectories[ r ][ r ].annotations().keys(): 
-				if a == 'file':
-					average_trajectory[ r ].annotations( 'reference_file' , aligned_trajectories[ r ][ r ].annotations()[ a ])
-				else :
-					average_trajectory[ r ].annotations( a , aligned_trajectories[ r ][ r ].annotations()[ a ]) 
-	
-			# Define the START and the END of the average trajectory:
-			#compute the start and the end of the average trajectory using the 
-			#start and end of the aligned trajectories whose frame numbers are
-			# greater than 0 (i.e. that appeared after the movie recording was 
-			#started)
-			traj_starts_to_average = [trajectory_time_span[ 'new_start' ][ j ] for j in range(l)\
-					if trajectory_time_span[ 'old_start' ][ j ] > 0]
-			if len( traj_starts_to_average ) > 0 : 
-				mean_start = np.mean( traj_starts_to_average )
-			else  :
-				#it can be that all trajectories start with 0 (old_start), which means they 
-				#started before the movie begun. If so the mean start is set as the latest 
-				#time between the two trajectories.
-				mean_start = max(trajectory_time_span[ 'new_start' ])
-				average_trajectory[ r ].annotations( 'Warning_start' , 'all trajectory starts were trunkated' )
-			
-			#same as for nan mean_start. However, for the selected mean_end is the smallest
-			traj_ends_to_average = [trajectory_time_span[ 'new_end' ][ j ] for j in range(l)\
-					if trajectory_time_span[ 'old_end' ][ j ] < ( max_frame - 3 ) * float(aligned_trajectories[ r ][ 0 ].annotations()[ 'delta_t' ])]
-			if len( traj_ends_to_average ) > 0 : 
-				mean_end = np.mean( traj_ends_to_average )
-			else  : 
-				mean_end = min(trajectory_time_span[ 'new_end' ])
-				average_trajectory[ r ].annotations( 'Warning_end' , 'all trajectory ends were trunkated' )
-	
-			#group all the attributes of the aligned trajectories...
-			attributes = [ a for a in aligned_trajectories[ r ][ r ].attributes() if a not in ('t','frames')] 
-			#create an empy dictionary where all the attributes that will be then averaged are stored
-			attributes_to_be_averaged = {}
-			for a in attributes:
-				attributes_to_be_averaged[a] = []
-	
-			#merge all the trajectory attributes into the dictionary attributes_to_be_averaged.
-			for j in range(l):
-				aligned_trajectories[ r ][ j ].start( mean_start )
-				aligned_trajectories[ r ][ j ].end( mean_end )
-				for a in attributes:
-					attributes_to_be_averaged[a].append(getattr(aligned_trajectories[ r ][ j ],'_'+a))
-		
-			#all the aligned trajectories are set to start at mean_start and finish at mean_end
-			#setattr(average_trajectory[ r ],'_t',aligned_trajectories[ r ][ r ].t()) 
-			average_trajectory[ r ].input_values( 't' , aligned_trajectories[ r ][ r ].t()) 
-				
-			#average the attributes of the trajectories and assign 
-			#them to the average trajectory [ r ]
-			with wr.catch_warnings():
-				
-				# if a line is made only of nan that are averaged, then a waring is outputed. Here we suppress such warnings.
-				wr.simplefilter("ignore", category=RuntimeWarning)
-			
-				for a in attributes: 
-	
-					if a[len(a)-4:len(a)] == '_err' :
-						
-						raise AttributeError('The trajectories to be averaged have already an non empty error element, suggeting that they are already the result of an average. These error currently are not propagated. Check that your trajectories are correct')
-					
-					#if _a_err is in the trajectories slots, it means that the attribute a is not 
-					#an error attribute (i.e. an attribute ending by _err; in fact if a would end by '_err'
-					#then _a_err would have twice the appendix _err (i.e. _err_err) and would have 
-					#no equivalent in the trajectory __slots__. If _a_err is then in the trajectory
-					#slots, then both the mean and the sem can be computed. There is no sem without mean.
-		
-					if '_' + a + '_err' in average_trajectory[ r ].__slots__:
-	
-						if median :
-	
-							average_trajectory[ r ].input_values( a ,
-									np.nanmedian( attributes_to_be_averaged[ a ], axis = 0 )
-								)
-	
-						else :
-	
-							average_trajectory[ r ].input_values( a ,
-									np.nanmean( attributes_to_be_averaged[ a ], axis = 0 )
-								)
-	
-						#if there is no n defined yet, it computes it
-						if not average_trajectory[ r ].n().any() : 
-							#compute the number of not-nan data points by dividing
-							#the nansum by the nanmean. The operation is performed
-							#on the last attribute in the loop that can either have 
-							#two dimensions (as 'coord') or one. In case of two dims
-							#only one is used to compute '_n'.
-							
-							x = np.nanmean( attributes_to_be_averaged[ a ] , axis = 0 )
-							y = np.nansum( attributes_to_be_averaged[a] , axis = 0 )
-					
-							if len(x) == 2:
-								average_trajectory[ r ].input_values( 'n' , y[0]/x[0] )
-							else:
-								with wr.catch_warnings():
-									# if both y[i] and x[i] are 0, then a waring is outputed. Here we suppress such warnings.
-									wr.simplefilter("ignore", category=RuntimeWarning)
-									average_trajectory[ r ].input_values( 'n' , y/x )
-	
-						#compute the errors as standard errors of the mean/median
-						try :
-							if median :
-	
-								average_trajectory[ r ].input_values( a + '_err' ,
-									nanMAD( attributes_to_be_averaged[ a ], axis = 0 ) / np.sqrt( average_trajectory[ r ].n() )
-									)
-	
-							else :
-	
-								average_trajectory[ r ].input_values( a + '_err' ,
-									np.nanstd( attributes_to_be_averaged[ a ], axis = 0 ) / np.sqrt( average_trajectory[ r ].n() )
-									)
-	
-						except :
-	
-							raise AttributeError( 'The attribute ' + a + ' cannot have its error assigned' )
-	
-					else :
-	
-						raise AttributeError( 'The attribute ' + a + ' is not recongnised as an attribute' )
-	
+
+			trajectory_average( average_trajectory[ r ] , aligned_trajectories , trajectory_time_span , r )
 			#store the transformations of the trajectories in respect of the trajectory r.
 			if r == 0:
 				all_m_angles = np.array([ m_angles ])
@@ -657,6 +534,133 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 		return( aligned_trajectories , average_trajectory , alignment_precision )
 	
 	#-------------------------------------END-OF-DEFINITIONS-in-compute_average-----------------------------------
+	def trajectory_average( t , aligned_trajectories , trajectory_time_span , r ) :	
+
+		#inherit the annotations from the reference trajectory
+		for a in aligned_trajectories[ r ][ r ].annotations().keys(): 
+			if a == 'file':
+				t.annotations( 'reference_file' , aligned_trajectories[ r ][ r ].annotations()[ a ])
+			else :
+				t.annotations( a , aligned_trajectories[ r ][ r ].annotations()[ a ]) 
+
+		# Define the START and the END of the average trajectory:
+		#compute the start and the end of the average trajectory using the 
+		#start and end of the aligned trajectories whose frame numbers are
+		# greater than 0 (i.e. that appeared after the movie recording was 
+		#started)
+		traj_starts_to_average = [trajectory_time_span[ 'new_start' ][ j ] for j in range(l)\
+				if trajectory_time_span[ 'old_start' ][ j ] > 0]
+		if len( traj_starts_to_average ) > 0 : 
+			mean_start = np.mean( traj_starts_to_average )
+		else  :
+			#it can be that all trajectories start with 0 (old_start), which means they 
+			#started before the movie begun. If so the mean start is set as the latest 
+			#time between the two trajectories.
+			mean_start = max(trajectory_time_span[ 'new_start' ])
+			t.annotations( 'Warning_start' , 'all trajectory starts were trunkated' )
+		
+		#same as for nan mean_start. However, for the selected mean_end is the smallest
+		traj_ends_to_average = [trajectory_time_span[ 'new_end' ][ j ] for j in range(l)\
+				if trajectory_time_span[ 'old_end' ][ j ] < ( max_frame - 3 ) * float(aligned_trajectories[ r ][ 0 ].annotations()[ 'delta_t' ])]
+		if len( traj_ends_to_average ) > 0 : 
+			mean_end = np.mean( traj_ends_to_average )
+		else  : 
+			mean_end = min(trajectory_time_span[ 'new_end' ])
+			t.annotations( 'Warning_end' , 'all trajectory ends were trunkated' )
+
+		#group all the attributes of the aligned trajectories...
+		attributes = [ a for a in aligned_trajectories[ r ][ r ].attributes() if a not in ('t','frames')] 
+		#create an empy dictionary where all the attributes that will be then averaged are stored
+		attributes_to_be_averaged = {}
+		for a in attributes:
+			attributes_to_be_averaged[a] = []
+
+		#merge all the trajectory attributes into the dictionary attributes_to_be_averaged.
+		for j in range(l):
+			aligned_trajectories[ r ][ j ].start( mean_start )
+			aligned_trajectories[ r ][ j ].end( mean_end )
+			for a in attributes:
+				attributes_to_be_averaged[a].append(getattr(aligned_trajectories[ r ][ j ],'_'+a))
+	
+		#all the aligned trajectories are set to start at mean_start and finish at mean_end
+		#setattr(t,'_t',aligned_trajectories[ r ][ r ].t()) 
+		t.input_values( 't' , aligned_trajectories[ r ][ r ].t()) 
+			
+		#average the attributes of the trajectories and assign 
+		#them to the average trajectory [ r ]
+		with wr.catch_warnings():
+			
+			# if a line is made only of nan that are averaged, then a waring is outputed. Here we suppress such warnings.
+			wr.simplefilter("ignore", category=RuntimeWarning)
+		
+			for a in attributes: 
+
+				if a[len(a)-4:len(a)] == '_err' :
+					
+					raise AttributeError('The trajectories to be averaged have already an non empty error element, suggeting that they are already the result of an average. These error currently are not propagated. Check that your trajectories are correct')
+				
+				#if _a_err is in the trajectories slots, it means that the attribute a is not 
+				#an error attribute (i.e. an attribute ending by _err; in fact if a would end by '_err'
+				#then _a_err would have twice the appendix _err (i.e. _err_err) and would have 
+				#no equivalent in the trajectory __slots__. If _a_err is then in the trajectory
+				#slots, then both the mean and the sem can be computed. There is no sem without mean.
+	
+				if '_' + a + '_err' in t.__slots__:
+
+					if median :
+
+						t.input_values( a ,
+								np.nanmedian( attributes_to_be_averaged[ a ], axis = 0 )
+							)
+
+					else :
+
+						t.input_values( a ,
+								np.nanmean( attributes_to_be_averaged[ a ], axis = 0 )
+							)
+
+					#if there is no n defined yet, it computes it
+					if not t.n().any() : 
+						#compute the number of not-nan data points by dividing
+						#the nansum by the nanmean. The operation is performed
+						#on the last attribute in the loop that can either have 
+						#two dimensions (as 'coord') or one. In case of two dims
+						#only one is used to compute '_n'.
+						
+						x = np.nanmean( attributes_to_be_averaged[ a ] , axis = 0 )
+						y = np.nansum( attributes_to_be_averaged[a] , axis = 0 )
+				
+						if len(x) == 2:
+							t.input_values( 'n' , y[0]/x[0] )
+						else:
+							with wr.catch_warnings():
+								# if both y[i] and x[i] are 0, then a waring is outputed. Here we suppress such warnings.
+								wr.simplefilter("ignore", category=RuntimeWarning)
+								t.input_values( 'n' , y/x )
+
+					#compute the errors as standard errors of the mean/median
+					try :
+						if median :
+
+							t.input_values( a + '_err' ,
+								nanMAD( attributes_to_be_averaged[ a ], axis = 0 ) / np.sqrt( t.n() )
+								)
+
+						else :
+
+							t.input_values( a + '_err' ,
+								np.nanstd( attributes_to_be_averaged[ a ], axis = 0 ) / np.sqrt( t.n() )
+								)
+
+					except :
+
+						raise AttributeError( 'The attribute ' + a + ' cannot have its error assigned' )
+
+				else :
+
+					raise AttributeError( 'The attribute ' + a + ' is not recongnised as an attribute' )
+
+	#-------------------------------------END-OF-DEFINITION-of-trajectory_average-----------------------------------
 	
 	#define the list where transformations are stored
 	transformations = {
