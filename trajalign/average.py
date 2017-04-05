@@ -265,7 +265,7 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 				theta = theta + np.pi #to ouptput the angle
 		
 		model = linear_model.LinearRegression()	
-		model_RANSACR = linear_model.RANSACRegressor( model , random_state = 53 )
+		model_RANSACR = linear_model.RANSACRegressor( model , random_state = 42 )
 		
 		l = len( t )
 		
