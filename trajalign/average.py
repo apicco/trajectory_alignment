@@ -278,9 +278,6 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 					X = np.insert( X , 0 , t.coord()[ 0 ][ i ] , axis = 0 )
 					y = np.insert( y , 0 , t.coord()[ 1 ][ i ] , axis = 0 )
 
-		print( l )
-		print( X )
-		print( y )
 		with wr.catch_warnings():
 			# also a bug warning occurs from linear models, RANSACR.
 			wr.simplefilter("ignore", category=RuntimeWarning)
@@ -292,7 +289,7 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 	
 	#-------------------------------------END-OF-DEFINITIONS-in-average_trajectories-----------------------------------
 
-	def compute_transformations( t1 , t1_index , trajectory_list , fimax , transformations ) :
+	def compute_transformations( t1 , t1_index , trajectory_list , fimax ) :
 
 			selected_alignments = []
 			
@@ -318,8 +315,11 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 	
 				else :
 	
-					print( 'ref. traj.:\t' + t1.annotations()['file'] )
+					if ( t1_index == np.inf ) : 
+						print( 'ref. traj.: reference_template'  )
+					else : print( 'ref. traj.:\t' + t1.annotations()['file'] )
 					print( 'aligned traj.:\t' + t2.annotations()['file'] )
+
 					alignments = []
 	
 					if ( fimax ) : 
@@ -335,7 +335,6 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 						y = t1
 	
 					convolution_steps = len(x) - len(y) 
-					
 					for i in range( 0 , convolution_steps ) :
 						#by triplicating the longest trajectory we can test all possible alignments in
 						#space and time starting with the entire trajectories x and y.
@@ -345,7 +344,7 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 						
 						#select the frames that are overlapping 
 						sel_frames = [ i for i in range( len( x_frames) ) if x_frames[ i ] in y_frames ]
-				
+			
 						#which trajectory was triplicated decides the sign of the lag
 						if ( len(t1)  >= len(t2) ) :
 	
@@ -355,7 +354,7 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 							alignments[ len(alignments)-1 ][ 'lag' ] = lag
 						
 						else :
-						
+					
 							alignments.append(
 									MSD( y , x.extract( sel_frames ) )
 									)
@@ -394,49 +393,40 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 				print('\nfimax = True; Transformations were computed using only the trajectory information up to the max in fluorescence intensity.')
 	
 			print('________________')
-	
-			#Create a matrix with all the transformations: angle, lag and center of masses. 
-			#As a convention the element i,j in the matrix contains the elements for the
-			#rototranslation and temporal shift to align the trajectori i to j, j being the
-			#reference.
-			if t1_index == 0:
-	
-				transformations['angles'] = np.array(
-						[a['angle'] for a in selected_alignments]
-						)
-				transformations['rcs'] = np.array([
-						np.array([a['rc'] for a in selected_alignments])
-						])
-				transformations['lcs'] = np.array([
-						np.array([a['lc'] for a in selected_alignments])
-						])
-				transformations['lags'] = np.array(
-						[a['lag'] for a in selected_alignments]
-						)
-			else:
-	
-				transformations['angles'] = np.vstack([
-					transformations['angles'],
-					np.array([
-						np.array([a['angle'] for a in selected_alignments])
-						])
-					])
-				transformations['rcs'] = np.vstack([
-					transformations['rcs'],
-						[[a['rc'] for a in selected_alignments]]
-					])
-				transformations['lcs'] = np.vstack([
-					transformations['lcs'],
-						[[a['lc'] for a in selected_alignments]]
-					])
-				transformations['lags'] = np.vstack([
-					transformations['lags'],
-					np.array(
-						[a['lag'] for a in selected_alignments]
-						)
-					])
+			
+			return( selected_alignments )
 
 	#-------------------------------------END-OF-DEFINITIONS-in-compute_transformations-----------------------------------
+	
+	def compute_average_start_and_end( trajectory_time_span , aligned_trajectories ) :
+		# Define the START and the END of the average trajectory:
+		#compute the start and the end of the average trajectory using the 
+		#start and end of the aligned trajectories whose frame numbers are
+		# greater than 0 (i.e. that appeared after the movie recording was 
+		#started)
+		traj_starts_to_average = [trajectory_time_span[ 'new_start' ][ j ] for j in range(l)\
+				if trajectory_time_span[ 'old_start' ][ j ] > 0]
+		if len( traj_starts_to_average ) > 0 : 
+			mean_start = np.mean( traj_starts_to_average )
+		else  :
+			#it can be that all trajectories start with 0 (old_start), which means they 
+			#started before the movie begun. If so the mean start is set as the latest 
+			#time between the two trajectories.
+			mean_start = max(trajectory_time_span[ 'new_start' ])
+			print( 'Warning: all trajectory starts were trunkated' )
+		
+		#same as for nan mean_start. However, for the selected mean_end is the smallest
+		traj_ends_to_average = [trajectory_time_span[ 'new_end' ][ j ] for j in range(l)\
+				if trajectory_time_span[ 'old_end' ][ j ] < ( max_frame - 3 ) * float(aligned_trajectories[ 0 ].annotations()[ 'delta_t' ])]
+		if len( traj_ends_to_average ) > 0 : 
+			mean_end = np.mean( traj_ends_to_average )
+		else  : 
+			mean_end = min(trajectory_time_span[ 'new_end' ])
+			print( 'Warning: all trajectory ends were trunkated' )
+	
+		return( mean_start , mean_end )
+
+	#-------------------------------------END-OF-DEFINITIONS-in-compute_average_start_and_end-----------------------------------
 
 	def compute_average( trajectory_list , tranformations ) :
 		
@@ -445,14 +435,13 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 		alignment_precision = [] #contains the alignment precision, measured as a score of the alignment
 	
 		l = len(transformations['angles'])
-
 		#reference trajectories are indexed with r
 		for r in range(l) :
 		
 			#define a dictionary used to store the starts and ends of the aligned
 			#trajectories to compute the start of the average trajectory
 			trajectory_time_span = \
-					{ 'old_start' : [], 'new_start' : [], 'old_end' : [], 'new_end' : []}\
+					{ 'old_start' : [], 'new_start' : [], 'old_end' : [], 'new_end' : []}
 			
 			#compute the transformation of the trajectories 
 			#in respect to the r-th trajectory
@@ -465,7 +454,7 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 			m_lags = [ int(round(l)) for l in np.mean(lags_in_respect_of_r,axis=1)]
 			#--translations--
 			r_cm = np.mean([rcs[ r , j ] for j in range(l) if j != r ] , axis = 0 )
-	
+
 			#make a copy of the trajectory_list, whose trajectories need to be aligned
 			aligned_trajectories.append( cp.deepcopy( trajectory_list ) )
 	
@@ -491,7 +480,8 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 				# r_cm - R( m_angles ) @ l_cm
 				#
 				# see Horn 1987 for details.
-				
+				print( l_cm )
+				print( '-----------------' )	
 				aligned_trajectories[ r ][ j ].translate( - l_cm )
 				aligned_trajectories[ r ][ j ].rotate( m_angles[ j ] )
 	
@@ -500,14 +490,20 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 				
 				trajectory_time_span[ 'new_start' ].append(aligned_trajectories[ r ][ j ].start())
 				trajectory_time_span[ 'new_end' ].append(aligned_trajectories[ r ][ j ].end())
-				
+
+			mean_start , mean_end = compute_average_start_and_end( trajectory_time_span , aligned_trajectories[ r ] )
+			#uniform start and end of aligned trajectories to mean_start and mean_end
+			for j in range(l):
+			
+				aligned_trajectories[ r ][ j ].start( mean_start )
+				aligned_trajectories[ r ][ j ].end( mean_end )
+	
 			########################################################################	
 			#compute the average of the trajectories aligned to the r-th trajectory
 			#define the average trajectory and its time attribute
 			########################################################################	
-			average_trajectory.append( Traj() )
-
-			trajectory_average( average_trajectory[ r ] , aligned_trajectories , trajectory_time_span , r )
+			
+			average_trajectory.append( trajectory_average( aligned_trajectories[ r ] , r ) )
 			#store the transformations of the trajectories in respect of the trajectory r.
 			if r == 0:
 				all_m_angles = np.array([ m_angles ])
@@ -525,66 +521,41 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 		
 		print('alignment_precision')
 		print(alignment_precision)
-		print('angles')
-		print(all_m_angles)
-		print('lags')
-		print(all_m_lags)
-		print(all_m_lags - all_m_lags[0])
+#		print('angles')
+#		print(all_m_angles)
+#		print('lags')
+#		print(all_m_lags)
+#		print(all_m_lags - all_m_lags[0])
 	
 		return( aligned_trajectories , average_trajectory , alignment_precision )
 	
 	#-------------------------------------END-OF-DEFINITIONS-in-compute_average-----------------------------------
-	def trajectory_average( t , aligned_trajectories , trajectory_time_span , r ) :	
+	def trajectory_average( aligned_trajectories_to_average , r ) :	
+
+		#define the trajectory where the average will be stored
+		t = Traj()
 
 		#inherit the annotations from the reference trajectory
-		for a in aligned_trajectories[ r ][ r ].annotations().keys(): 
+		for a in aligned_trajectories_to_average[ r ].annotations().keys(): 
 			if a == 'file':
-				t.annotations( 'reference_file' , aligned_trajectories[ r ][ r ].annotations()[ a ])
+				t.annotations( 'reference_file' , aligned_trajectories_to_average[ r ].annotations()[ a ])
 			else :
-				t.annotations( a , aligned_trajectories[ r ][ r ].annotations()[ a ]) 
-
-		# Define the START and the END of the average trajectory:
-		#compute the start and the end of the average trajectory using the 
-		#start and end of the aligned trajectories whose frame numbers are
-		# greater than 0 (i.e. that appeared after the movie recording was 
-		#started)
-		traj_starts_to_average = [trajectory_time_span[ 'new_start' ][ j ] for j in range(l)\
-				if trajectory_time_span[ 'old_start' ][ j ] > 0]
-		if len( traj_starts_to_average ) > 0 : 
-			mean_start = np.mean( traj_starts_to_average )
-		else  :
-			#it can be that all trajectories start with 0 (old_start), which means they 
-			#started before the movie begun. If so the mean start is set as the latest 
-			#time between the two trajectories.
-			mean_start = max(trajectory_time_span[ 'new_start' ])
-			t.annotations( 'Warning_start' , 'all trajectory starts were trunkated' )
-		
-		#same as for nan mean_start. However, for the selected mean_end is the smallest
-		traj_ends_to_average = [trajectory_time_span[ 'new_end' ][ j ] for j in range(l)\
-				if trajectory_time_span[ 'old_end' ][ j ] < ( max_frame - 3 ) * float(aligned_trajectories[ r ][ 0 ].annotations()[ 'delta_t' ])]
-		if len( traj_ends_to_average ) > 0 : 
-			mean_end = np.mean( traj_ends_to_average )
-		else  : 
-			mean_end = min(trajectory_time_span[ 'new_end' ])
-			t.annotations( 'Warning_end' , 'all trajectory ends were trunkated' )
-
+				t.annotations( a , aligned_trajectories_to_average[ r ].annotations()[ a ]) 
 		#group all the attributes of the aligned trajectories...
-		attributes = [ a for a in aligned_trajectories[ r ][ r ].attributes() if a not in ('t','frames')] 
+		attributes = [ a for a in aligned_trajectories_to_average[ r ].attributes() if a not in ('t','frames')] 
 		#create an empy dictionary where all the attributes that will be then averaged are stored
 		attributes_to_be_averaged = {}
 		for a in attributes:
 			attributes_to_be_averaged[a] = []
 
 		#merge all the trajectory attributes into the dictionary attributes_to_be_averaged.
-		for j in range(l):
-			aligned_trajectories[ r ][ j ].start( mean_start )
-			aligned_trajectories[ r ][ j ].end( mean_end )
+		for j in range( len( aligned_trajectories_to_average ) ):
 			for a in attributes:
-				attributes_to_be_averaged[a].append(getattr(aligned_trajectories[ r ][ j ],'_'+a))
+				attributes_to_be_averaged[a].append(getattr(aligned_trajectories_to_average[ j ],'_'+a))
 	
-		#all the aligned trajectories are set to start at mean_start and finish at mean_end
-		#setattr(t,'_t',aligned_trajectories[ r ][ r ].t()) 
-		t.input_values( 't' , aligned_trajectories[ r ][ r ].t()) 
+		#all the aligned trajectories are set to start at the same  mean_start and finish at mean_end computed from
+		#trajectory_time_span in compute_average().Hence, the time interval is the same
+		t.input_values( 't' , aligned_trajectories_to_average[ r ].t()) 
 			
 		#average the attributes of the trajectories and assign 
 		#them to the average trajectory [ r ]
@@ -660,6 +631,7 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 
 					raise AttributeError( 'The attribute ' + a + ' is not recongnised as an attribute' )
 
+		return( t )
 	#-------------------------------------END-OF-DEFINITION-of-trajectory_average-----------------------------------
 	
 	#define the list where transformations are stored
@@ -682,8 +654,49 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 		#new trajectory cannot be found animore in trajectory_list. Hence, we must compute the 
 		#index before.
 		t1_index = trajectory_list.index(t1) 	
-		
-		compute_transformations( t1 , t1_index , trajectory_list , fimax , transformations )
+		selected_alignments = compute_transformations( t1 , t1_index , trajectory_list , fimax )
+
+		#Create a matrix with all the transformations: angle, lag and center of masses. 
+		#As a convention the element i,j in the matrix contains the elements for the
+		#rototranslation and temporal shift to align the trajectori i to j, j being the
+		#reference.
+		if t1_index == 0:
+
+			transformations['angles'] = np.array(
+					[a['angle'] for a in selected_alignments]
+					)
+			transformations['rcs'] = np.array([
+					np.array([a['rc'] for a in selected_alignments])
+					])
+			transformations['lcs'] = np.array([
+					np.array([a['lc'] for a in selected_alignments])
+					])
+			transformations['lags'] = np.array(
+					[a['lag'] for a in selected_alignments]
+					)
+		else:
+
+			transformations['angles'] = np.vstack([
+				transformations['angles'],
+				np.array([
+					np.array([a['angle'] for a in selected_alignments])
+					])
+				])
+			transformations['rcs'] = np.vstack([
+				transformations['rcs'],
+					[[a['rc'] for a in selected_alignments]]
+				])
+			transformations['lcs'] = np.vstack([
+				transformations['lcs'],
+					[[a['lc'] for a in selected_alignments]]
+				])
+			transformations['lags'] = np.vstack([
+				transformations['lags'],
+				np.array(
+					[a['lag'] for a in selected_alignments]
+					)
+				])
+
 
 	transformations['angles'] = transformations['angles']-np.transpose(transformations['angles'])
 	transformations['lags'] = transformations['lags']-np.transpose(transformations['lags'])
@@ -700,14 +713,99 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 	#compute the average transformation using each trajectory as possible reference
 	
 	aligned_trajectories , average_trajectory , alignment_precision = compute_average( trajectory_list , transformations )
-
 	best_average = alignment_precision.index( min( alignment_precision ) ) 
-	worst_average = alignment_precision.index( max( alignment_precision ) ) 
-	print( average_trajectory[ best_average ] )
 	lie_down_transform = lie_down( average_trajectory[ best_average ] )
-	print( lie_down_transform )
-	average_trajectory[ best_average ].save( output_file )
+	
+	##################################################	
+	# REFINEMENT of the ALIGMNENT and AVERAGE
+	##################################################	
+	
+	# select the trajectories to compute the average trajectory used for the refinement
+	median_precision = np.median( alignment_precision )
+	
+	selected_trajectories = []
+	counter = 0
+	for i in range( len( alignment_precision ) ) :
+		if alignment_precision[ i ] < median_precision :
+			selected_trajectories.append( aligned_trajectories[ best_average ][ i ] )
+			if i == best_average :
+				best_average_ID = counter
+			counter += 1
 
+	# compute the average that will act as a reference template
+	template = trajectory_average( selected_trajectories , best_average_ID ) 	
+	template.annotations( 'file' , template.annotations( 'reference_file' ) )
+	template.input_values( 'frames' , [ round( t / float( template.annotations( 'delta_t' ) ) ) for t in template.t() ] )
+
+	#lie_down_transform = lie_down( template )
+	#...maybe lie_down here to minimise angle errors?
+	
+	refined_transformation = {
+			'angles' : np.array( [] ),
+			'rcs' : np.array( [ np.array( [] ) , np.array( [] ) ] ),#note that the matric rcs is the transpose of the lcs
+			'lcs' : np.array( [ np.array( [] ) , np.array( [] ) ] ),
+			'lags' : np.array( [] ),
+			'lag_units' : np.array( [] )
+			}
+
+	#selected_alignments = compute_transformations( template , np.inf  , trajectory_list , fimax ) 
+	selected_alignments = compute_transformations( template , np.inf  , trajectory_list , fimax ) 
+
+	refined_transformation['angles'] = np.array(
+			[a['angle'] for a in selected_alignments]
+			)
+	refined_transformation['rcs'] = np.array(
+			[a['rc'] for a in selected_alignments]
+			)
+	refined_transformation['lcs'] = np.array(
+			[a['lc'] for a in selected_alignments]
+			)
+	refined_transformation['lags'] = np.array(
+			[a['lag'] for a in selected_alignments]
+			)
+
+	refined_aligned_trajectories = cp.deepcopy( trajectory_list )
+
+	refined_trajectory_time_span = \
+			{ 'old_start' : [], 'new_start' : [], 'old_end' : [], 'new_end' : []}
+	
+	r_cm = np.mean( [ refined_transformation[ 'rcs' ][ i ] for i in range( len ( refined_transformation[ 'rcs' ] ) ) ] , axis = 0 )
+
+	for j in range( len( refined_aligned_trajectories ) ) :
+
+		refined_trajectory_time_span[ 'old_start' ].append( refined_aligned_trajectories[ j ].start() )
+		refined_trajectory_time_span[ 'old_end' ].append( refined_aligned_trajectories[ j ].end() )
+
+		refined_aligned_trajectories[ j ].translate( - refined_transformation[ 'lcs' ][ j ] )
+		refined_aligned_trajectories[ j ].rotate( refined_transformation[ 'angles' ][ j ] )
+		
+		refined_aligned_trajectories[ j ].translate( r_cm )
+		#refined_aligned_trajectories[ j ].translate( refined_transformation[ 'rcs' ][ j ] )
+		refined_aligned_trajectories[ j ].lag( int( refined_transformation[ 'lags' ][ j ] ) )
+	
+		refined_trajectory_time_span[ 'new_start' ].append( refined_aligned_trajectories[ j ].start() )
+		refined_trajectory_time_span[ 'new_end' ].append( refined_aligned_trajectories[ j ].end() )
+
+	refined_mean_start , refined_mean_end = compute_average_start_and_end( refined_trajectory_time_span , refined_aligned_trajectories )
+
+	for j in range( len( refined_aligned_trajectories ) ) :
+
+		refined_aligned_trajectories[ j ].start( refined_mean_start )
+		refined_aligned_trajectories[ j ].end( refined_mean_end )
+	
+	refined_average_trajectory = trajectory_average( refined_aligned_trajectories , best_average )
+
+	refined_alignment_precision =  np.sqrt(
+			np.nanmean( 
+				refined_average_trajectory.coord_err()[ 0 ] ** 2 + refined_average_trajectory.coord_err()[ 1 ] ** 2 
+				)
+			)
+
+	print( 'Improvement in refinement: ' + str( round( 100 - 100 * refined_alignment_precision / alignment_precision[ best_average ] , 2 ) ) + ' %.' )
+	
+	lie_down_transform = lie_down( refined_average_trajectory )
+	refined_average_trajectory.save( output_file )
+	
 	#save the trajectories use to compute the average, lied down as the average trajectory
 	for i in range(l):
 		aligned_trajectories[ best_average ][ i ].translate( lie_down_transform[ 'translation' ] )
@@ -726,4 +824,24 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 	
 	f.close()
 
-	return( average_trajectory[ best_average ], average_trajectory[ worst_average] , aligned_trajectories[ best_average ] )
+
+#	
+#	#save the trajectories use to compute the average, lied down as the average trajectory
+#	for i in range(l):
+#		aligned_trajectories[ best_average ][ i ].translate( lie_down_transform[ 'translation' ] )
+#		aligned_trajectories[ best_average ][ i ].rotate( lie_down_transform[ 'angle' ] )
+#		filename = "./" + output_file + "/" + aligned_trajectories[ best_average ][ i ].annotations( 'file' )
+#		if i == 0 :
+#			directory = os.path.dirname( filename )
+#			if not os.path.exists( directory ) :
+#				os.makedirs( directory )
+#		aligned_trajectories[ best_average ][ i ].save( filename )
+#	
+#	with open( "./" + output_file + "/alignment_precision.txt" , 'w' ) as f :
+#
+#		for ap in alignment_precision :	
+#			f.write( repr( ap ) + '\n' )
+#	
+#	f.close()
+#
+	return( average_trajectory[ best_average ] , refined_average_trajectory , aligned_trajectories[ best_average ] )
