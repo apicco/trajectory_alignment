@@ -289,7 +289,7 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 	
 	#-------------------------------------END-OF-DEFINITIONS-in-average_trajectories-----------------------------------
 
-	def compute_transformations( t1 , t1_index , trajectory_list , fimax ) :
+	def compute_transformations( t1 , t1_index , trajectory_list , fimax , fimax_filter ) :
 
 			selected_alignments = []
 			
@@ -660,7 +660,7 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 		#new trajectory cannot be found animore in trajectory_list. Hence, we must compute the 
 		#index before.
 		t1_index = trajectory_list.index(t1) 	
-		selected_alignments = compute_transformations( t1 , t1_index , trajectory_list , fimax )
+		selected_alignments = compute_transformations( t1 , t1_index , trajectory_list , fimax , fimax_filter )
 
 		#Create a matrix with all the transformations: angle, lag and center of masses. 
 		#As a convention the element i,j in the matrix contains the elements for the
