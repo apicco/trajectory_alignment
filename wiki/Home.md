@@ -5,7 +5,7 @@ wikiPageName: Home
 menu: wiki
 ---
 
-Welcome to the `trajalign` **documentation** wiki! Please vist `trajalign` [**home page**](http://apicco.github.io/trajectory_alignment/).
+Welcome to the `trajalign` **documentation** wiki and [**home page**](http://apicco.github.io/trajectory_alignment/).
 
 To start with `trajalign`, read first how to [install](Installation) it.
 
