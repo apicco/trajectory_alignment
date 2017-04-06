@@ -5,7 +5,7 @@ title: Home
 
 
 Welcome to the `trajalign` module distribution homepage! 
-`trajalign` is a collection of Python modules that align in space and in time, and average, trajectories of diffraction limited object, which are recorded with fluorescence microscopy.
+`trajalign` is a collection of Python modules that align in space and in time, and average, trajectories of diffraction limited objects, which are recorded with fluorescence microscopy.
 
 ![example](images/plot.png)
 *The inward movement of the endocytic coat protein Sla1 during endocytosis. 67 independet  trajectories are aligned in space and time and averaged together, with `trajalign` module distribution. Generate this plot by following this [example](wiki/Example-of-trajectory-average).* 
