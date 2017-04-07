@@ -463,12 +463,12 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 	rcs = transformations['rcs'] + np.transpose(transformations['lcs'],axes=(1,0,2))
 
 	#transformations
-	print('--angles--')
-	print(transformations['angles'])
-	print('--lags--')
-	print(transformations['lags'])
-	print('full rcs')
-	print(rcs)
+	#print('--angles--')
+	#print(transformations['angles'])
+	#print('--lags--')
+	#print(transformations['lags'])
+	#print('full rcs')
+	#print(rcs)
 
 	#compute the average transformation using each trajectory as possible reference
 	aligned_trajectories = [] #contains all the alignments in respect to each trajectory
@@ -682,11 +682,11 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 
 	print('alignment_precision')
 	print(alignment_precision)
-	print('angles')
-	print(all_m_angles)
-	print('lags')
-	print(all_m_lags)
-	print(all_m_lags - all_m_lags[0])
+	#print('angles')
+	#print(all_m_angles)
+	#print('lags')
+	#print(all_m_lags)
+	#print(all_m_lags - all_m_lags[0])
 
 	#save the trajectories use to compute the average, lied down as the average trajectory
 	for i in range(l):
