@@ -19,6 +19,8 @@ from numpy import insert
 from numpy import NaN
 from numpy import insert
 from numpy import nanmean
+from numpy import nanmax
+from numpy import nanmin
 from numpy import float64 
 from numpy import convolve
 from numpy import nanargmax
@@ -476,10 +478,10 @@ class Traj:
 		"""
 		.norm_f(): normalises the fluorescence intensities .f() between 0 and 1.
 		"""
-		self._f = ( self._f - min(self._f) ) / ( max(self._f) - min(self._f) )
+		self._f = ( self._f - nanmin(self._f) ) / ( nanmax(self._f) - nanmin(self._f) )
 		#if the attribute _f_err is not empty, then propagate the errors accordingly 
 		if ( self._f_err.shape[ self._f_err.ndim - 1 ] > 0 ) :
-			self._f_err = self._f_err / ( max(self._f) - min(self._f) )
+			self._f_err = self._f_err / ( nanmax(self._f) - nanmin(self._f) )
 			#the aim of this function is only to rescale the fluorescence intensity
 			#between 0 and 1, hence we do no propagate the error of the max(self._f)
 			#and min(self._f).
