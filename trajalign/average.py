@@ -315,9 +315,7 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 	
 				else :
 	
-					if ( t1_index == np.inf ) : 
-						print( 'ref. traj.: reference_template'  )
-					else : print( 'ref. traj.:\t' + t1.annotations()['file'] )
+					print( 'ref. traj.:\t' + t1.annotations()['file'] )
 					print( 'aligned traj.:\t' + t2.annotations()['file'] )
 
 					alignments = []
