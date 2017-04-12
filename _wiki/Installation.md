@@ -26,7 +26,7 @@ If as a user you do not have write permission to the global site-packages direct
 
 	sudo python3.5 setup.py install --user
 
-For more installation schemes visith the *Installing Python Modules* documentation [page](https://docs.python.org/3/install/).
+For more installation schemes, please visit the *Installing Python Modules* documentation [page](https://docs.python.org/3/install/).
 
 The `trajalign` package is now ready to use. Refer to the [documentation](Home) and to these [examples](Examples). The scripts to run the examples are also present in the folder you downloaded and will help you to learn how to use the package.
 
