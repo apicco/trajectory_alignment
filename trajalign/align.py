@@ -19,7 +19,8 @@ import copy as cp
 from matplotlib import pyplot as plt
 
 
-def align( path_target , path_reference , ch1 , ch2 ):
+def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = False , fimax_filter = [ -3/35 , 12/35 , 17/35 , 12/35 , -3/35 ] ):
+
 	"""
 	align( path_target , path_reference , ch1 , ch2 , ):
 	aligns in space and in time the trajectories identified by path_target to path_reference,
@@ -29,7 +30,11 @@ def align( path_target , path_reference , ch1 , ch2 ):
 	and ch2, which have been acquired simultaneously and whose alignment has been 
 	corrected for chormatic aberrations and imaging misalignments. 'ch1' refers to 
 	the trajectories that need to be aligned to the average trajectory in 'path_target'. 
-	'ch2' refers to 'path_reference'.
+	'ch2' refers to 'path_reference'. Both the target and the reference trajectories can be
+	aligned using only the trajectory information up to the peak of fluorescence intensity by 
+	setting fimax1 and fimax2 to True, respectively. If fimax1 and/or fimax2 are true, then fimax_filer
+	is used to compute where the peak of fluorescence intensity is. If no filter is desired, set 
+	fimax_filer = [ 1 ].
 	"""
 
 	def spline( t1 , t2 ) :
@@ -39,11 +44,19 @@ def align( path_target , path_reference , ch1 , ch2 ):
 		"""
 
 		#the interpolation function
-		def interpolation( to_interpolate , delta_t ) :
-			
+		def interpolation( to_interpolate , delta_t , k = 3 ) :
+		
 			interpolated_traj = Traj( interpolated = 'True' )
 			interpolated_traj.annotations( to_interpolate.annotations() )
 			interpolated_traj.annotations()[ 'delta_t' ] = delta_t
+
+			l = len( to_interpolate )
+
+			if not l > k :
+				
+				#UnivariateSpline requires that m > k, where m is the number of points interpolated 
+				#and k is the degree of smoothing spline. Default in UnivatiateSpline and in here is k = 3.
+				k = l - 1
 	
 			#the new time intervals for the trajectory interpolated
 			t = [ to_interpolate.start() ]
@@ -60,16 +73,16 @@ def align( path_target , path_reference , ch1 , ch2 ):
 				
 				if attribute in [ 'f' , 'mol' ] :
 	
-					s = UnivariateSpline( to_interpolate.t() , getattr( to_interpolate , '_'+attribute ) )
+					s = UnivariateSpline( to_interpolate.t() , getattr( to_interpolate , '_'+attribute ) , k = k )
 					interpolated_traj.input_values( 
 							name = attribute , 
 							x = s( interpolated_traj.t() )
 							)
 	
 				if attribute == 'coord' :
-	
-					s_x = UnivariateSpline( to_interpolate.t() , to_interpolate.coord()[ 0 ] )
-					s_y = UnivariateSpline( to_interpolate.t() , to_interpolate.coord()[ 1 ] )
+
+					s_x = UnivariateSpline( to_interpolate.t() , to_interpolate.coord()[ 0 ] , k = k )
+					s_y = UnivariateSpline( to_interpolate.t() , to_interpolate.coord()[ 1 ] , k = k )
 					interpolated_traj.input_values( 
 							name = 'coord' , 
 							x = [ s_x( interpolated_traj.t() ) , s_y( interpolated_traj.t() ) ],
@@ -93,7 +106,7 @@ def align( path_target , path_reference , ch1 , ch2 ):
 
 		not_nan = [ i for i in range( len( t2 ) ) if t2.f( i ) == t2.f( i ) ]
 		t2_to_interpolate = t2.extract( not_nan )
-	
+
 		return( 
 				interpolation( t1_to_interpolate , delta_t ) ,
 				interpolation( t2_to_interpolate , delta_t )
@@ -176,7 +189,7 @@ def align( path_target , path_reference , ch1 , ch2 ):
 
 		return( np.matrix( [[ np.cos( angle ) , - np.sin( angle ) ] , [ np.sin( angle ) , np.cos( angle ) ]] , dtype = 'float64' ) )
 	
-	#----------------------------------------------------------------
+	#-------------------------END-OF-DEFINITIONS--------------------------------
 
 	t1 = Traj()
 	t1.load( path_target )
@@ -197,7 +210,26 @@ def align( path_target , path_reference , ch1 , ch2 ):
 	t1.translate( - t1_center_of_mass )
 	t2.translate( - t2.center_mass() )
 
+	if ( fimax1 ) :
+
+		print( 'fimax1 = True ; the software uses only the information of the target trajectory up to its peak of fluorescence intensity.' )
+		
+		t1_trajectory = t1.fimax( fimax_filter )
 	
+	else :
+
+		t1_trajectory = t1
+
+	if ( fimax2 ) :
+		
+		print( 'fimax2 = True ; the software uses only the information of the reference trajectory up to its peak of fluorescence intensity.' )
+		
+		t2_trajectory = t2.fimax( fimax_filter )
+	
+	else :
+
+		t2_trajectory = t2
+
 	l = len( ch1 )
 	
 	#control that the dataset of loaded trajectories is complete
@@ -213,12 +245,60 @@ def align( path_target , path_reference , ch1 , ch2 ):
 		print( "Align " + path_target + " to " + ch1[ i ].annotations( 'file' ) + " and " + path_reference + " to " + ch2[ i ].annotations( 'file' ) ) 
 
 		#spline the trajectories, to reduce the noise
-		spline_t1 , spline_ch1 = spline( t1 , ch1[ i ] )
-		spline_t2 , spline_ch2 = spline( t2 , ch2[ i ] )
+#		if ( fimax1 ) :
+#
+#			#it can be that some trajectories are truncated and the first part of the trajectory,
+#			#before its peak in fluorescence intensity, is mostly missing. If only the 20% of the
+#			#trajectory is left before the peak in fluorescence intensity, then fimax call is ignored
+#			if ( len( ch1[ i ].fimax( fimax_filter ) ) / len( ch1[ i ] ) ) > 0.25 :
+#
+#				spline_t1 , spline_ch1 = spline( t1_trajectory , ch1[ i ].fimax( fimax_filter ) )
+#
+#			else :
+#
+#				spline_t1 , spline_ch1 = spline( t1_trajectory , ch1[ i ] )
+#		
+#		
+#		else :
+#
+#			spline_t1 , spline_ch1 = spline( t1_trajectory , ch1[ i ] )
+		if ( fimax1 ) :
+
+			spline_t1 , spline_ch1 = spline( t1_trajectory , ch1[ i ].fimax( fimax_filter ) )
+			
+		else :
+
+			spline_t1 , spline_ch1 = spline( t1_trajectory , ch1[ i ] )
+
+#		if ( fimax2 ) :
+#
+#			if ( len( ch2[ i ].fimax( fimax_filter ) ) / len( ch2[ i ] ) ) > 0.25 :
+#
+#				spline_t2 , spline_ch2 = spline( t2_trajectory , ch2[ i ].fimax( fimax_filter ) )
+#
+#			else :
+#
+#				spline_t2 , spline_ch2 = spline( t2_trajectory , ch2[ i ] )
+#		
+#		else : 
+#		
+#			spline_t2 , spline_ch2 = spline( t2_trajectory , ch2[ i ] )
+		
+		if ( fimax2 ) :
+
+			spline_t2 , spline_ch2 = spline( t2_trajectory , ch2[ i ].fimax( fimax_filter ) )
+			
+		else :
+
+			spline_t2 , spline_ch2 = spline( t2_trajectory , ch2[ i ] )
+
+
+		spline_t2 , spline_ch2 = spline( t2_trajectory , ch2[ i ] )
 
 		#lag t1
 		ch1_lag = cc( spline_t1 , spline_ch1 )
 		spline_ch1.input_values( 't' , spline_ch1.t() + ch1_lag )
+		
 		#lag t2
 		ch2_lag = cc( spline_t2 , spline_ch2 )
 		spline_ch2.input_values( 't' , spline_ch2.t() + ch2_lag )

@@ -523,7 +523,7 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 					)
 			alignment_precision.append(mean_precision)
 		
-		print('ALIGNMENT PRECISOINS.\nMIN is the alignment\nselected for the average\n----------------------')
+		print('ALIGNMENT PRECISIONS.\nMIN is the alignment\nselected for the average\n----------------------')
 		for a in alignment_precision :
 			
 			if a == min( alignment_precision ) :

@@ -23,8 +23,8 @@ from numpy import nanmax
 from numpy import nanmin
 from numpy import float64 
 from numpy import convolve
-from numpy import nanargmax
 from math import isclose
+import copy as cp
 
 class Traj:
 	"""Trajectory OBJECT:
@@ -403,20 +403,29 @@ class Traj:
 		'filter' defines the  filter used to smooth the fluorescence intensity profile. Default is no filter ( filter = [ 1 ] ).
 		"""
 
+		output = cp.deepcopy( self )
+		
 		#check that the trajectory has a fluorescence intensity attribute which is not empty
 		if not len( self.f() ) :
 
 			raise AttributeError('The fluorescence intensity attribute is empty!')
-	
+
+		if not len( self.t() ) :
+			
+			raise AttributeError('The time attribute is empty!')
+
 		#running mean over fi. The same mean is run over the row numbers to find the 
 		#row at which the max in fi is.
-		fi = array( convolve( self.f() , filter , 'valid' ) )
-		row = array( convolve( range( 0 , len( self.f() ) ) , filter , 'valid' ) )
+		not_nan = [ i for i in range( len( self ) ) if self.f( i ) == self.f( i ) ]
+		t_to_convolve = self.extract( not_nan )
+		
+		fi = array( convolve( t_to_convolve.f() , filter , 'valid' ) )
+		times = array( convolve( t_to_convolve.t() , filter , 'valid' ) )
 
-		row_where_fi_max_is = row[ nanargmax( fi ) ]
-		
-		output = self.extract( range( int( row[ 0 ] ) , int( row_where_fi_max_is + 1 ) ) )
-		
+		time_where_fi_max_is = times[ min( fi.argmax() + 1 , len( fi ) - 1 ) ]
+
+		output.end( time_where_fi_max_is )
+
 		#create annotation
 		output.annotations( 'fimax' , 'TRUE' )
 
