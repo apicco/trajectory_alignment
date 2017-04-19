@@ -191,11 +191,11 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 	
 	#-------------------------END-OF-DEFINITIONS--------------------------------
 
-	t1 = Traj()
-	t1.load( path_target )
+	target_trajectory = Traj()
+	target_trajectory.load( path_target )
 
-	t2 = Traj()
-	t2.load( path_reference )
+	reference_trajectory = Traj()
+	reference_trajectory.load( path_reference )
 	
 	#################################################################################################################
 	#average trajectories are centered on their center of mass and must have been previously lied down 
@@ -206,30 +206,36 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 	#Picco et al. 2015, Material and Methods, Two color alignment procedure, Estimate of the average trasformations).
 	#################################################################################################################
 	
-	t1_center_of_mass = t1.center_mass()
-	t1.translate( - t1_center_of_mass )
-	t2.translate( - t2.center_mass() )
+#	t1_center_of_mass = t1.center_mass()
+#	t1.translate( - t1_center_of_mass )
+#	t2.translate( - t2.center_mass() )
 
 	if ( fimax1 ) :
 
 		print( 'fimax1 = True ; the software uses only the information of the target trajectory up to its peak of fluorescence intensity.' )
 		
-		t1_trajectory = t1.fimax( fimax_filter )
+		t1 = target_trajectory.fimax( fimax_filter )
 	
 	else :
 
-		t1_trajectory = t1
+		t1 = target_trajectory
+
+	t1_center_mass = t1.center_mass()
+	t1.translate( - t1_center_mass )
 
 	if ( fimax2 ) :
 		
 		print( 'fimax2 = True ; the software uses only the information of the reference trajectory up to its peak of fluorescence intensity.' )
 		
-		t2_trajectory = t2.fimax( fimax_filter )
+		t2 = reference_trajectory.fimax( fimax_filter )
 	
 	else :
 
-		t2_trajectory = t2
+		t2 = reference_trajectory
 
+	t2_center_mass = t2.center_mass()
+	t2.translate( - t2_center_mass )
+	
 	l = len( ch1 )
 	
 	#control that the dataset of loaded trajectories is complete
@@ -239,61 +245,20 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 	T = { 'angle' : [] , 'translation' : [] , 'lag' : [] }
 
 	#compute the transformations that align t1 and t2 together.
-	#l = 6 #DEBUG
 	for i in range( l ) :
 
 		print( "Align " + path_target + " to " + ch1[ i ].annotations( 'file' ) + " and " + path_reference + " to " + ch2[ i ].annotations( 'file' ) ) 
 
 		#spline the trajectories, to reduce the noise
-#		if ( fimax1 ) :
-#
-#			#it can be that some trajectories are truncated and the first part of the trajectory,
-#			#before its peak in fluorescence intensity, is mostly missing. If only the 20% of the
-#			#trajectory is left before the peak in fluorescence intensity, then fimax call is ignored
-#			if ( len( ch1[ i ].fimax( fimax_filter ) ) / len( ch1[ i ] ) ) > 0.25 :
-#
-#				spline_t1 , spline_ch1 = spline( t1_trajectory , ch1[ i ].fimax( fimax_filter ) )
-#
-#			else :
-#
-#				spline_t1 , spline_ch1 = spline( t1_trajectory , ch1[ i ] )
-#		
-#		
-#		else :
-#
-#			spline_t1 , spline_ch1 = spline( t1_trajectory , ch1[ i ] )
 		if ( fimax1 ) :
-
-			spline_t1 , spline_ch1 = spline( t1_trajectory , ch1[ i ].fimax( fimax_filter ) )
-			
+			spline_t1 , spline_ch1 = spline( t1 , ch1[ i ].fimax( fimax_filter ) )
 		else :
+			spline_t1 , spline_ch1 = spline( t1 , ch1[ i ] )
 
-			spline_t1 , spline_ch1 = spline( t1_trajectory , ch1[ i ] )
-
-#		if ( fimax2 ) :
-#
-#			if ( len( ch2[ i ].fimax( fimax_filter ) ) / len( ch2[ i ] ) ) > 0.25 :
-#
-#				spline_t2 , spline_ch2 = spline( t2_trajectory , ch2[ i ].fimax( fimax_filter ) )
-#
-#			else :
-#
-#				spline_t2 , spline_ch2 = spline( t2_trajectory , ch2[ i ] )
-#		
-#		else : 
-#		
-#			spline_t2 , spline_ch2 = spline( t2_trajectory , ch2[ i ] )
-		
 		if ( fimax2 ) :
-
-			spline_t2 , spline_ch2 = spline( t2_trajectory , ch2[ i ].fimax( fimax_filter ) )
-			
+			spline_t2 , spline_ch2 = spline( t2 , ch2[ i ].fimax( fimax_filter ) )
 		else :
-
-			spline_t2 , spline_ch2 = spline( t2_trajectory , ch2[ i ] )
-
-
-		spline_t2 , spline_ch2 = spline( t2_trajectory , ch2[ i ] )
+			spline_t2 , spline_ch2 = spline( t2 , ch2[ i ] )
 
 		#lag t1
 		ch1_lag = cc( spline_t1 , spline_ch1 )
@@ -311,44 +276,57 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 		align_ch1_to_t1 = MSD( spline_t1 , spline_ch1 ) 
 		align_ch2_to_t2 = MSD( spline_t2 , spline_ch2 )
 
-		#the tranformation we need to align t1 to t2 will be the transformation that align ch2 to t2 and the 
-		#inverted transformation that aligns ch1 to t1.
+		#The tranformation that aligns t1 to t2 will be the transformation that align ch2 to t2 and the 
+		#inverse of the transformation that aligns ch1 to t1.
 		#
 		# R_2 @ R_1^{-1} @ ( t1 - t1.center_mass() ) + R_2 @ ( ch1.center_mass() - ch2.center_mass() ) + t2.center_mass()
 		#
-		# As the mean in MSD is weighted (see MSD in trajalign/average.py) the equation becomes
+		#As the mean in MSD is weighted (see MSD in trajalign/average.py) the equation becomes
 		#
 		# R_2 @ R_1^{-1} @ ( t1 - align_ch1_to_t1[ 'rc' ] ) + R_2 @ ( align_ch1_to_t1[ 'lc' ] - align_ch2_to_t2[ 'lc' ] ) + align_ch2_to_t2[ 'rc' ] 
 		#
-		# where align_ch1_to_t1[ 'rc' ], align_ch1_to_t1[ 'lc' ], align_ch2_to_t2[ 'rc' ] and align_ch2_to_t2[ 'lc' ] are 
+		#where align_ch1_to_t1[ 'rc' ], align_ch1_to_t1[ 'lc' ], align_ch2_to_t2[ 'rc' ] and align_ch2_to_t2[ 'lc' ] are 
 		#the estimates of the center of masses with the weight mean convention used in MSD.
-		#NOTE: in eLife, the center of mass of t1 that was used was the geometrical center 
-		#of mass, t1.center_mass(), and not the approximation of the center of mass that best 
-		#align t1 and ch1, given the weight convention in MSD.
-
-
-		#compute the angle as the atan2 of the sin( align_ch2_to_t2[ 'angle' ] - align_ch1_to_t1[ 'angle' ] ) 
+		#Finally, the target and reference trajectory were initially shifted by 
+		#
+		# - t2_center_mass 
+		#
+		#and
+		#
+		# - t1_center_mass 
+		#
+		#Therefore, the final transformation that align the target trajectory to the reference trajectory must be corrected for this initial shifts
+		#
+		# R_2 @ R_1^{-1} @ ( t1 - align_ch1_to_t1[ 'rc' ] ) + R_2 @ ( align_ch1_to_t1[ 'lc' ] - align_ch2_to_t2[ 'lc' ] ) + align_ch2_to_t2[ 'rc' ] +
+		# + t2_center_mass + t1_center_mass
+		#
+		#NOTE: in eLife we used the geometrical center of mass, t1.center_mass(), and not the 
+		#approximation of the center of mass that best align t1 and ch1 under the weight convention in MSD, which is align_ch1_to_t1[ 'rc' ].
+		#Therefore, in Picco et al, 2015
+		#
+		#	- R( T[ 'angle' ][ -1 ] ) @ align_ch1_to_t1[ 'rc' ]
+		#
+		#woud become 
+		#
+		#	- R( T[ 'angle' ][ -1 ] ) @ t1.center_mass()
+		#
+		
+		#Compute the angle as the atan2 of the sin( align_ch2_to_t2[ 'angle' ] - align_ch1_to_t1[ 'angle' ] ) 
 		#and cos( align_ch2_to_t2[ 'angle' ] - align_ch1_to_t1[ 'angle' ] ) 
 		a = np.sin( align_ch2_to_t2[ 'angle' ] ) * np.cos( align_ch1_to_t1[ 'angle' ] ) -  np.cos( align_ch2_to_t2[ 'angle' ] ) * np.sin( align_ch1_to_t1[ 'angle' ] )  
 		b = np.cos( align_ch2_to_t2[ 'angle' ] ) * np.cos( align_ch1_to_t1[ 'angle' ] ) +  np.sin( align_ch2_to_t2[ 'angle' ] ) * np.sin( align_ch1_to_t1[ 'angle' ] )  
 		T[ 'angle' ].append( np.arctan2( a , b ) )
-		#Using sin, cos and arctan avoids having angles as angle + 2 * k * pi with k > 0.  
-		
 		T[ 'translation' ].append( np.array( 
 				- R( T[ 'angle' ][ -1 ] ) @ align_ch1_to_t1[ 'rc' ]\
 						+ R( align_ch2_to_t2[ 'angle' ] ) @ ( align_ch1_to_t1[ 'lc' ] - align_ch2_to_t2[ 'lc' ] )\
-						+ align_ch2_to_t2[ 'rc' ]
-				)[ 0 ] ) #the [ 0 ] is beacuse otherwise it would be [[ x , y ]] instead of [ x , y ]
-		# note that the translation is done slightly differently than as 
-		# in Picco et al, 2015. As in Picco et al, 2015 
-		#	- R( T[ 'angle' ][ -1 ] ) @ align_ch1_to_t1[ 'rc' ]
-		# should be 
-		#	- R( T[ 'angle' ][ -1 ] ) @ t1.center_mass()
-		
-		#lag
+						+ align_ch2_to_t2[ 'rc' ] + t2_center_mass 
+				)[ 0 ] ) #the [ 0 ] is because otherwise it would be [[ x , y ]] instead of [ x , y ]
 		T[ 'lag' ].append( ch2_lag - ch1_lag )
 	
-	#compute the median and the standard error (SE) of the transformations
+	#compute the median and the standard error (SE) of the transformations.
+	#NOTE that if fimax2 is used, the center of mass of reference trajectory does not 
+	#correspond to the center of mass of the trajectory to which the target trajectory 
+	#is aligned. The target trajectory, in fact, is aligned to the center of mass of
 	T_median = { 
 			'angle' : np.median( T[ 'angle' ] ) ,
 			'angle_SE' : nanMAD( T[ 'angle' ] ) / np.sqrt( l ) ,
@@ -365,29 +343,29 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 			'n' : l
 			}
 
-	t1.rotate( T_median[ 'angle' ] , 
+	target_trajectory.rotate( T_median[ 'angle' ] , 
 			angle_err = T_median[ 'angle_SE' ]
 			)
-	t1.translate( T_median[ 'translation' ] , 
+	target_trajectory.translate( T_median[ 'translation' ] , 
 			v_err = ( T_median[ 'translation_SE' ][ 0 ] , T_median[ 'translation_SE' ][ 1 ] )
 			)
-	t1.input_values( 't' , t1.t() + T_median[ 'lag' ] )
+	target_trajectory.input_values( 't' , target_trajectory.t() + T_median[ 'lag' ] )
 
 	dot_positions = [ i for i in range(len( path_target )) if path_target[i] == '.' ]
 	file_ending = dot_positions[ len(dot_positions) - 1 ] #there could be more than one dot in the file name. Pick the last.
 	file_name =  path_target[ 0 : file_ending ] + '_aligned' + path_target[ file_ending : len( path_target ) ]
 
 	# annotations
-	t1.annotations( 'aligned_to' , str( path_reference ) )
-	t1.annotations( 'original_file' , str( path_target ) )
-	t1.annotations( 'alignment_angle' , str( T_median[ 'angle' ] ) + ' rad' )
-	t1.annotations( 'alignment_angle_SE' , str( T_median[ 'angle_SE' ] ) + ' rad' )
-	t1.annotations( 'alignment_translation' , str( T_median[ 'translation' ] ) + ' ' + t1.annotations()[ 'coord_unit' ] )
-	t1.annotations( 'alignment_translation_SE' , str( T_median[ 'translation_SE' ] ) + ' ' + t1.annotations()[ 'coord_unit' ] )
-	t1.annotations( 'alignment_lag' , str( T_median[ 'lag' ] ) + ' ' + t1.annotations()[ 't_unit' ] )
-	t1.annotations( 'alignment_lag_SE' , str( T_median[ 'lag_SE' ] ) + ' ' + t1.annotations()[ 't_unit' ] )
+	target_trajectory.annotations( 'aligned_to' , str( path_reference ) )
+	target_trajectory.annotations( 'original_file' , str( path_target ) )
+	target_trajectory.annotations( 'alignment_angle' , str( T_median[ 'angle' ] ) + ' rad' )
+	target_trajectory.annotations( 'alignment_angle_SE' , str( T_median[ 'angle_SE' ] ) + ' rad' )
+	target_trajectory.annotations( 'alignment_translation' , str( T_median[ 'translation' ] ) + ' ' + target_trajectory.annotations()[ 'coord_unit' ] )
+	target_trajectory.annotations( 'alignment_translation_SE' , str( T_median[ 'translation_SE' ] ) + ' ' + target_trajectory.annotations()[ 'coord_unit' ] )
+	target_trajectory.annotations( 'alignment_lag' , str( T_median[ 'lag' ] ) + ' ' + target_trajectory.annotations()[ 't_unit' ] )
+	target_trajectory.annotations( 'alignment_lag_SE' , str( T_median[ 'lag_SE' ] ) + ' ' + target_trajectory.annotations()[ 't_unit' ] )
 
-	t1.save( file_name )
+	target_trajectory.save( file_name )
 
 	print( 'The trajectory aligned to ' + path_reference + ' has been saved as ' + file_name )
 
