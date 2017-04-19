@@ -806,7 +806,7 @@ class Traj:
 								else :
 									output[a].append(float(line_elements[attrs[a]]))
 							except:
-								raise TypeError('The comment_char might be ill-defined. Default is "#".')
+								raise TypeError('The comment_char might be ill-defined (default is "#") or the column numbering is wrong.')
 					elif  line_elements[ 0 ][ 0:len( comment_char ) ] == comment_char  :
 						if not ( ( sep == None ) | ( sep == " " ) ) :
 							line_elements = line.split( None ) #annotations are split with spaces
