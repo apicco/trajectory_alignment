@@ -16,11 +16,12 @@ The software was developped and is currently mantained by [Andrea Picco](https:/
 
 # Licence
 
-All the software here is distributed under the terms of the [GNU General Public License Version 3, June 2007](https://www.gnu.org/licenses/gpl.html). `trajalign` is a free software and comes with ABSOLUTELY NO WARRANTY. You are welcome to redistribute the software. However, we deeply appreciate is the use of our software would result in citations of 
+All the software here is distributed under the terms of the [GNU General Public License Version 3, June 2007](https://www.gnu.org/licenses/gpl.html). `trajalign` is a free software and comes with ABSOLUTELY NO WARRANTY. You are welcome to redistribute the software. However, we deeply appreciate if the use of our software would result in citations of 
 
-[Picco, A., Kaksonen, M., _Precise tracking of the dynamics of multiple proteins in endocytic events_,  Methods in Cell Biology, Vol. 139, pages 51-68 (2017)](http://www.sciencedirect.com/science/article/pii/S0091679X16301546).
+[Picco, A., Kaksonen, M., _Precise tracking of the dynamics of multiple proteins in endocytic events_,  Methods in Cell Biology, Vol. 139, pages 51-68 (2017)](http://www.sciencedirect.com/science/article/pii/S0091679X16301546)
 
-Enjoy!
+where we detail the imaging and tracking method.
+Thank you and enjoy `trajalign`!
 
 ***
 
