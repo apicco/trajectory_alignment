@@ -507,7 +507,7 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 			#define the average trajectory and its time attribute
 			########################################################################	
 			
-			average_trajectory.append( trajectory_average( aligned_trajectories[ r ] , r ) )
+			average_trajectory.append( trajectory_average( aligned_trajectories[ r ] , r , fimax ) )
 			#store the transformations of the trajectories in respect of the trajectory r.
 			if r == 0:
 				all_m_angles = np.array([ m_angles ])
@@ -551,7 +551,7 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 		return( aligned_trajectories , average_trajectory , alignment_precision )
 	
 	#-------------------------------------END-OF-DEFINITIONS-in-compute_average-----------------------------------
-	def trajectory_average( aligned_trajectories_to_average , r ) :	
+	def trajectory_average( aligned_trajectories_to_average , r , fimax = False ) :	
 
 		#define the trajectory where the average will be stored
 		t = Traj()
@@ -562,6 +562,10 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 				t.annotations( 'reference_file' , aligned_trajectories_to_average[ r ].annotations()[ a ])
 			else :
 				t.annotations( a , aligned_trajectories_to_average[ r ].annotations()[ a ]) 
+
+		if fimax :
+			t.annotations( 'fimax' , 'TRUE' )
+
 		#group all the attributes of the aligned trajectories...
 		attributes = [ a for a in aligned_trajectories_to_average[ r ].attributes() if a not in ('t','frames')] 
 		#create an empy dictionary where all the attributes that will be then averaged are stored
