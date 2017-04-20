@@ -151,7 +151,7 @@ class Traj:
 		if (len(self._t) > 0): return len(self._t)
 		else: return len(self._frames)
 
-	def __repr__(self):
+	def __repr__( self , n0 = 0 , n1 = NaN ):
 		if (len(self)) == 0 :
 			output = 'The trajectory is empty!\n'
 			if (len(self._annotations)):
@@ -199,11 +199,15 @@ class Traj:
 				output += str(name).rjust(col_width)
 			output += '\n'
 			#print table
+			row_ID = 0
+			if not n1 == n1 : n1 = len( self )
 			for row in transpose(table):
-				output_row = ''
-				for element in row:
-					output_row += str(element).rjust(col_width)
-				output += output_row+'\n'
+				if ( row_ID >= n0 ) and ( row_ID < n1 ) :
+					output_row = ''
+					for element in row:
+						output_row += str(element).rjust(col_width)
+					output += output_row+'\n'
+				row_ID += 1
 			#print annotations
 			output += '#'+'-'*(len(names)*col_width-1)+'\n'#nice separator
 			for name, item in self._annotations.items():
@@ -396,6 +400,22 @@ class Traj:
 
 		return output
 
+	def head( self , n = 10 ) :
+
+		"""
+		.head( n = 10 ) returns the first n rows in the trajectory 
+		"""
+
+		print( self.__repr__( n1 = n ) )
+
+	def tail( self , n = 10 ) :
+		
+		"""
+		.tail( n = 10 ) returns the last n rows in the trajectory 
+		"""
+
+		print( self.__repr__( n0 = len( self ) - n ) )
+
 	def fimax( self , filter = [ 1 ] ):
 
 		"""
@@ -487,13 +507,29 @@ class Traj:
 		"""
 		.norm_f(): normalises the fluorescence intensities .f() between 0 and 1.
 		"""
-		self._f = ( self._f - nanmin(self._f) ) / ( nanmax(self._f) - nanmin(self._f) )
+		self._f = ( self._f - nanmin( self._f ) ) / ( nanmax( self._f ) - nanmin( self._f ) )
 		#if the attribute _f_err is not empty, then propagate the errors accordingly 
 		if ( self._f_err.shape[ self._f_err.ndim - 1 ] > 0 ) :
-			self._f_err = self._f_err / ( nanmax(self._f) - nanmin(self._f) )
+			self._f_err = self._f_err / ( nanmax( self._f ) - nanmin( self._f ) )
 			#the aim of this function is only to rescale the fluorescence intensity
 			#between 0 and 1, hence we do no propagate the error of the max(self._f)
 			#and min(self._f).
+
+	def n_mol( self , N , N_err ) :
+		
+		"""
+		.n_mol( N , N_err ) compute the number of molecules in the trajectory using the flurescence intensity profile 
+		and the N number of molecules per spot. It also propagate the errors given the N_err associated to N.
+		"""
+
+		F = ( self.f() - nanmin( self.f() ) ) #/ ( nanmax( self._f ) - nanmin( self._f ) ) <- redundant constant because F is divided by nanmean( F ), which has the same constant
+		M = nanmean( F )
+		self.input_values( 'mol' , F * N / M )
+		self.input_values( 'mol_err' , sqrt( \
+				( F * N_err / M ) ** 2 +\
+				( self.f_err() * N * ( M - F / len( F ) ) / M ** 2 ) ** 2 +\
+				( self.f_err( self.f().tolist().index( nanmin( self.f() ) ) ) * N * ( M - F ) / M **2 ) ** 2 )
+				)
 
 	def rotate( self , angle , angle_err = 0):
 		"""
@@ -565,7 +601,6 @@ class Traj:
 				return self._t
 		else :
 			raise TypeError('shift in lag() must be integer')
-
 
 	def start(self,t=None):
 
