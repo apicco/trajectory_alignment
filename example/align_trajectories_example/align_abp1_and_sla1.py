@@ -29,4 +29,4 @@ abp1_trajectories = load_directory(
 		date = '01/01/00' , 
 		notes = 'the trajectory of the reference protein')
 
-align( path_target = 'sla1.txt' , path_reference = 'abp1.txt' , ch1 = sla1_trajectories , ch2 = abp1_trajectories )
+align( path_target = 'sla1.txt' , path_reference = 'abp1.txt' , ch1 = sla1_trajectories , ch2 = abp1_trajectories , fimax2 = True )
