@@ -1,6 +1,6 @@
 Here is an **example** about the use of the [align](Align-average-trajectories) function. 
 The goal of the example is to align in space and time the average trajectories of the proteins Sla1, whose average trajectory is shown in the [home](http://apicco.github.io/trajectory_alignment/) page, and Rvs167 to the average trajectory of Abp1, which is used as a reference protein. 
-The output of the example will be the following plot.
+The output of the example will be the following plot:
 
 ![example](images/plot_aligned_trajectories.png)
 _The inward movement and the fluorescence intensity profile of the endocytic coat protein Sla1, the N-BAR protein Rvs167, and the actin binding protein Abp1._
