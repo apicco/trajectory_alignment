@@ -80,6 +80,10 @@ or modified
 
 which is equivalent to (deprecated) `d.annotations()[ 'mood' ]= 'all this seems pretty complicated. But it is not!'`
 
+**`.head( n = 10 )`** prints the first n rows or the trajectory.
+
+**`.tail( n = 10 )`** prints the last n rows or the trajectory.
+
 **`.start( t = None )`** returns the start of the trajectory if the time attribute is defined. If `t` is specified, it returns the trajectory attributes starting from `t`.
 
 `print( d.start() )`
@@ -122,6 +126,8 @@ Note an important difference between `.start()`, `.end()`, `.extract()` and `.fi
 **`.lifetime( round = 2 )`** computes the lifetime of the trajectory and rounds it to 'round' number of float digits.
 
 **`.time( delta_t , unit )`** times the trajectory using the frame information. Frames are spaced by delta_t of given unit. `.time()` operates only if the `.t()` attribute is empty. 
+
+**`.n_mol( N , N_err )`** use the measure of the average number of molecules present in the spots (N) and its error estimate (N_err) to compute an estimate from the flurescence intensity profile of the trajectory of the number of molecules and its error.
 
 ## Input and output
 

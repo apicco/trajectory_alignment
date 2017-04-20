@@ -57,7 +57,7 @@ The ordering of the trajectories in the two lists must match the pairing of the 
 Note that both trajectories must have obviously the same time interval, dt, and must share the same units.
 Once the trajectory pairs are loaded, the alignment can be computed by calling the [align](Align-average-trajectories) function.
 
-	align( path_target = 'sla1.txt' , path_reference = 'abp1.txt' , ch1 = sla1_trajectories , ch2 = abp1_trajectories )
+	align( path_target = 'sla1.txt' , path_reference = 'abp1.txt' , ch1 = sla1_trajectories , ch2 = abp1_trajectories , fimax2 = True )
 
 *ch1* and *ch2* are the variables that are used to enter the trajectories of the target and reference proteins, respectively. These lines of code are found in the  alignment script [align_abp1_and_sla1.py](https://github.com/apicco/trajectory_alignment/tree/master/example/align_trajectories_example/align_abp1_and_sla1.py) in the [example folder](https://github.com/apicco/trajectory_alignment/tree/master/example/align_trajectories_example).
 Similarly the alignmet of Rvs167 to Abp1 is in [align_abp1_and_rvs167.py](https://github.com/apicco/trajectory_alignment/tree/master/example/align_trajectories_example/align_abp1_and_rvs167.py) in the [example folder](https://github.com/apicco/trajectory_alignment/tree/master/example/align_trajectories_example/).
@@ -119,10 +119,12 @@ To plot the aligned trajectories together you can use the following script, wher
 	rvs167 = Traj()
 	rvs167.load( 'rvs167_aligned.txt' )
 	
-	#normalise the fluorescence intensities
-	abp1.norm_f()
-	sla1.norm_f()
-	rvs167.norm_f()
+	#normalise the number of molecules using the average number of molecules
+	#measured in endocytic patches ( Picco et al., 2015 ).
+
+	abp1.n_mol( 240.3 , 20.6 )
+	sla1.n_mol( 47.5 , 4.5 )
+	rvs167.n_mol( 51.3 , 6.3 )
 	
 	#set trajectories start from time = 0 s
 	
@@ -138,16 +140,16 @@ To plot the aligned trajectories together you can use the following script, wher
 	myplot( trj , sla1 , what = 'coord' , col = '#336CFF' , label = 'Sla1' )
 	myplot( trj , rvs167 , what = 'coord' , col = '#006400' , label = 'Rvs167' )
 	
-	myplot( fi , abp1 , what = 'f' , col = '#D7110E' , label = 'Abp1' )
-	myplot( fi , sla1 , what = 'f' , col = '#336CFF' , label = 'Sla1' )
-	myplot( fi , rvs167 , what = 'f' , col = '#006400' , label = 'Rvs167' )
+	myplot( fi , abp1 , what = 'mol' , col = '#D7110E' , label = 'Abp1' )
+	myplot( fi , sla1 , what = 'mol' , col = '#336CFF' , label = 'Sla1' )
+	myplot( fi , rvs167 , what = 'mol' , col = '#006400' , label = 'Rvs167' )
 	
 	plt.subplot( trj )
 	plt.ylabel( 'Inward movement (' + abp1.annotations( 'coord_unit' ) + ')' , fontsize = 24 )
 	plt.legend( loc = 'best' )
 	
 	plt.subplot( fi )
-	plt.ylabel( 'FI (a.u.)' , fontsize = 24 )
+	plt.ylabel( 'Number of molecules' , fontsize = 24 )
 	plt.xlabel( 'Time (' + abp1.annotations( 't_unit' ) + ')' , fontsize = 24 )
 	plt.legend( loc = 'best' )
 	
