@@ -135,7 +135,7 @@ def nanMAD( x , axis = None , k = 1.4826):
 	MAD = np.nanmedian( np.absolute( x - np.nanmedian( x , axis ) ) , axis )
 	return( k * MAD )
 
-def average_trajectories( trajectory_list , max_frame=500 , output_file = 'average' , median = False , fimax = False , fimax_filter = [ -3/35 , 12/35 , 17/35 , 12/35 , -3/35 ] ):
+def average_trajectories( trajectory_list , max_frame=500 , output_file = 'average' , median = False , unify_start_end = True , fimax = False , fimax_filter = [ -3/35 , 12/35 , 17/35 , 12/35 , -3/35 ] ):
 
 	"""
 	average_trajectories( trajectory_list , max_frame = 500 , output_file = 'average' , median = False ): align all the 
@@ -428,7 +428,7 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 
 	#-------------------------------------END-OF-DEFINITIONS-in-compute_average_start_and_end-----------------------------------
 
-	def compute_average( trajectory_list , tranformations ) :
+	def compute_average( trajectory_list , tranformations , unify_start_end = True ) :
 		
 		aligned_trajectories = [] #contains all the alignments in respect to each trajectory
 		average_trajectory = [] #contains all averages in respect to each trajectory
@@ -495,12 +495,14 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 				trajectory_time_span[ 'new_start' ].append(aligned_trajectories[ r ][ j ].start())
 				trajectory_time_span[ 'new_end' ].append(aligned_trajectories[ r ][ j ].end())
 
-			mean_start , mean_end = compute_average_start_and_end( trajectory_time_span , aligned_trajectories[ r ] )
-			#uniform start and end of aligned trajectories to mean_start and mean_end
-			for j in range(l):
-			
-				aligned_trajectories[ r ][ j ].start( mean_start )
-				aligned_trajectories[ r ][ j ].end( mean_end )
+			if ( unify_start_end = True ) :
+
+				mean_start , mean_end = compute_average_start_and_end( trajectory_time_span , aligned_trajectories[ r ] )
+				#uniform start and end of aligned trajectories to mean_start and mean_end
+				for j in range(l):
+				
+					aligned_trajectories[ r ][ j ].start( mean_start )
+					aligned_trajectories[ r ][ j ].end( mean_end )
 	
 			########################################################################	
 			#compute the average of the trajectories aligned to the r-th trajectory
