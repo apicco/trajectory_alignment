@@ -8,7 +8,6 @@
 # Author: Andrea Picco (https://github.com/apicco)
 # Year: 2017
 
-
 import os 
 from trajalign.traj import Traj
 import copy as cp
@@ -20,6 +19,13 @@ from sklearn import linear_model
 #import matplotlib
 #matplotlib.use('Agg')
 #from matplotlib import pyplot as plt
+
+def header( version = 1.1 , year = 2017 ) :
+
+	print('|-----------------------------------------------------|')
+	print('| Trajalign version ' + str( version ) +'\t Copyright ' + str( year ) + ' Andrea Picco. |')
+	print('|   Url: www.apicco.github.io/trajectory_alignment/   |')
+	print('|-----------------------------------------------------|')
 
 def load_directory(path , pattern = '.txt' , sep = None , comment_char = '#' , dt=None , t_unit='' , coord_unit='' , **attrs):
 
@@ -495,7 +501,7 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 				trajectory_time_span[ 'new_start' ].append(aligned_trajectories[ r ][ j ].start())
 				trajectory_time_span[ 'new_end' ].append(aligned_trajectories[ r ][ j ].end())
 
-			if ( unify_start_end = True ) :
+			if ( unify_start_end == True ) :
 
 				mean_start , mean_end = compute_average_start_and_end( trajectory_time_span , aligned_trajectories[ r ] )
 				#uniform start and end of aligned trajectories to mean_start and mean_end
@@ -503,6 +509,14 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 				
 					aligned_trajectories[ r ][ j ].start( mean_start )
 					aligned_trajectories[ r ][ j ].end( mean_end )
+			else :
+
+				for j in range(l):
+				
+					aligned_trajectories[ r ][ j ].start( min( trajectory_time_span[ 'new_start' ] ) )
+					aligned_trajectories[ r ][ j ].end( max( trajectory_time_span[ 'new_end' ] ) )
+						
+
 	
 			########################################################################	
 			#compute the average of the trajectories aligned to the r-th trajectory
@@ -514,7 +528,7 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 			if r == 0:
 				all_m_angles = np.array([ m_angles ])
 				all_m_lags = np.array([ m_lags ])
-			else:
+			else :
 				all_m_angles = np.vstack([ all_m_angles , m_angles ])
 				all_m_lags = np.vstack([ all_m_lags , m_lags ])
 			
@@ -593,7 +607,7 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 		
 			for a in attributes: 
 
-				if a[len(a)-4:len(a)] == '_err' :
+				if a[ len( a ) - 4 : len( a ) ] == '_err' :
 					
 					raise AttributeError('The trajectories to be averaged have already an non empty error element, suggeting that they are already the result of an average. These error currently are not propagated. Check that your trajectories are correct')
 				
@@ -604,7 +618,7 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 				#slots, then both the mean and the sem can be computed. There is no sem without mean.
 	
 				if '_' + a + '_err' in t.__slots__:
-
+					
 					if median :
 
 						t.input_values( a ,
@@ -660,7 +674,9 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 
 		return( t )
 	#-------------------------------------END-OF-DEFINITION-of-trajectory_average-----------------------------------
-	
+
+	header() 
+
 	#define the list where transformations are stored
 	transformations = {
 			'angles' : np.array( [] ),
@@ -732,7 +748,7 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 		transformations['lcs'][ i , i ] = [ 0 , 0 ]
 	
 	#compute the average transformation using each trajectory as possible reference
-	aligned_trajectories , average_trajectory , alignment_precision = compute_average( trajectory_list , transformations )
+	aligned_trajectories , average_trajectory , alignment_precision = compute_average( trajectory_list , transformations , unify_start_end )
 	
 	best_average = alignment_precision.index( min( alignment_precision ) ) 
 	worst_average = alignment_precision.index( max( alignment_precision ) ) 
@@ -758,3 +774,5 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 	f.close()
 
 	return( average_trajectory[ best_average ] , average_trajectory[ worst_average ] , aligned_trajectories[ best_average ] )
+
+	header()

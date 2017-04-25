@@ -12,6 +12,7 @@ from trajalign.traj import Traj
 from trajalign.average import load_directory
 from trajalign.average import MSD
 from trajalign.average import nanMAD 
+from trajalign.average import header
 from scipy.interpolate import UnivariateSpline #need to install py35-scikit-learn
 import numpy as np
 import copy as cp
@@ -190,6 +191,8 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 		return( np.matrix( [[ np.cos( angle ) , - np.sin( angle ) ] , [ np.sin( angle ) , np.cos( angle ) ]] , dtype = 'float64' ) )
 	
 	#-------------------------END-OF-DEFINITIONS--------------------------------
+
+	header() 
 
 	target_trajectory = Traj()
 	target_trajectory.load( path_target )
