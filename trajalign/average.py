@@ -775,4 +775,3 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 
 	return( average_trajectory[ best_average ] , average_trajectory[ worst_average ] , aligned_trajectories[ best_average ] )
 
-	header()
