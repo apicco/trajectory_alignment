@@ -434,7 +434,7 @@ def average_trajectories( trajectory_list , max_frame=500 , output_file = 'avera
 
 	#-------------------------------------END-OF-DEFINITIONS-in-compute_average_start_and_end-----------------------------------
 
-	def compute_average( trajectory_list , tranformations , unify_start_end = True ) :
+	def compute_average( trajectory_list , tranformations , unify_start_end ) :
 		
 		aligned_trajectories = [] #contains all the alignments in respect to each trajectory
 		average_trajectory = [] #contains all averages in respect to each trajectory
