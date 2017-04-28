@@ -613,7 +613,7 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 				trajectories_time_span[ 'new_start' ].append(aligned_trajectories[ r ][ j ].start())
 				trajectories_time_span[ 'new_end' ].append(aligned_trajectories[ r ][ j ].end())
 
-			if unify_start_end == True :
+			if unify_start_end :
 
 				mean_start , mean_end = compute_average_start_and_end( trajectories_time_span , aligned_trajectories[ r ] , max_frame )
 
@@ -635,7 +635,7 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 			########################################################################	
 			
 			ta = trajectory_average( aligned_trajectories[ r ] , r , median , fimax )
-			if not unify_start_end == True :
+			if not unify_start_end :
 
 				ta.annotations( 'raw_traj_starts' , trajectories_time_span[ 'new_start' ] )
 				ta.annotations( 'raw_traj_ends' , trajectories_time_span[ 'new_end' ] )
@@ -652,12 +652,24 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 			else :
 				all_m_angles = np.vstack([ all_m_angles , m_angles ])
 				all_m_lags = np.vstack([ all_m_lags , m_lags ])
+		
+			if not unify_start_end :
 			
-			mean_precision =  np.sqrt(
-					np.nanmean( 
-						average_trajectory[ r ].coord_err()[ 0 ] ** 2 + average_trajectory[ r ].coord_err()[ 1 ] ** 2 
+				tmp = cp.deepcopy( average_trajectory[ r ] )
+				tmp.start( average_trajectory[ r ].annotations( 'raw_traj_starts_mean' ) )
+				tmp.end( average_trajectory[ r ].annotations( 'raw_traj_ends_mean' ) )
+
+				mean_precision =  np.sqrt(
+						np.nanmean( 
+							tmp.coord_err()[ 0 ] ** 2 + tmp.coord_err()[ 1 ] ** 2 
+							)
 						)
-					)
+			else :
+				mean_precision =  np.sqrt(
+						np.nanmean( 
+							average_trajectory[ r ].coord_err()[ 0 ] ** 2 + average_trajectory[ r ].coord_err()[ 1 ] ** 2 
+							)
+						)
 			alignment_precision.append(mean_precision)
 		
 		print('ALIGNMENT PRECISIONS.\nMIN is the alignment\nselected for the average\n----------------------')
