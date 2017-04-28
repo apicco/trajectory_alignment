@@ -228,13 +228,13 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 		print( 'fimax2 = True ; the software uses only the information of the reference trajectory up to its peak of fluorescence intensity.' )
 		
 		t2 = reference_trajectory.fimax( fimax_filter )
-		t2.start( float( target_trajectory.annotations( 'raw_traj_starts_mean' ) ) )
+		t2.start( float( reference_trajectory.annotations( 'raw_traj_starts_mean' ) ) )
 	
 	else :
 
 		t2 = reference_trajectory
-		t2.start( float( target_trajectory.annotations( 'raw_traj_starts_mean' ) ) )
-		t2.end( float( target_trajectory.annotations( 'raw_traj_ends_mean' ) ) )
+		t2.start( float( reference_trajectory.annotations( 'raw_traj_starts_mean' ) ) )
+		t2.end( float( reference_trajectory.annotations( 'raw_traj_ends_mean' ) ) )
 
 	t2_center_mass = t2.center_mass()
 	t2.translate( - t2_center_mass )
@@ -377,7 +377,7 @@ def average_ch1( path_reference , ch1 , ch2 , output_file = 'average' , median =
 	average_one_channel( path_reference , ch1 , ch2 , fimax = False , fimax_filter ) : averages the trajectories listed in ch1. These trajectories  were acquired symultaneously to the trajectories in ch2, which are aligned to the reference trajectory identified by path_reference. The transformation that aligns the trajectories in ch2 to path reference is used to align the ch1 trajectories together and to compute then their average. fimax allows the user to use only the trajectory information up to the peak of flurescence intensity to compute the transformation.
 	"""
 
-	if unify_start_end and not max_frame :
+	if  not max_frame :
 	
 		raise TypeError('You need to specify the max_frame if you want to unify the start and end')
 
