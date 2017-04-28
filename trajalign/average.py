@@ -637,10 +637,10 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 			ta = trajectory_average( aligned_trajectories[ r ] , r , median , fimax )
 			if not unify_start_end == True :
 
-				ta.annotations( 'raw_t_starts' , trajectories_time_span[ 'new_start' ] )
-				ta.annotations( 'raw_t_ends' , trajectories_time_span[ 'new_end' ] )
-				ta.annotations( 'raw_t_mean_start' , mean( trajectories_time_span[ 'new_start' ] ) ) 
-				ta.annotations( 'raw_t_mean_end' , mean( trajectories_time_span[ 'new_end' ] ) ) 
+				ta.annotations( 'raw_traj_starts' , trajectories_time_span[ 'new_start' ] )
+				ta.annotations( 'raw_traj_ends' , trajectories_time_span[ 'new_end' ] )
+				ta.annotations( 'raw_traj_mean_start' , np.mean( trajectories_time_span[ 'new_start' ] ) ) 
+				ta.annotations( 'raw_traj_mean_end' , np.mean( trajectories_time_span[ 'new_end' ] ) ) 
 
 			average_trajectory.append( ta )
 			#store the transformations of the trajectories in respect of the trajectory r.
