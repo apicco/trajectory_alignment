@@ -282,7 +282,7 @@ def trajectory_average( aligned_trajectories_to_average , r , median , fimax ) :
 	return( t )
 #-------------------------------------END-OF-DEFINITION-of-trajectory_average-----------------------------------
 
-def average_trajectories( trajectory_list , output_file = 'average' , median = False , unify_start_end = False , max_frame=[] , fimax = False , fimax_filter = [ -3/35 , 12/35 , 17/35 , 12/35 , -3/35 ] ):
+def average_trajectories( trajectory_list , output_file = 'average' , median = False , unify_start_end = True , max_frame=[] , fimax = False , fimax_filter = [ -3/35 , 12/35 , 17/35 , 12/35 , -3/35 ] ):
 
 	"""
 	average_trajectories( trajectory_list , max_frame = 500 , output_file = 'average' , median = False ): align all the 
