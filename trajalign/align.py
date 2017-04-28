@@ -365,7 +365,7 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 
 	#-------------------------END-OF-align-DEFINITION--------------------------------
 
-def average_ch1( path_reference , ch1 , ch2 , output_file = 'average' , median = False , unify_start_end = True , max_frame = [] ,  fimax = False , fimax_filter = [ -3/35 , 12/35 , 17/35 , 12/35 , -3/35 ] ):
+def average_ch1( path_reference , ch1 , ch2 , output_file = 'average' , median = False , unify_start_end = False , max_frame = [] ,  fimax = False , fimax_filter = [ -3/35 , 12/35 , 17/35 , 12/35 , -3/35 ] ):
 
 	"""
 	average_one_channel( path_reference , ch1 , ch2 , fimax = False , fimax_filter ) : averages the trajectories listed in ch1. These trajectories  were acquired symultaneously to the trajectories in ch2, which are aligned to the reference trajectory identified by path_reference. The transformation that aligns the trajectories in ch2 to path reference is used to align the ch1 trajectories together and to compute then their average. fimax allows the user to use only the trajectory information up to the peak of flurescence intensity to compute the transformation.
@@ -442,7 +442,7 @@ def average_ch1( path_reference , ch1 , ch2 , output_file = 'average' , median =
 	
 	#average the ch1 trajectories that have been aligned together
 
-	if ( unify_start_end == True ) :
+	if unify_start_end :
 
 		mean_start , mean_end = compute_average_start_and_end( trajectories_time_span , aligned_ch1 , max_frame )
 		
@@ -459,6 +459,15 @@ def average_ch1( path_reference , ch1 , ch2 , output_file = 'average' , median =
 			aligned_ch1[ j ].end( max( trajectories_time_span[ 'new_end' ] ) )
 				
 	average_trajectory =  trajectory_average( aligned_ch1 , 0 , median , fimax )
+	
+	if not unify_start_end :
+
+		average_trajectory.annotations( 'raw_traj_starts' , trajectories_time_span[ 'new_start' ] )
+		average_trajectory.annotations( 'raw_traj_ends' , trajectories_time_span[ 'new_end' ] )
+		average_trajectory.annotations( 'raw_traj_starts_mean' , np.mean( trajectories_time_span[ 'new_start' ] ) ) 
+		average_trajectory.annotations( 'raw_traj_starts_std' , np.std( trajectories_time_span[ 'new_start' ] ) ) 
+		average_trajectory.annotations( 'raw_traj_ends_mean' , np.mean( trajectories_time_span[ 'new_end' ] ) ) 
+		average_trajectory.annotations( 'raw_traj_ends_std' , np.std( trajectories_time_span[ 'new_end' ] ) ) 
 
 	#save the aligned_ch1 trajectories
 	for i in range( l ) :
