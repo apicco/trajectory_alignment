@@ -208,13 +208,10 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 		print( 'fimax1 = True ; the software uses only the information of the target trajectory up to its peak of fluorescence intensity.' )
 		
 		t1 = target_trajectory.fimax( fimax_filter )
-		t1.start( float( target_trajectory.annotations( 'raw_traj_starts_mean' ) ) )
 	
 	else :
 
 		t1 = target_trajectory
-		t1.start( float( target_trajectory.annotations( 'raw_traj_starts_mean' ) ) )
-		t1.end( float( target_trajectory.annotations( 'raw_traj_ends_mean' ) ) )
 
 	t1_center_mass = t1.center_mass()
 	t1.translate( - t1_center_mass )
@@ -228,13 +225,10 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 		print( 'fimax2 = True ; the software uses only the information of the reference trajectory up to its peak of fluorescence intensity.' )
 		
 		t2 = reference_trajectory.fimax( fimax_filter )
-		t2.start( float( reference_trajectory.annotations( 'raw_traj_starts_mean' ) ) )
 	
 	else :
 
 		t2 = reference_trajectory
-		t2.start( float( reference_trajectory.annotations( 'raw_traj_starts_mean' ) ) )
-		t2.end( float( reference_trajectory.annotations( 'raw_traj_ends_mean' ) ) )
 
 	t2_center_mass = t2.center_mass()
 	t2.translate( - t2_center_mass )
@@ -371,124 +365,121 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 
 	#-------------------------END-OF-align-DEFINITION--------------------------------
 
-def average_ch1( path_reference , ch1 , ch2 , output_file = 'average' , median = False , unify_start_end = False , max_frame = [] ,  fimax = False , fimax_filter = [ -3/35 , 12/35 , 17/35 , 12/35 , -3/35 ] ):
-
-	"""
-	average_one_channel( path_reference , ch1 , ch2 , fimax = False , fimax_filter ) : averages the trajectories listed in ch1. These trajectories  were acquired symultaneously to the trajectories in ch2, which are aligned to the reference trajectory identified by path_reference. The transformation that aligns the trajectories in ch2 to path reference is used to align the ch1 trajectories together and to compute then their average. fimax allows the user to use only the trajectory information up to the peak of flurescence intensity to compute the transformation.
-	"""
-
-	if  not max_frame :
-	
-		raise TypeError('You need to specify the max_frame if you want to unify the start and end')
-
-	header()
-
-	aligned_ch1 = []
-
-	reference_trajectory = Traj()
-	reference_trajectory.load( path_reference )
-
-	if ( fimax ) :
-		
-		print( 'fimax = True ; the software uses only the information of the reference trajectory up to its peak of fluorescence intensity.' )
-		
-		t2 = reference_trajectory.fimax( fimax_filter )
-	
-	else :
-
-		t2 = reference_trajectory
-
-	t2_center_mass = t2.center_mass()
-	t2.translate( - t2_center_mass )
-	
-	l = len( ch1 )
-		
-	#control that the dataset of loaded trajectories is complete
-	if l != len( ch2 ) : raise IndexError( 'The number of trajectories for ch1 and for ch2 differ.' )
-
-	#compute the transformations that align t1 and t2 together.
-	trajectories_time_span = { 'old_start' : [], 'new_start' : [], 'old_end' : [], 'new_end' : []}
-	for i in range( l ) :
-		
-		print( "Align " + ch1[ i ].annotations( 'file' ) + " and " + ch2[ i ].annotations( 'file' ) + " to " + path_reference ) 
-
-		if ( fimax ) :
-
-			spline_t2 , spline_ch2 = spline( t2 , ch2[ i ].fimax( fimax_filter ) )
-
-		else :
-
-			spline_t2 , spline_ch2 = spline( t2 , ch2[ i ] )
-
-		#lag t2
-		ch2_lag = cc( spline_t2 , spline_ch2 )
-		spline_ch2.input_values( 't' , spline_ch2.t() + ch2_lag )
-
-		#unify the start and the end of the trajectory splines that are paired to compute the rotation and translation.
-		unify_start_and_end( spline_t2 , spline_ch2 )
-		
-		#compute the elements of the transformation that aligns ch2 to t2
-		align_ch2_to_t2 = MSD( spline_t2 , spline_ch2 )
-
-		aligned_ch1.append( cp.deepcopy( ch1[ i ] ) )
-
-		aligned_ch1[ i ].rotate( align_ch2_to_t2[ 'angle' ])
-		aligned_ch1[ i ].translate( np.array( align_ch2_to_t2[ 'rc' ] 
-			- R( align_ch2_to_t2[ 'angle' ] ) @ ( align_ch2_to_t2[ 'lc' ] ) 
-			+ t2_center_mass )[ 0 ] ) #the [ 0 ] is because otherwise it would be [[ x , y ]] instead of [ x , y ]
-		aligned_ch1[ i ].input_values( 't' , aligned_ch1[ i ].t() + ch2_lag )
-
-		trajectories_time_span[ 'old_start' ].append( ch1[ i ].start() )
-		trajectories_time_span[ 'old_end' ].append( ch1[ i ].end() )
-		trajectories_time_span[ 'new_start' ].append( aligned_ch1[ i ].start() )
-		trajectories_time_span[ 'new_end' ].append( aligned_ch1[ i ].end() )
-	
-	#average the ch1 trajectories that have been aligned together
-
-	if unify_start_end :
-
-		mean_start , mean_end = compute_average_start_and_end( trajectories_time_span , aligned_ch1 , max_frame )
-		
-		#uniform start and end of aligned trajectories to mean_start and mean_end
-		for j in range( l ):
-		
-			aligned_ch1[ j ].start( mean_start )
-			aligned_ch1[ j ].end( mean_end )
-	else :
-
-		for j in range( l ):
-		
-			aligned_ch1[ j ].start( min( trajectories_time_span[ 'new_start' ] ) )
-			aligned_ch1[ j ].end( max( trajectories_time_span[ 'new_end' ] ) )
-				
-	average_trajectory =  trajectory_average( aligned_ch1 , 0 , median , fimax )
-	
-	if not unify_start_end :
-
-		average_trajectory.annotations( 'raw_traj_starts' , trajectories_time_span[ 'new_start' ] )
-		average_trajectory.annotations( 'raw_traj_ends' , trajectories_time_span[ 'new_end' ] )
-		average_trajectory.annotations( 'raw_traj_starts_mean' , np.mean( trajectories_time_span[ 'new_start' ] ) ) 
-		average_trajectory.annotations( 'raw_traj_starts_std' , np.std( trajectories_time_span[ 'new_start' ] ) ) 
-		average_trajectory.annotations( 'raw_traj_ends_mean' , np.mean( trajectories_time_span[ 'new_end' ] ) ) 
-		average_trajectory.annotations( 'raw_traj_ends_std' , np.std( trajectories_time_span[ 'new_end' ] ) ) 
-
-	#save the aligned_ch1 trajectories
-	for i in range( l ) :
-		filename = "./" + output_file + "/" + aligned_ch1[ i ].annotations( 'file' )
-		if i == 0 :
-			directory = os.path.dirname( filename )
-			if not os.path.exists( directory ) :
-				os.makedirs( directory )
-		aligned_ch1[ i ].save( filename )
-	
-	mean_precision =  np.sqrt(
-			np.nanmean( 
-				average_trajectory.coord_err()[ 0 ] ** 2 + average_trajectory.coord_err()[ 1 ] ** 2 
-				)
-			)
-
-	print('ALIGNMENT PRECISION:')
-	print( mean_precision )
-
-	average_trajectory.save( output_file )
-
+#def average_ch1( path_reference , ch1 , ch2 , output_file = 'average' , median = False , unify_start_end = True , max_frame = [] ,  fimax = False , fimax_filter = [ -3/35 , 12/35 , 17/35 , 12/35 , -3/35 ] ):
+#
+#	"""
+#	average_one_channel( path_reference , ch1 , ch2 , fimax = False , fimax_filter ) : averages the trajectories listed in ch1. These trajectories  were acquired symultaneously to the trajectories in ch2, which are aligned to the reference trajectory identified by path_reference. The transformation that aligns the trajectories in ch2 to path reference is used to align the ch1 trajectories together and to compute then their average. fimax allows the user to use only the trajectory information up to the peak of flurescence intensity to compute the transformation.
+#	"""
+#
+#	if  not max_frame :
+#	
+#		raise TypeError('You need to specify the max_frame number of your movie.')
+#
+#	header()
+#
+#	aligned_ch1 = []
+#
+#	reference_trajectory = Traj()
+#	reference_trajectory.load( path_reference )
+#
+#	if ( fimax ) :
+#		
+#		print( 'fimax = True ; the software uses only the information of the reference trajectory up to its peak of fluorescence intensity.' )
+#		
+#		t2 = reference_trajectory.fimax( fimax_filter )
+#	
+#	else :
+#
+#		t2 = reference_trajectory
+#
+#	t2_center_mass = t2.center_mass()
+#	t2.translate( - t2_center_mass )
+#	
+#	l = len( ch1 )
+#		
+#	#control that the dataset of loaded trajectories is complete
+#	if l != len( ch2 ) : raise IndexError( 'The number of trajectories for ch1 and for ch2 differ.' )
+#
+#	#compute the transformations that align t1 and t2 together.
+#	trajectories_time_span = { 'old_start' : [], 'new_start' : [], 'old_end' : [], 'new_end' : []}
+#	for i in range( l ) :
+#		
+#		print( "Align " + ch1[ i ].annotations( 'file' ) + " and " + ch2[ i ].annotations( 'file' ) + " to " + path_reference ) 
+#
+#		if ( fimax ) :
+#
+#			spline_t2 , spline_ch2 = spline( t2 , ch2[ i ].fimax( fimax_filter ) )
+#
+#		else :
+#
+#			spline_t2 , spline_ch2 = spline( t2 , ch2[ i ] )
+#
+#		#lag t2
+#		ch2_lag = cc( spline_t2 , spline_ch2 )
+#		spline_ch2.input_values( 't' , spline_ch2.t() + ch2_lag )
+#
+#		#unify the start and the end of the trajectory splines that are paired to compute the rotation and translation.
+#		unify_start_and_end( spline_t2 , spline_ch2 )
+#		
+#		#compute the elements of the transformation that aligns ch2 to t2
+#		align_ch2_to_t2 = MSD( spline_t2 , spline_ch2 )
+#
+#		aligned_ch1.append( cp.deepcopy( ch1[ i ] ) )
+#
+#		aligned_ch1[ i ].rotate( align_ch2_to_t2[ 'angle' ])
+#		aligned_ch1[ i ].translate( np.array( align_ch2_to_t2[ 'rc' ] 
+#			- R( align_ch2_to_t2[ 'angle' ] ) @ ( align_ch2_to_t2[ 'lc' ] ) 
+#			+ t2_center_mass )[ 0 ] ) #the [ 0 ] is because otherwise it would be [[ x , y ]] instead of [ x , y ]
+#		aligned_ch1[ i ].input_values( 't' , aligned_ch1[ i ].t() + ch2_lag )
+#
+#		trajectories_time_span[ 'old_start' ].append( ch1[ i ].start() )
+#		trajectories_time_span[ 'old_end' ].append( ch1[ i ].end() )
+#		trajectories_time_span[ 'new_start' ].append( aligned_ch1[ i ].start() )
+#		trajectories_time_span[ 'new_end' ].append( aligned_ch1[ i ].end() )
+#	
+#	#average the ch1 trajectories that have been aligned together
+#
+#	if unify_start_end :
+#
+#		mean_start , mean_end = compute_average_start_and_end( trajectories_time_span , aligned_ch1 , max_frame )
+#		
+#		#uniform start and end of aligned trajectories to mean_start and mean_end
+#		for j in range( l ):
+#		
+#			aligned_ch1[ j ].start( mean_start )
+#			aligned_ch1[ j ].end( mean_end )
+#	else :
+#
+#		for j in range( l ):
+#		
+#			aligned_ch1[ j ].start( min( trajectories_time_span[ 'new_start' ] ) )
+#			aligned_ch1[ j ].end( max( trajectories_time_span[ 'new_end' ] ) )
+#				
+#	average_trajectory =  trajectory_average( aligned_ch1 , 0 , median , fimax )
+#	
+#
+#	average_trajectory.annotations( 'raw_traj_starts_mean' , np.mean( trajectories_time_span[ 'new_start' ] ) ) 
+#	average_trajectory.annotations( 'raw_traj_starts_std' , np.std( trajectories_time_span[ 'new_start' ] ) ) 
+#	average_trajectory.annotations( 'raw_traj_ends_mean' , np.mean( trajectories_time_span[ 'new_end' ] ) ) 
+#	average_trajectory.annotations( 'raw_traj_ends_std' , np.std( trajectories_time_span[ 'new_end' ] ) ) 
+#
+#	#save the aligned_ch1 trajectories
+#	for i in range( l ) :
+#		filename = "./" + output_file + "/" + aligned_ch1[ i ].annotations( 'file' )
+#		if i == 0 :
+#			directory = os.path.dirname( filename )
+#			if not os.path.exists( directory ) :
+#				os.makedirs( directory )
+#		aligned_ch1[ i ].save( filename )
+#	
+#	mean_precision =  np.sqrt(
+#			np.nanmean( 
+#				average_trajectory.coord_err()[ 0 ] ** 2 + average_trajectory.coord_err()[ 1 ] ** 2 
+#				)
+#			)
+#
+#	print('ALIGNMENT PRECISION:')
+#	print( mean_precision )
+#
+#	average_trajectory.save( output_file )
+#

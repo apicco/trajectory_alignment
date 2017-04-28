@@ -153,11 +153,13 @@ def compute_average_start_and_end( trajectories_time_span , aligned_trajectories
 			if trajectories_time_span[ 'old_start' ][ j ] > 0]
 	if len( traj_starts_to_average ) > 0 : 
 		mean_start = np.mean( traj_starts_to_average )
+		std_start = np.std( traj_starts_to_average )
 	else  :
 		#it can be that all trajectories start with 0 (old_start), which means they 
 		#started before the movie begun. If so the mean start is set as the latest 
 		#time between the two trajectories.
-		mean_start = max(trajectories_time_span[ 'new_start' ])
+		mean_start = max( trajectories_time_span[ 'new_start' ] )
+		std_start = 0
 		print( 'Warning: all trajectory starts were trunkated' )
 	
 	#same as for nan mean_start. However, for the selected mean_end is the smallest
@@ -165,11 +167,13 @@ def compute_average_start_and_end( trajectories_time_span , aligned_trajectories
 			if trajectories_time_span[ 'old_end' ][ j ] < ( max_frame - 3 ) * float(aligned_trajectories[ 0 ].annotations()[ 'delta_t' ])]
 	if len( traj_ends_to_average ) > 0 : 
 		mean_end = np.mean( traj_ends_to_average )
+		std_end = np.std( traj_ends_to_average )	
 	else  : 
-		mean_end = min(trajectories_time_span[ 'new_end' ])
+		mean_end = min( trajectories_time_span[ 'new_end' ] )
+		std_end = 0
 		print( 'Warning: all trajectory ends were trunkated' )
 
-	return( mean_start , mean_end )
+	return( [ mean_start , std_start ] , [ mean_end , std_end ] )
 
 #-------------------------------------END-OF-DEFINITIONS-in-compute_average_start_and_end-----------------------------------
 def trajectory_average( aligned_trajectories_to_average , r , median , fimax ) :	
@@ -201,7 +205,7 @@ def trajectory_average( aligned_trajectories_to_average , r , median , fimax ) :
 		for a in attributes:
 			attributes_to_be_averaged[a].append(getattr(aligned_trajectories_to_average[ j ],'_'+a))
 
-	#all the aligned trajectories are set to start at the same  mean_start and finish at mean_end computed from
+	#all the aligned trajectories are set to start at the same mean_start and finish at mean_end computed from
 	#trajectories_time_span in compute_average().Hence, the time interval is the same
 	t.input_values( 't' , aligned_trajectories_to_average[ r ].t()) 
 		
@@ -617,13 +621,15 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 
 			if unify_start_end :
 
-				mean_start , mean_end = compute_average_start_and_end( trajectories_time_span , aligned_trajectories[ r ] , max_frame )
+				t_start , t_end = compute_average_start_and_end( trajectories_time_span , aligned_trajectories[ r ] , max_frame )
 
 				#uniform start and end of aligned trajectories to mean_start and mean_end
 				for j in range(l):
 				
-					aligned_trajectories[ r ][ j ].start( mean_start )
-					aligned_trajectories[ r ][ j ].end( mean_end )
+					#the start ( and end ) of the average is the mean start ( end ) of the raw trajectories minus ( plus ) the std, so
+					#that about 84% of the trajectories are represented and we minimise the trajectory underestimation of the patch lifetimes
+					aligned_trajectories[ r ][ j ].start( t_start[ 0 ] - t_start[ 1 ] ) 
+					aligned_trajectories[ r ][ j ].end( t_end[ 0 ] + t_end[ 1 ] )
 			else :
 
 				for j in range(l):
@@ -638,8 +644,8 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 			
 			ta = trajectory_average( aligned_trajectories[ r ] , r , median , fimax )
 
-			ta.annotations( 'raw_traj_starts' , trajectories_time_span[ 'new_start' ] )
-			ta.annotations( 'raw_traj_ends' , trajectories_time_span[ 'new_end' ] )
+			#ta.annotations( 'raw_traj_starts' , trajectories_time_span[ 'new_start' ] )
+			#ta.annotations( 'raw_traj_ends' , trajectories_time_span[ 'new_end' ] )
 			ta.annotations( 'raw_traj_starts_mean' , np.mean( trajectories_time_span[ 'new_start' ] ) ) 
 			ta.annotations( 'raw_traj_starts_std' , np.std( trajectories_time_span[ 'new_start' ] ) ) 
 			ta.annotations( 'raw_traj_ends_mean' , np.mean( trajectories_time_span[ 'new_end' ] ) ) 
@@ -657,8 +663,8 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 			if not unify_start_end :
 			
 				tmp = cp.deepcopy( average_trajectory[ r ] )
-				tmp.start( average_trajectory[ r ].annotations( 'raw_traj_starts_mean' ) )
-				tmp.end( average_trajectory[ r ].annotations( 'raw_traj_ends_mean' ) )
+				tmp.start( float( average_trajectory[ r ].annotations( 'raw_traj_starts_mean' ) ) - float( average_trajectory[ r ].annotations( 'raw_traj_starts_std' ) ) )
+				tmp.end( float( average_trajectory[ r ].annotations( 'raw_traj_ends_mean' ) ) + float( average_trajectory[ r ].annotations( 'raw_traj_ends_std' ) ) )
 
 				mean_precision =  np.sqrt(
 						np.nanmean( 
@@ -671,6 +677,7 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 							average_trajectory[ r ].coord_err()[ 0 ] ** 2 + average_trajectory[ r ].coord_err()[ 1 ] ** 2 
 							)
 						)
+
 			alignment_precision.append(mean_precision)
 		
 		print('ALIGNMENT PRECISIONS.\nMIN is the alignment\nselected for the average\n----------------------')
