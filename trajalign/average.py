@@ -280,7 +280,7 @@ def trajectory_average( aligned_trajectories_to_average , r , median , fimax ) :
 	return( t )
 #-------------------------------------END-OF-DEFINITION-of-trajectory_average-----------------------------------
 
-def average_trajectories( trajectory_list , output_file = 'average' , median = False , unify_start_end = True , max_frame=500 , fimax = False , fimax_filter = [ -3/35 , 12/35 , 17/35 , 12/35 , -3/35 ] ):
+def average_trajectories( trajectory_list , output_file = 'average' , median = False , unify_start_end = False , max_frame=500 , fimax = False , fimax_filter = [ -3/35 , 12/35 , 17/35 , 12/35 , -3/35 ] ):
 
 	"""
 	average_trajectories( trajectory_list , max_frame = 500 , output_file = 'average' , median = False ): align all the 
@@ -613,7 +613,7 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 				trajectories_time_span[ 'new_start' ].append(aligned_trajectories[ r ][ j ].start())
 				trajectories_time_span[ 'new_end' ].append(aligned_trajectories[ r ][ j ].end())
 
-			if ( unify_start_end == True ) :
+			if unify_start_end == True :
 
 				mean_start , mean_end = compute_average_start_and_end( trajectories_time_span , aligned_trajectories[ r ] , max_frame )
 
@@ -634,7 +634,15 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 			#define the average trajectory and its time attribute
 			########################################################################	
 			
-			average_trajectory.append( trajectory_average( aligned_trajectories[ r ] , r , median , fimax ) )
+			ta = trajectory_average( aligned_trajectories[ r ] , r , median , fimax )
+			if not unify_start_end == True :
+
+				ta.annotations( 'raw_t_starts' , trajectories_time_span[ 'new_start' ] )
+				ta.annotations( 'raw_t_ends' , trajectories_time_span[ 'new_end' ] )
+				ta.annotations( 'raw_t_mean_start' , mean( trajectories_time_span[ 'new_start' ] ) ) 
+				ta.annotations( 'raw_t_mean_end' , mean( trajectories_time_span[ 'new_end' ] ) ) 
+
+			average_trajectory.append( ta )
 			#store the transformations of the trajectories in respect of the trajectory r.
 			if r == 0:
 				all_m_angles = np.array([ m_angles ])
