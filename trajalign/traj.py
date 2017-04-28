@@ -23,7 +23,7 @@ from numpy import nanmax
 from numpy import nanmin
 from numpy import float64 
 from numpy import convolve
-from math import isclose
+from numpy import isclose
 import copy as cp
 
 class Traj:
@@ -617,10 +617,12 @@ class Traj:
 				delta_t = min( self._t[1:] - self._t[ 0 : ( len(self._t) - 1 ) ] )
 		
 			if t is None:
+
 				return self._t[0]
+
 			elif ( 
 					( ( t  > self._t[0] ) | isclose( t , self._t[0] ) ) & 
-					( ( t < self._t[len(self)-1] ) |  isclose( t , self._t[0] ) )
+					( ( t < self._t[len(self)-1] ) | isclose( t , self._t[len(self)-1] ) ) 
 						):
 				new_t = array([ i for i in self._t if ( (i > t) | isclose(i,t) ) ])
 				new_start = self._t.tolist().index(new_t[0])
@@ -694,7 +696,7 @@ class Traj:
 				return self._t[len(self)-1]
 			elif ( 
 					( ( t  > self._t[0] ) | isclose( t , self._t[0] ) ) & 
-					( ( t < self._t[len(self)-1] ) |  isclose( t , self._t[0] ) )
+					( ( t < self._t[len(self)-1] ) |  isclose( t , self._t[len(self)-1] ) )
 						):
 				self._t = array([ i for i in self._t if ( (i < t) | isclose(i,t) ) ])
 				new_end = len(self._t)
