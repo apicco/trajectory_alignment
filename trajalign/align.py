@@ -208,10 +208,13 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 		print( 'fimax1 = True ; the software uses only the information of the target trajectory up to its peak of fluorescence intensity.' )
 		
 		t1 = target_trajectory.fimax( fimax_filter )
+		t1.start( target_trajectory.annotations( 'raw_traj_starts_mean' ) )
 	
 	else :
 
 		t1 = target_trajectory
+		t1.start( target_trajectory.annotations( 'raw_traj_starts_mean' ) )
+		t1.end( target_trajectory.annotations( 'raw_traj_ends_mean' ) )
 
 	t1_center_mass = t1.center_mass()
 	t1.translate( - t1_center_mass )
@@ -225,10 +228,13 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 		print( 'fimax2 = True ; the software uses only the information of the reference trajectory up to its peak of fluorescence intensity.' )
 		
 		t2 = reference_trajectory.fimax( fimax_filter )
+		t2.start( target_trajectory.annotations( 'raw_traj_starts_mean' ) )
 	
 	else :
 
 		t2 = reference_trajectory
+		t2.start( target_trajectory.annotations( 'raw_traj_starts_mean' ) )
+		t2.end( target_trajectory.annotations( 'raw_traj_ends_mean' ) )
 
 	t2_center_mass = t2.center_mass()
 	t2.translate( - t2_center_mass )
@@ -422,9 +428,6 @@ def average_ch1( path_reference , ch1 , ch2 , output_file = 'average' , median =
 		unify_start_and_end( spline_t2 , spline_ch2 )
 		
 		#compute the elements of the transformation that aligns ch2 to t2
-		align_ch2_to_t2 = MSD( spline_t2 , spline_ch2 )
-
-		#NOTE: the weight used in Picco et al., 2015 is slightly different. To use the same weight one should replace spline_t1.f() with spline_t1.f() / ( spline_t1.coord_err()[ 0 ] * spline_t1.coord_err()[ 1 ] )
 		align_ch2_to_t2 = MSD( spline_t2 , spline_ch2 )
 
 		aligned_ch1.append( cp.deepcopy( ch1[ i ] ) )

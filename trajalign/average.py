@@ -191,8 +191,10 @@ def trajectory_average( aligned_trajectories_to_average , r , median , fimax ) :
 	attributes = [ a for a in aligned_trajectories_to_average[ r ].attributes() if a not in ('t','frames')] 
 	#create an empy dictionary where all the attributes that will be then averaged are stored
 	attributes_to_be_averaged = {}
+
 	for a in attributes:
-		attributes_to_be_averaged[a] = []
+
+		attributes_to_be_averaged[ a ] = []
 
 	#merge all the trajectory attributes into the dictionary attributes_to_be_averaged.
 	for j in range( len( aligned_trajectories_to_average ) ):
@@ -635,14 +637,13 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 			########################################################################	
 			
 			ta = trajectory_average( aligned_trajectories[ r ] , r , median , fimax )
-			if not unify_start_end :
 
-				ta.annotations( 'raw_traj_starts' , trajectories_time_span[ 'new_start' ] )
-				ta.annotations( 'raw_traj_ends' , trajectories_time_span[ 'new_end' ] )
-				ta.annotations( 'raw_traj_starts_mean' , np.mean( trajectories_time_span[ 'new_start' ] ) ) 
-				ta.annotations( 'raw_traj_starts_std' , np.std( trajectories_time_span[ 'new_start' ] ) ) 
-				ta.annotations( 'raw_traj_ends_mean' , np.mean( trajectories_time_span[ 'new_end' ] ) ) 
-				ta.annotations( 'raw_traj_ends_std' , np.std( trajectories_time_span[ 'new_end' ] ) ) 
+			ta.annotations( 'raw_traj_starts' , trajectories_time_span[ 'new_start' ] )
+			ta.annotations( 'raw_traj_ends' , trajectories_time_span[ 'new_end' ] )
+			ta.annotations( 'raw_traj_starts_mean' , np.mean( trajectories_time_span[ 'new_start' ] ) ) 
+			ta.annotations( 'raw_traj_starts_std' , np.std( trajectories_time_span[ 'new_start' ] ) ) 
+			ta.annotations( 'raw_traj_ends_mean' , np.mean( trajectories_time_span[ 'new_end' ] ) ) 
+			ta.annotations( 'raw_traj_ends_std' , np.std( trajectories_time_span[ 'new_end' ] ) ) 
 
 			average_trajectory.append( ta )
 			#store the transformations of the trajectories in respect of the trajectory r.
