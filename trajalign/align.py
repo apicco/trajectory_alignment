@@ -208,13 +208,13 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 		print( 'fimax1 = True ; the software uses only the information of the target trajectory up to its peak of fluorescence intensity.' )
 		
 		t1 = target_trajectory.fimax( fimax_filter )
-		t1.start( target_trajectory.annotations( 'raw_traj_starts_mean' ) )
+		t1.start( float( target_trajectory.annotations( 'raw_traj_starts_mean' ) ) )
 	
 	else :
 
 		t1 = target_trajectory
-		t1.start( target_trajectory.annotations( 'raw_traj_starts_mean' ) )
-		t1.end( target_trajectory.annotations( 'raw_traj_ends_mean' ) )
+		t1.start( float( target_trajectory.annotations( 'raw_traj_starts_mean' ) ) )
+		t1.end( float( target_trajectory.annotations( 'raw_traj_ends_mean' ) ) )
 
 	t1_center_mass = t1.center_mass()
 	t1.translate( - t1_center_mass )
@@ -228,13 +228,13 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 		print( 'fimax2 = True ; the software uses only the information of the reference trajectory up to its peak of fluorescence intensity.' )
 		
 		t2 = reference_trajectory.fimax( fimax_filter )
-		t2.start( target_trajectory.annotations( 'raw_traj_starts_mean' ) )
+		t2.start( float( target_trajectory.annotations( 'raw_traj_starts_mean' ) ) )
 	
 	else :
 
 		t2 = reference_trajectory
-		t2.start( target_trajectory.annotations( 'raw_traj_starts_mean' ) )
-		t2.end( target_trajectory.annotations( 'raw_traj_ends_mean' ) )
+		t2.start( float( target_trajectory.annotations( 'raw_traj_starts_mean' ) ) )
+		t2.end( float( target_trajectory.annotations( 'raw_traj_ends_mean' ) ) )
 
 	t2_center_mass = t2.center_mass()
 	t2.translate( - t2_center_mass )
