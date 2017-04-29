@@ -157,7 +157,7 @@ class Traj:
 			if (len(self._annotations)):
 				output += '#' + '-' * len(output) + '\n'
 				for name, item in self._annotations.items():
-					output += '# ' + name + ': ' + item + '\n'
+					output += '# ' + name + ': ' + str( item )+ '\n'
 			return output
 		else :
 			table = []
@@ -211,7 +211,7 @@ class Traj:
 			#print annotations
 			output += '#'+'-'*(len(names)*col_width-1)+'\n'#nice separator
 			for name, item in self._annotations.items():
-				output += '# '+name+': '+item+'\n'
+				output += '# '+name+': '+ str( item )+'\n'
 			return output
 
 
