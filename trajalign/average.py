@@ -153,11 +153,13 @@ def compute_average_start_and_end( trajectories_time_span , aligned_trajectories
 			if trajectories_time_span[ 'old_start' ][ j ] > 0]
 	if len( traj_starts_to_average ) > 0 : 
 		mean_start = np.mean( traj_starts_to_average )
+		std_start = np.std( traj_starts_to_average )
 	else  :
 		#it can be that all trajectories start with 0 (old_start), which means they 
 		#started before the movie begun. If so the mean start is set as the latest 
 		#time between the two trajectories.
 		mean_start = max(trajectories_time_span[ 'new_start' ])
+		std_start = np.nan
 		print( 'Warning: all trajectory starts were trunkated' )
 	
 	#same as for nan mean_start. However, for the selected mean_end is the smallest
@@ -165,11 +167,13 @@ def compute_average_start_and_end( trajectories_time_span , aligned_trajectories
 			if trajectories_time_span[ 'old_end' ][ j ] < ( max_frame - 3 ) * float(aligned_trajectories[ 0 ].annotations()[ 'delta_t' ])]
 	if len( traj_ends_to_average ) > 0 : 
 		mean_end = np.mean( traj_ends_to_average )
+		std_end = np.std( traj_ends_to_average )
 	else  : 
 		mean_end = min(trajectories_time_span[ 'new_end' ])
+		std_end = np.nan
 		print( 'Warning: all trajectory ends were trunkated' )
 
-	return( mean_start , mean_end )
+	return( mean_start , std_start , mean_end , std_end )
 
 #-------------------------------------END-OF-DEFINITIONS-in-compute_average_start_and_end-----------------------------------
 def trajectory_average( aligned_trajectories_to_average , r , median , fimax ) :	
@@ -280,7 +284,7 @@ def trajectory_average( aligned_trajectories_to_average , r , median , fimax ) :
 	return( t )
 #-------------------------------------END-OF-DEFINITION-of-trajectory_average-----------------------------------
 
-def average_trajectories( trajectory_list , output_file = 'average' , median = False , unify_start_end = True , max_frame=500 , fimax = False , fimax_filter = [ -3/35 , 12/35 , 17/35 , 12/35 , -3/35 ] ):
+def average_trajectories( trajectory_list , output_file = 'average' , median = False , unify_start_end = True , max_frame=[] , fimax = False , fimax_filter = [ -3/35 , 12/35 , 17/35 , 12/35 , -3/35 ] ):
 
 	"""
 	average_trajectories( trajectory_list , max_frame = 500 , output_file = 'average' , median = False ): align all the 
@@ -296,9 +300,9 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 
 		raise IndexError('There are not tajectories in the list; check that the trajectories were loaded correctly') 
 
-	if unify_start_end and not max_frame :
+	if not max_frame :
 
-		raise TypeError('You need to specify the max_frame if you want to unify the start and end')
+		raise TypeError('You need to specify the max_frame, which is the frame number in your movies')
 	
 	def R(alpha):
 		"""
@@ -613,9 +617,9 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 				trajectories_time_span[ 'new_start' ].append(aligned_trajectories[ r ][ j ].start())
 				trajectories_time_span[ 'new_end' ].append(aligned_trajectories[ r ][ j ].end())
 
-			if ( unify_start_end == True ) :
+			if unify_start_end :
 
-				mean_start , mean_end = compute_average_start_and_end( trajectories_time_span , aligned_trajectories[ r ] , max_frame )
+				mean_start , std_start , mean_end , std_end = compute_average_start_and_end( trajectories_time_span , aligned_trajectories[ r ] , max_frame )
 
 				#uniform start and end of aligned trajectories to mean_start and mean_end
 				for j in range(l):
@@ -633,8 +637,22 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 			#compute the average of the trajectories aligned to the r-th trajectory
 			#define the average trajectory and its time attribute
 			########################################################################	
+		
+			ta = trajectory_average( aligned_trajectories[ r ] , r , median , fimax ) )
 			
-			average_trajectory.append( trajectory_average( aligned_trajectories[ r ] , r , median , fimax ) )
+			#record the standard deviation of the average start and end, so that the user
+			#knows how the start and end timepoints of the raw trajectories are distributed,
+			#once alingned.
+
+			if unify_start_end :
+				ta.annotations( 'std_start' , str( std_start ) )
+				ta.annotations( 'std_end' , str( std_end ) )
+			else : #if no common start/end are defined then the std is NaN
+				ta.annotations( 'std_start' , str( np.nan ) )
+				ta.annotations( 'std_end' , str( np.nan ) )
+			
+			average_trajectory.append( ta )
+
 			#store the transformations of the trajectories in respect of the trajectory r.
 			if r == 0:
 				all_m_angles = np.array([ m_angles ])
