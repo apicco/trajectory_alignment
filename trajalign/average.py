@@ -638,7 +638,7 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 			#define the average trajectory and its time attribute
 			########################################################################	
 		
-			ta = trajectory_average( aligned_trajectories[ r ] , r , median , fimax ) )
+			ta = trajectory_average( aligned_trajectories[ r ] , r , median , fimax ) 
 			
 			#record the standard deviation of the average start and end, so that the user
 			#knows how the start and end timepoints of the raw trajectories are distributed,
