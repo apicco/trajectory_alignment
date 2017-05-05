@@ -152,28 +152,33 @@ def compute_average_start_and_end( trajectories_time_span , aligned_trajectories
 	traj_starts_to_average = [trajectories_time_span[ 'new_start' ][ j ] for j in range(l)\
 			if trajectories_time_span[ 'old_start' ][ j ] > 0]
 	if len( traj_starts_to_average ) > 0 : 
-		mean_start = np.mean( traj_starts_to_average )
-		std_start = np.std( traj_starts_to_average )
+		mean_starts = np.mean( traj_starts_to_average )
+		n_starts =  len( traj_starts_to_average )
+		std_starts = np.std( traj_starts_to_average ) 
+		
 	else  :
 		#it can be that all trajectories start with 0 (old_start), which means they 
 		#started before the movie begun. If so the mean start is set as the latest 
 		#time between the two trajectories.
-		mean_start = max(trajectories_time_span[ 'new_start' ])
-		std_start = np.nan
+		mean_starts = max(trajectories_time_span[ 'new_start' ])
+		n_starts = np.nan
+		std_starts = np.nan
 		print( 'Warning: all trajectory starts were trunkated' )
 	
-	#same as for nan mean_start. However, for the selected mean_end is the smallest
+	#same as for nan mean_starts. However, for the selected mean_ends is the smallest
 	traj_ends_to_average = [trajectories_time_span[ 'new_end' ][ j ] for j in range(l)\
 			if trajectories_time_span[ 'old_end' ][ j ] < ( max_frame - 3 ) * float(aligned_trajectories[ 0 ].annotations()[ 'delta_t' ])]
 	if len( traj_ends_to_average ) > 0 : 
-		mean_end = np.mean( traj_ends_to_average )
-		std_end = np.std( traj_ends_to_average )
+		mean_ends = np.mean( traj_ends_to_average )
+		n_ends = len( traj_ends_to_average )
+		std_ends = np.std( traj_ends_to_average ) 
 	else  : 
-		mean_end = min(trajectories_time_span[ 'new_end' ])
-		std_end = np.nan
+		mean_ends = min(trajectories_time_span[ 'new_end' ])
+		n_ends = np.nan
+		std_ends = np.nan
 		print( 'Warning: all trajectory ends were trunkated' )
 
-	return( mean_start , std_start , mean_end , std_end )
+	return( mean_starts , std_starts , n_starts , mean_ends , std_ends , n_ends )
 
 #-------------------------------------END-OF-DEFINITIONS-in-compute_average_start_and_end-----------------------------------
 def trajectory_average( aligned_trajectories_to_average , r , median , fimax ) :	
@@ -200,7 +205,9 @@ def trajectory_average( aligned_trajectories_to_average , r , median , fimax ) :
 
 	#merge all the trajectory attributes into the dictionary attributes_to_be_averaged.
 	for j in range( len( aligned_trajectories_to_average ) ):
+		
 		for a in attributes:
+
 			attributes_to_be_averaged[a].append(getattr(aligned_trajectories_to_average[ j ],'_'+a))
 
 	#all the aligned trajectories are set to start at the same  mean_start and finish at mean_end computed from
@@ -619,13 +626,17 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 
 			if unify_start_end :
 
-				mean_start , std_start , mean_end , std_end = compute_average_start_and_end( trajectories_time_span , aligned_trajectories[ r ] , max_frame )
+				mean_start , std_start , n_start , mean_end , std_end , n_end = compute_average_start_and_end( trajectories_time_span , aligned_trajectories[ r ] , max_frame )
 
 				#uniform start and end of aligned trajectories to mean_start and mean_end
 				for j in range(l):
-				
-					aligned_trajectories[ r ][ j ].start( mean_start )
-					aligned_trajectories[ r ][ j ].end( mean_end )
+		
+					#if the unify_start_end is choosen, the average trajectory is started (and ended) from the average 
+					#start (and end) of the trajectory minus (and plus) the 95% CI. This addition (or subtraction) as
+					#been choosen to counter the intrinsic underestimate of the trajectories lifetimes.
+					aligned_trajectories[ r ][ j ].start( mean_start - 1.96 * std_start / np.sqrt( n_start ) )
+					aligned_trajectories[ r ][ j ].end( mean_end + 1.96 * std_end / np.sqrt( n_end ) ) 
+
 			else :
 
 				for j in range(l):
@@ -645,11 +656,15 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 			#once alingned.
 
 			if unify_start_end :
-				ta.annotations( 'std_start' , str( std_start ) )
-				ta.annotations( 'std_end' , str( std_end ) )
+				ta.annotations( 'std_starts' , str( std_start ) )
+				ta.annotations( 'n_starts' , str( n_start ) )
+				ta.annotations( 'std_ends' , str( std_end ) )
+				ta.annotations( 'n_ends' , str( n_end ) )
 			else : #if no common start/end are defined then the std is NaN
-				ta.annotations( 'std_start' , str( np.nan ) )
-				ta.annotations( 'std_end' , str( np.nan ) )
+				ta.annotations( 'std_starts' , str( np.nan ) )
+				ta.annotations( 'n_starts' , str( np.nan ) )
+				ta.annotations( 'std_ends' , str( np.nan ) )
+				ta.annotations( 'n_ends' , str( np.nan ) )
 			
 			average_trajectory.append( ta )
 
