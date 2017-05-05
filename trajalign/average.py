@@ -656,13 +656,17 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 			#once alingned.
 
 			if unify_start_end :
+				ta.annotations( 'mean_starts' , str( mean_start ) )
 				ta.annotations( 'std_starts' , str( std_start ) )
 				ta.annotations( 'n_starts' , str( n_start ) )
+				ta.annotations( 'mean_ends' , str( mean_end ) )
 				ta.annotations( 'std_ends' , str( std_end ) )
 				ta.annotations( 'n_ends' , str( n_end ) )
 			else : #if no common start/end are defined then the std is NaN
+				ta.annotations( 'mean_starts' , str( np.nan ) )
 				ta.annotations( 'std_starts' , str( np.nan ) )
 				ta.annotations( 'n_starts' , str( np.nan ) )
+				ta.annotations( 'mean_ends' , str( np.nan ) )
 				ta.annotations( 'std_ends' , str( np.nan ) )
 				ta.annotations( 'n_ends' , str( np.nan ) )
 			
