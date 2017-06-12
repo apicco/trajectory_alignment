@@ -430,14 +430,17 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 		
 		l = len( t )
 		
+		j = 0
 		for i in range( l ) :
+			
 			if ( not np.isnan( t.coord()[ 0 ][ i ] ) ) & ( not np.isnan( t.coord()[ 1 ][ i ] ) ) :
-				if i == 0 :
+				if j == 0 :
 					X = np.array( [[ t.coord()[ 0 ][ i ] ]] )
 					y = np.array( [ t.coord()[ 1 ][ i ] ] )
 				else :
 					X = np.insert( X , 0 , t.coord()[ 0 ][ i ] , axis = 0 )
 					y = np.insert( y , 0 , t.coord()[ 1 ][ i ] , axis = 0 )
+				j += 1
 
 		with wr.catch_warnings():
 			# also a bug warning occurs from linear models, RANSACR.
@@ -790,7 +793,7 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 	
 	#compute the average transformation using each trajectory as possible reference
 	aligned_trajectories , average_trajectory , alignment_precision = compute_average( trajectory_list , transformations , median , fimax , max_frame , unify_start_end )
-	
+
 	best_average = alignment_precision.index( min( alignment_precision ) ) 
 	worst_average = alignment_precision.index( max( alignment_precision ) ) 
 	lie_down_transform = lie_down( average_trajectory[ best_average ] )
