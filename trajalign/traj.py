@@ -622,7 +622,7 @@ class Traj:
 			elif ( 
 					( ( t  > self._t[0] ) | isclose( t , self._t[0] ) | isclose( self._t[0] , t ) ) & 
 					( ( t < self._t[len(self)-1] ) | isclose( t , self._t[len(self)-1] ) | isclose( self._t[len(self)-1] , t ) )
-						): #in rare cases isclose order of argumants can lead to different results, see numpy documentation
+						): #check wheter t is comprised between self._t[0] and self._t[len(self)-1]. The two isclose are needed because in rare cases isclose order of argumants can lead to different results, see numpy documentation
 				new_t = array([ i for i in self._t if ( (i > t) | isclose( i , t ) | isclose( t , i ) ) ] )
 				new_start = self._t.tolist().index(new_t[0])
 				self._t = new_t
@@ -644,27 +644,17 @@ class Traj:
 				raise AttributeError('t is larger than the trajectory last time point')
 			elif t < self._t[0]:
 
-				number_of_new_frames = float64( (self._t[0]  - t)/delta_t )
-				
-				#the difference between the time at which the trajectory starts and the time
-				#of the new starting point is divided by the time interval delta_t to compute the
-				#number of correspondent frames, which is a float. Because of the representation of 
-				#float numbers a time interval which corresponds, for exampe to an exact number of 
-				# 5 frames might be computed as  4.999999999999999 instead of 5, which would round 
-				#to the wrong integer. Here, we makes sure that the number_of_new_frames is 
-				#rounded to the right integer.
-#OLD deprecated				if int( number_of_new_frames + 0.01 ) != int( number_of_new_frames) :
-#OLD deprecated					number_of_new_frames = int( number_of_new_frames + 0.01)
-#OLD deprecated				else :
-#OLD deprecated					number_of_new_frames = int( number_of_new_frames)
-				if isclose( number_of_new_frames , round( number_of_new_frames ) ) : 
-					number_of_new_frames = int( round( number_of_new_frames ) ) 
-				else :
-					number_of_new_frames = int( number_of_new_frames)
+				def float_range(x , y , step): 
 
-				new_t = [ self._t[ 0 ] - i * delta_t for i in range( number_of_new_frames , 0 , -1 ) 
-						if ( ( ( self._t[ 0 ] - i * delta_t ) > t ) | isclose( ( self._t[ 0 ] - i * delta_t ) , t ) | isclose( t , ( self._t[ 0 ] - i * delta_t ) ) ) ] 
-				self._t = insert(self._t,0,new_t)
+					float_range_output = [];
+					while ( ( x > y ) | isclose( x , y ) | isclose( y , x ) ):
+						float_range_output.append( x )
+						x -= step
+					return list( reversed( float_range_output ) )
+				
+				new_t = float_range( self._t[ 0 ] - delta_t , t , delta_t )
+
+				self._t = insert( self._t , 0 , new_t )
 				for attribute in self.attributes():
 					if attribute == 'coord':
 						self._coord = array([\
@@ -727,13 +717,9 @@ class Traj:
 						#the self._t length if present, which is the first attribute\
 						#of the trajectory to be changed
 				def float_range(x,y,step): 
-					#an inline function to compute the float range, this function was not
-					#practical to compute new_t in .start() because appending values to the
-					#output would have resulted in a new_t ordered in anti-chronological order.
-					#However, new_t values computed with float_range or as in start, are equivalent
-					#within the rounding error range.
+					
 					float_range_output = [];
-					while ( (x < y) | isclose(x,y) ):
+					while ( ( x < y ) | isclose( x , y ) | isclose( y , x ) ):
 						float_range_output.append(x)
 						x += step
 					return float_range_output
