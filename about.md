@@ -33,6 +33,7 @@ I am a physicist who has always been fascinated by biology and its complexity. I
 
 
 Some external links:
+* [my ORCID](http://orcid.org/0000-0003-2548-9183)
 * [my Google scholar](https://scholar.google.ch/citations?user=LpvPoGIAAAAJ&hl=en)
 * [my LinkedIN](https://ch.linkedin.com/in/andrea-picco-9b62a274)
 * [my Github repository](https://github.com/apicco)
