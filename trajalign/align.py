@@ -17,9 +17,6 @@ from scipy.interpolate import UnivariateSpline #need to install py35-scikit-lear
 import numpy as np
 import copy as cp
 
-from matplotlib import pyplot as plt
-
-
 def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = False , fimax_filter = [ -3/35 , 12/35 , 17/35 , 12/35 , -3/35 ] ):
 
 	"""
