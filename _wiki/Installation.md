@@ -18,11 +18,11 @@ To plot the trajectories of the examples we use [matplotlib](http://matplotlib.o
 
 To install the `trajalign` package, please download the latest version of the package from [here](https://github.com/apicco/trajectory_alignment/archive/master.zip) or visit the [github repository](https://github.com/apicco/trajectory_alignment).
 
-In the folder that you downloaded you will find a `setup.py` file. To install `trajalign`, open the folder you downloaded from the shell and type:
+In the folder that you downloaded, you will find a `setup.py` file. To install `trajalign`, open the folder you downloaded from the shell and type:
 
 	sudo python3.5 setup.py install
 
-If as a user you do not have write permission to the global site-packages directroy or you do not want to intstall `trajalign` into it, then you might want to use:
+If as a user you do not have writing permission to the global site-packages directory or you do not want to install `trajalign` into it, then you might want to use:
 
 	sudo python3.5 setup.py install --user
 

@@ -15,7 +15,7 @@ All the elements of the trajectory class are listed here. The trajectory class i
 
 `t = Traj( what = 'my first trajectory' , folder = 'home/foo/' , experiment = 'very important' , mood = 'today is a beautiful day' )`
 
-Annotations can be read and modified at anytime (see `.annotations()`).
+Annotations can be read and modified at any time (see `.annotations()`).
 
 `print(t)` prints the trajectory content and its annotations.
 
@@ -23,7 +23,7 @@ Annotations can be read and modified at anytime (see `.annotations()`).
 
 A trajectory contains several attributes:
 
-* **`.frames()`** is the array of indexes that identify the frames of the original image. Frames are temporally spaced by a time interval `delta_t` or by multipes of such time interval. It can be, in fact, that a spot is allowed to be  missing in one or few frames, depending on the linking properties of the tracking algorithm. If the time is present, then `.frames()` and `.t()`, which contains the time information, must have the same length.
+* **`.frames()`** is the array of indexes that identify the frames of the original image. Frames are temporally spaced by a time interval `delta_t` or by multiples of such time interval. It can be, in fact, that a spot is allowed to be  missing in one or few frames, depending on the linking properties of the tracking algorithm. If the time is present, then `.frames()` and `.t()`, which contains the time information, must have the same length.
 
 * **`.t()`** is the array of time values associated to each frame. The array of `.t()` must have the same length as `.frames()`. Elements in `.t()` are spaced by `delta_t` or multiples of if.
 
@@ -31,9 +31,9 @@ A trajectory contains several attributes:
 
 * **`.f()`** an array of fluorescence intensities of the spots measured across the different frames.
 
-* **`.mol()`** an array of number of molecules, if known.
+* **`.mol()`** an array of the number of molecules, if known.
 
-* **`.n()`** if traj() is an average trajectory, then `.n()` outputs an array containing the number of trajectories used to compute the average at each datapoint.
+* **`.n()`** if traj() is an average trajectory, then `.n()` outputs an array containing the number of trajectories used to compute the average at each data point.
 
 `.t()`, `.coord()`, `.f()` and `.mol()` have related attributes containing the measured errors, if known. The errors are called with `.t_err()`, `.coord_err()`, `.f_err()` and `.mol_err()` respectively and they are calculated as described in the documentation about how to [align average trajectories together](Align-average-trajectories).
 
@@ -67,7 +67,7 @@ or (deprecated) `print( d.t()[ range( 0 , 3 ) ] )`
 
 or (deprecated) `print( [ d.coord()[ 0 ][ range( 0 , 3 ) ] , d.coord()[ 1 ][ range( 0 , 3 ) ] ] )`
 
-**`.annotations( annotation = None , string = '')`**: output the dictionary of the annotations associate to the trajectory (equivalent to `.__dict__()`). If an annotation is inputed it changes the value of the annotation with string. If the annotation is not defined it defines it.
+**`.annotations( annotation = None , string = '')`**: output the dictionary of the annotations associate to the trajectory (equivalent to `.__dict__()`). If an annotation is inputted it changes the value of the annotation with string. If the annotation is not defined it defines it.
 
 Output all annotations:
 
@@ -113,7 +113,7 @@ which is equivalent to (deprecated) `d.annotations()[ 'mood' ]= 'all this seems 
 
 `print( d.extract( range( 0 , len( d ) ) ) )` is the identity to `d`.
 
-**`.fimax( filter = [ 1 ] )`** returns the part of the trajectory until the maximun in fluorescence intensity. `filter` specifies a filter that is used to smooth the fluorescence intensity profile. No smoothing is done if `filter = [ 1 ]`, which is the default. The sum of the elements of the filter must equal one. 
+**`.fimax( filter = [ 1 ] )`** returns the part of the trajectory until the maximum in fluorescence intensity. `filter` specifies a filter that is used to smooth the fluorescence intensity profile. No smoothing is done if `filter = [ 1 ]`, which is the default. The sum of the elements of the filter must equal one. 
 
 Note an important difference between `.start()`, `.end()`, `.extract()` and `.fimax()`: When `.start()` and `.end()` are used to define a new start and end, the trajectory on which they are used is modified and the information on the time points before the new start or after the new end is lost.
 `.extract()` and `.fimax()` instead creates a completely new trajectory, which does not alter the original trajectory.
@@ -128,17 +128,17 @@ Note an important difference between `.start()`, `.end()`, `.extract()` and `.fi
 
 **`.lag( time_shift )`** shift in time of the trajectory by time_shift, which must be expressed in the trajectory time units.
 
-**`.center_of_mass()`** translate the trajectory so that its cententer of mass sits on the origin.
+**`.center_of_mass()`** translate the trajectory so that its centre of mass sits on the origin.
 
 **`.lifetime( round = 2 )`** computes the lifetime of the trajectory and rounds it to 'round' number of float digits.
 
 **`.time( delta_t , unit )`** times the trajectory using the frame information. Frames are spaced by delta_t of given unit. `.time()` operates only if the `.t()` attribute is empty. 
 
-**`.n_mol( N , N_err )`** use the measure of the average number of molecules present in the spots (N) and its error estimate (N_err) to compute an estimate from the flurescence intensity profile of the trajectory of the number of molecules and its error.
+**`.n_mol( N , N_err )`** use the measure of the average number of molecules present in the spots (N) and its error estimate (N_err) to compute an estimate from the fluorescence intensity profile of the trajectory of the number of molecules and its error.
 
 ## Input and output
 
-**`.save( filename )`** saves the trajectory as txt to the filename.
+**`.save( filename )`** saves the trajectory as a .txt file with name filename.
 
 `t.save( filename = 'my_first_trajectory.txt' )`
 

@@ -3,7 +3,7 @@ The goal of the example is to align in space and time the average trajectories o
 The output of the example will be the following plot:
 
 ![example](images/plot_aligned_trajectories.png)
-_The inward movement and the fluorescence intensity profile of the endocytic coat protein Sla1, the N-BAR protein Rvs167, and the actin binding protein Abp1._
+_The inward movement and the fluorescence intensity profile of the endocytic coat protein Sla1, the N-BAR protein Rvs167, and the actin-binding protein Abp1._
 
 The average trajectories are aligned together using raw trajectories that have been acquired simultaneously for Abp1 and Rvs167 or Abp1 and Sla1. 
 
@@ -11,9 +11,9 @@ The raw trajectories are found in the folders [abp1_and_rvs167](https://github.c
 
 The average trajectories are [sla1.txt](https://github.com/apicco/trajectory_alignment/tree/master/example/align_trajectories_example/), [rvs167.txt](https://github.com/apicco/trajectory_alignment/tree/master/example/align_trajectories_example/) and [abp1.txt](https://github.com/apicco/trajectory_alignment/tree/master/example/align_trajectories_example/). 
 Following the convention in the [documentation](Align-average-trajectories), Sla1 and Rvs167 are the _target proteins_ that need to be aligned to Abp1, which is the _reference protein_. 
-Abp1 average trajectory was computed using the option `fimax = True` in `average_trajectories`. That is because about half of Abp1  trajectory  tracks the random movement of the actin patch after the scission of the vesicle, when the actin network disassembles, and the random movement of the actin patches after scission can bias the computation of the  average trajectory during the invagination of the plasma membrane.
+Abp1 average trajectory was computed using the option `fimax = True` in `average_trajectories`. That is because about half of Abp1  trajectory  tracks the random movement of the actin patch after the scission of the vesicle when the actin network disassembles, and the random movement of the actin patches after scission can bias the computation of the  average trajectory during the invagination of the plasma membrane.
 
-To align Sla1 to Abp1 one needs to load first the trajectory pairs that are used to compute the alignment as two list, one list contains the trajectories for Sla1 and the other list contains the trajectories for Abp1. 
+To align Sla1 to Abp1 one needs to load first the trajectory pairs that are used to compute the alignment as two lists, one list contains the trajectories for Sla1 and the other list contains the trajectories for Abp1. 
 The ordering of the trajectories in the two lists must match the pairing of the trajectories (the first trajectory in the Sla1 list is paired with the first trajectory in the Abp1 list and so on). 
 
 	from trajalign.align import align

@@ -8,23 +8,23 @@ To align the target trajectory to the reference trajectory we need to import the
 	from trajalign.average import load_directory
 
 `load_directory` is used to load all the trajectories 
-that are acquired symultaneously for both the target and the reference proteins in two distinct lists. 
+that are acquired simultaneously for both the target and the reference proteins in two distinct lists. 
 These trajectories will be used to compute the transformation
-that alingnd the target and reference trajectories together.
+that alinged the target and reference trajectories together.
 It is important that the trajectories in these lists are ordered
 in the same way, so that the first trajectory of the reference protein
 in one list and the first trajectory of the target protein in the other 
-list have been acquired in the same event. Also, it is important the the 
+list have been acquired in the same event. Also, it is important the  
 relative position between the trajectories of the reference and target proteins
 have been corrected for chromatic aberrations. See the [example](Example-of-trajectory-alignment.md) 
-for details on how to load the trajectoreis that are used to compute
-the alignmet of the reference and target average trajectories.
+for details on how to load the trajectories that are used to compute
+the alignment of the reference and target average trajectories.
 
 **`align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = False )`** align the target average trajectory, identified by the path 
 _path_target_ to the reference average trajectory, identified by the path _path_reference_. _ch1_ and _ch2_ are
-the lists of the trajectories for the reference and target protein that have been acquired symultaneosly and which 
+the lists of the trajectories for the reference and target protein that have been acquired simultaneosly and which 
 are used to compute the alignment. _fimax1_ and _fimax2_ are logic values that instruct align whether to use only the 
-trajectory information up to the peak in flurescence intensity (_True_) or to use the complete trajectory information (_False_, which is the default).
+trajectory information up to the peak in fluorescence intensity (_True_) or to use the complete trajectory information (_False_, which is the default).
 It is important when trajectories are particularly noisy and dynamic toward the end of their lifetime, as it is the case for Abp1 in endocytosis. 
 
 Aligned trajectories are saved with the same name as the target trajectory (path_target), followed by "aligned". 
