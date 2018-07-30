@@ -473,27 +473,56 @@ class Traj:
 					setattr(self,"_"+name,array(x,dtype='int64')) # add the frames; no time present yet 
 				else: 
 					raise AttributeError('The chronological order of the frames is wrong')
+
+				if ( unit != '' ) : 
+					raise AttributeError( 'Frames do not have units' )
+				
 			elif ((name=='t') & (len(self._frames)==0)):
+			
 				setattr(self,"_"+name,array(x,dtype='float64')) # add the time; no frames present yet
-				if ('t_unit' in self._annotations.keys()):
-					if (self._annotations['t_unit'] == ''): self._annotations['t_unit'] = unit
-				else: self._annotations['t_unit'] = unit
-			elif (name=='coord'):
+			
+				if ( unit != '' ):
+
+					self._annotations['t_unit'] = unit
+
+			elif ( name == 'coord' ):
+
 				if (len(x[0])==(len(self._frames) | len(self._t))):
+
 					setattr(self,"_"+name,array(x,dtype='float64')) # add the coords
-					if ('coord_unit' in self._annotations.keys()):
-						if (self._annotations['coord_unit'] == ''): self._annotations['coord_unit'] = unit
-					else: self._annotations['coord_unit'] = unit
+					
+					if ( unit != '' ):
+						self._annotations['coord_unit'] = unit
+				
 				else:
+
 					raise AttributeError('The input length of the attribute does not match frames or time array of non-zero length')
-			elif (name=='coord_err'):
+			
+			elif ( name == 'coord_err' ):
+
 				if (len(x[0])==(len(self._frames) | len(self._t))):
+
 					setattr(self,"_"+name,array(x,dtype='float64')) # add the coords
-					if ('coord_unit' in self._annotations.keys()):
-						if (self._annotations['coord_unit'] == ''): self._annotations['coord_unit'] = unit
-					else: self._annotations['coord_unit'] = unit
+
+					# in the case the user wants to redefine the coord unit he needs to make sure that coord_units has
+					# not yet been assigned in .coord() 
+					if ( unit != '' ) :
+
+						if ('coord_unit' in self._annotations.keys()):
+							
+							if ( self._annotations['coord_unit'] == '' ): 
+								
+								self._annotations['coord_unit'] = unit
+							
+							else :
+	
+								raise AttributeError( 'coord_unit has already been assigned for .coord(). You cannot overwrite it!' )
+	
+						else: self._annotations['coord_unit'] = unit
 				else:
-					raise AttributeError('The input length of the attribute does not match frames or time array of non-zero length')
+
+					raise AttributeError('The input length of the attribute does not match frames or time array of non-zero length, or coord_err is not defined for this trajectory')
+
 			elif (len(x)==(len(self._frames) | len(self._t))): 
 				if (name=='frames'): setattr(self,"_"+name,array(x,dtype='int64')) #add frames array checking it is as long as frames or times
 				else: setattr(self,"_"+name,array(x,dtype='float64')) #add array checking it is as long as frames or times
@@ -972,7 +1001,7 @@ class Traj:
 				for key in annotation.keys() :
 					self._annotations[ key ] = annotation[ key ]
 			else :
-				return( self._annotations[annotation] )
+				self._annotations[annotation] = string
 		else:
 			self._annotations[annotation] = string
 
