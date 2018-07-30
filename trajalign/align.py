@@ -64,7 +64,7 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 			interpolated_traj.input_values( 
 					name = 't' , 
 					x = t ,
-					unit = to_interpolate.annotations( 't_unit' ) 
+					unit = to_interpolate.annotations()[ 't_unit' ]
 					)
 	
 			for attribute in to_interpolate.attributes() : 	
@@ -247,7 +247,7 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 	#compute the transformations that align t1 and t2 together.
 	for i in range( l ) :
 
-		print( "Align " + path_target + " to " + ch1[ i ].annotations( 'file' ) + " and " + path_reference + " to " + ch2[ i ].annotations( 'file' ) ) 
+		print( "Align " + path_target + " to " + ch1[ i ].annotations()[ 'file' ] + " and " + path_reference + " to " + ch2[ i ].annotations()[ 'file' ] ) 
 
 		#spline the trajectories, to reduce the noise
 		if ( fimax1 ) :
