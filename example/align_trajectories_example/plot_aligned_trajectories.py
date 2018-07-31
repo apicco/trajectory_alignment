@@ -70,12 +70,12 @@ myplot( fi , sla1 , what = 'mol' , col = '#336CFF' , label = 'Sla1' )
 myplot( fi , rvs167 , what = 'mol' , col = '#006400' , label = 'Rvs167' )
 
 plt.subplot( trj )
-plt.ylabel( 'Inward movement (' + abp1.annotations( 'coord_unit' ) + ')' , fontsize = 24 )
+plt.ylabel( 'Inward movement (' + abp1.annotations()[ 'coord_unit' ] + ')' , fontsize = 24 )
 plt.legend( loc = 'best' )
 
 plt.subplot( fi )
 plt.ylabel( 'Number of molecules' , fontsize = 24 )
-plt.xlabel( 'Time (' + abp1.annotations( 't_unit' ) + ')' , fontsize = 24 )
+plt.xlabel( 'Time (' + abp1.annotations()[ 't_unit' ] + ')' , fontsize = 24 )
 plt.legend( loc = 'best' )
 
 f.tight_layout()
