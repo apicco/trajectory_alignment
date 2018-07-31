@@ -20,7 +20,7 @@ from sklearn import linear_model
 #matplotlib.use('Agg')
 #from matplotlib import pyplot as plt
 
-def header( version = 1.3 , year = 2017 ) :
+def header( version = 1.4 , year = 2018 ) :
 
 	print('|-----------------------------------------------------|')
 	print('| Trajalign version ' + str( version ) +'\t Copyright ' + str( year ) + ' Andrea Picco. |')
