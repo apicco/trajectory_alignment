@@ -14,7 +14,7 @@ The examples can be run using the [raw data](https://github.com/apicco/trajector
 	print( t )
 	t.annotations( 'mood' , 'all this seems pretty complicated, depressing!' )
 	
-	print( t.annotations( 'what' ) )# read the annotation 'what'
+	print( t.annotations()[ 'what' ] )# read the annotation 'what'
 	
 	# set the time  attribute of the trajectory
 	t.input_values('t',[0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1]) 

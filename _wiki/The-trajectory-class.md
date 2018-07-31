@@ -78,7 +78,7 @@ or modified
 
 `d.annotations( 'mood' , 'all this seems pretty complicated. But it is not!' )`
 
-which is equivalent to (deprecated) `d.annotations()[ 'mood' ]= 'all this seems pretty complicated. But it is not!'`
+which is equivalent to (deprecated) `d.annotations()[ 'mood' ]= 'all this seems pretty complicated. But it is not!'`. d.annotations( 'something' ) is equivalent to d.annotations( annotation = 'something' , string = '' ) and will reset the annotation 'something' to blank (empty string).
 
 **`.head( n = 10 )`** prints the first n rows or the trajectory.
 

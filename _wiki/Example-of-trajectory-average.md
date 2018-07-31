@@ -56,8 +56,8 @@ The example reported here is the same as [trajectory_average_example.py](https:/
 	plt.xlim( [ -0.5 , trj.end() - trj.start() + 0.5 ] )
 	plt.ylim( [ -1 , 3.2 ] )
 	
-	plt.ylabel( 'Inward movement (' + trj.annotations( 'coord_unit' ) + ')' , fontsize = 24 )
-	plt.xlabel( 'Time (' + trj.annotations( 't_unit' ) + ')' , fontsize = 24 )
+	plt.ylabel( 'Inward movement (' + trj.annotations()[ 'coord_unit' ] + ')' , fontsize = 24 )
+	plt.xlabel( 'Time (' + trj.annotations()[ 't_unit' ] + ')' , fontsize = 24 )
 	plt.title( str( len( files ) ) + ' trajectories\naligned in space and time and averaged' ,
 			fontsize = 24 , verticalalignment = 'bottom')
 	
