@@ -2,7 +2,7 @@
 name: Andrea Picco
 theme: minima
 #email: andrea.picco@unige.ch
-description: Align in space and in time, and average, trajectories of diffraction limited object, which are recorded with fluorescence microscopy.
+description: Align in space and in time, and average, trajectories of diffraction limited objects, which are recorded with fluorescence microscopy.
 
 baseurl: '/trajectory_alignment'
 twitter_username: g_trevize
