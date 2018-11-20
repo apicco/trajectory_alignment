@@ -545,6 +545,20 @@ class Traj:
 			#between 0 and 1, hence we do no propagate the error of the max(self._f)
 			#and min(self._f).
 
+	def scale_f(self , v = 1 ):
+		"""
+		.scale_f(): scale the fluorescence intensities so that their integral is an arbitrary value 'v'. Default is 1.
+		"""
+		
+		S = sum( self._f )
+		self._f = self._f * v / S
+		#if the attribute _f_err is not empty, then propagate the errors accordingly 
+		if ( self._f_err.shape[ self._f_err.ndim - 1 ] > 0 ) :
+			self._f_err = self._f_err * v / S 
+			#the aim of this function is only to rescale the fluorescence intensity
+			#so that all fluorescence intensiteis meet the same integral, 
+			#hence we do no propagate the error of the S.
+
 	def n_mol( self , N , N_err ) :
 		
 		"""
