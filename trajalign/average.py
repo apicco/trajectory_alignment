@@ -27,7 +27,7 @@ def header( version = 1.4 , year = 2018 ) :
 	print('|   Url: www.apicco.github.io/trajectory_alignment/   |')
 	print('|-----------------------------------------------------|')
 
-def load_directory(path , pattern = '.txt' , sep = None , comment_char = '#' , dt=None , t_unit='' , coord_unit='' , **attrs):
+def load_directory(path , pattern = '.txt' , sep = None , comment_char = '#' , dt=None , t_unit='' , coord_unit='' , **attrs , scale_intensity ):
 
 	"""
 	load_directory(path,pattern = '.txt',sep = None,comment_char = '#',dt=None,t_unit='',**attrs)
@@ -62,6 +62,8 @@ def load_directory(path , pattern = '.txt' , sep = None , comment_char = '#' , d
 			trajectory.time(dt,t_unit)
 		if ('coord' in attrs.keys()):
 			trajectory.annotations('coord_unit',coord_unit)
+		if scale_intensity == True :
+			trajectory.scale_f()
 		trajectory.fill()
 		trajectories.append(trajectory)
 	return trajectories 
