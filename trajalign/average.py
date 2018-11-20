@@ -27,7 +27,7 @@ def header( version = 1.5 , year = 2018 ) :
 	print('|   Url: www.apicco.github.io/trajectory_alignment/   |')
 	print('|-----------------------------------------------------|')
 
-def load_directory(path , pattern = '.txt' , sep = None , comment_char = '#' , dt=None , t_unit='' , coord_unit='' , **attrs , scale_intensity ):
+def load_directory(path , pattern = '.txt' , sep = None , comment_char = '#' , dt=None , t_unit='' , coord_unit='' , scale_intensity = True , **attrs ):
 
 	"""
 	load_directory(path,pattern = '.txt',sep = None,comment_char = '#',dt=None,t_unit='',**attrs)
