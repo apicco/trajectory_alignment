@@ -537,10 +537,19 @@ class Traj:
 		"""
 		.norm_f(): normalises the fluorescence intensities .f() between 0 and 1.
 		"""
-		self._f = ( self._f - nanmin( self._f ) ) / ( nanmax( self._f ) - nanmin( self._f ) )
+	
+		# f_min and f_max need to be defined at the beginning 
+		# otherwise they will change for error calculation if 
+		# the if loop is entered
+		
+		f_min = nanmin( self._f )
+		f_max = nanmax( self._f )
+
+		self._f = ( self._f - f_min ) / ( f_max - f_min )
+
 		#if the attribute _f_err is not empty, then propagate the errors accordingly 
 		if ( self._f_err.shape[ self._f_err.ndim - 1 ] > 0 ) :
-			self._f_err = self._f_err / ( nanmax( self._f ) - nanmin( self._f ) )
+			self._f_err = self._f_err / ( f_max - f_min )
 			#the aim of this function is only to rescale the fluorescence intensity
 			#between 0 and 1, hence we do no propagate the error of the max(self._f)
 			#and min(self._f).
