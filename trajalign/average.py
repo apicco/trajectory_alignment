@@ -63,7 +63,6 @@ def load_directory(path , pattern = '.txt' , sep = None , comment_char = '#' , d
 		if ('coord' in attrs.keys()):
 			trajectory.annotations('coord_unit',coord_unit)
 		trajectory.fill()
-		trajectory.norm_f()
 		trajectories.append(trajectory)
 	return trajectories 
 
