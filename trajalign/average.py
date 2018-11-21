@@ -806,7 +806,7 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 	for i in range(l):
 		aligned_trajectories[ best_average ][ i ].translate( lie_down_transform[ 'translation' ] )
 		aligned_trajectories[ best_average ][ i ].rotate( lie_down_transform[ 'angle' ] )
-		aligned_trajectories[ best_average ][ i ].annotations()[ 'version' ] = header()
+		aligned_trajectories[ best_average ][ i ].annotations()[ 'trajalign_version' ] = header()
 		filename = "./" + output_file + "/" + aligned_trajectories[ best_average ][ i ].annotations()[ 'file' ]
 		if i == 0 :
 			directory = os.path.dirname( filename )
