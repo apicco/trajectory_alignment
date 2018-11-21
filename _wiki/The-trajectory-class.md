@@ -40,6 +40,8 @@ A trajectory contains several attributes:
 
 **`.norm_f()`** normalise the fluorescence intensity `.f()` between 0 and 1.
 
+**`.scale_f( v = 1 )`** normalise the fluorescence intensity `.f()` so that its integral is equal to _v_. Default is `v = 1`. 
+
 ## Properties of the trajectory class:
 
 Each attribute of the trajectory allows integer arguments to index elements in its array, which are then returned.
