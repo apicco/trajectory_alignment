@@ -27,6 +27,8 @@ def header( version = 1.5 , year = 2018 ) :
 	print('|   Url: www.apicco.github.io/trajectory_alignment/   |')
 	print('|-----------------------------------------------------|')
 
+	return version
+
 def load_directory(path , pattern = '.txt' , sep = None , comment_char = '#' , dt=None , t_unit='' , coord_unit='' , scale_intensity = True , **attrs ):
 
 	"""
@@ -804,6 +806,7 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 	for i in range(l):
 		aligned_trajectories[ best_average ][ i ].translate( lie_down_transform[ 'translation' ] )
 		aligned_trajectories[ best_average ][ i ].rotate( lie_down_transform[ 'angle' ] )
+		aligned_trajectories[ best_average ][ i ].annotations()[ 'version' ] = header()
 		filename = "./" + output_file + "/" + aligned_trajectories[ best_average ][ i ].annotations()[ 'file' ]
 		if i == 0 :
 			directory = os.path.dirname( filename )
