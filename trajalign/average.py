@@ -20,14 +20,23 @@ from sklearn import linear_model
 #matplotlib.use('Agg')
 #from matplotlib import pyplot as plt
 
-def header( version = 1.5 , year = 2018 ) :
+def header( version = 1.5 , year = 2018 , printit = True ) :
 
-	print('|-----------------------------------------------------|')
-	print('| Trajalign version ' + str( version ) +'\t Copyright ' + str( year ) + ' Andrea Picco. |')
-	print('|   Url: www.apicco.github.io/trajectory_alignment/   |')
-	print('|-----------------------------------------------------|')
+	if printit :
 
-	return version
+		print('|-----------------------------------------------------|')
+		print('| Trajalign version ' + str( version ) +'\t Copyright ' + str( year ) + ' Andrea Picco. |')
+		print('|   Url: www.apicco.github.io/trajectory_alignment/   |')
+		print('|-----------------------------------------------------|')
+	
+	elif not printit :
+
+		return version
+
+	else :
+
+		raise AttributeError('Please, if you want to print the header (printit = True) or if you want to return the verion number only (printit = False).')
+
 
 def load_directory(path , pattern = '.txt' , sep = None , comment_char = '#' , dt = None , t_unit = '' , coord_unit = '' , intensity_normalisation = 'None' , **attrs ):
 
@@ -821,13 +830,14 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 	best_average = alignment_precision.index( min( alignment_precision ) ) 
 	worst_average = alignment_precision.index( max( alignment_precision ) ) 
 	lie_down_transform = lie_down( average_trajectory[ best_average ] )
+	average_trajectory[ best_average ].annotations()[ 'trajalign_version' ] = header( printit = False )
 	average_trajectory[ best_average ].save( output_file )
 
 	#save the trajectories use to compute the average, lied down as the average trajectory
 	for i in range(l):
 		aligned_trajectories[ best_average ][ i ].translate( lie_down_transform[ 'translation' ] )
 		aligned_trajectories[ best_average ][ i ].rotate( lie_down_transform[ 'angle' ] )
-		aligned_trajectories[ best_average ][ i ].annotations()[ 'trajalign_version' ] = header()
+		aligned_trajectories[ best_average ][ i ].annotations()[ 'trajalign_version' ] = header( printit = False )
 		filename = "./" + output_file + "/" + aligned_trajectories[ best_average ][ i ].annotations()[ 'file' ]
 		if i == 0 :
 			directory = os.path.dirname( filename )
