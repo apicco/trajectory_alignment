@@ -29,13 +29,17 @@ def header( version = 1.5 , year = 2018 ) :
 
 	return version
 
-def load_directory(path , pattern = '.txt' , sep = None , comment_char = '#' , dt=None , t_unit='' , coord_unit='' , scale_intensity = True , **attrs ):
+def load_directory(path , pattern = '.txt' , sep = None , comment_char = '#' , dt = None , t_unit = '' , coord_unit = '' , intensity_normalisation = 'None' , **attrs ):
 
 	"""
-	load_directory(path,pattern = '.txt',sep = None,comment_char = '#',dt=None,t_unit='',**attrs)
+	load_directory(path , pattern = '.txt' , sep = None , comment_char = '#' , dt = None , t_unit = '' , coord_unit = '' , intensity_normalisation = 'None' , **attrs ):
 	loads all the trajectories listed in 'path', which have the same 'pattern'.
 	columns are separated by 'sep' (default is None: a indefinite number of 
 	white spaces). Comments in the trajectory start with 'comment_char'.
+	
+	intensity_normalisation can be: 'None' (no normalisation, default), 'Integral' (normalise over the integral of the fluorescence intensity), 
+	or 'Absolute' (normalise the fluorescence intensity values between 0 and 1)"
+
 	**attrs is used to assign columns to the trajectory attributes and to 
 	add annotations. 
 	If the time interval is added (and 't' is not called in the **attrs) 
@@ -51,6 +55,7 @@ def load_directory(path , pattern = '.txt' , sep = None , comment_char = '#' , d
 		raise AttributeError('Please, specify the time unit \'t_unit\'')
 	if (dt != None) & ('t' in attrs.keys()):
 		raise AttributeError('Time is already loaded by the trajectories, you cannot also compute it from frames. Please, either remove the dt option or do not load the \'t\' column from the trajectories')
+
 	trajectories = [] #the list of trajectories
 	if ( pattern[ len( pattern ) - 1 ] == '$' ) : 
 		files = [ f for f in os.listdir(path) if f.endswith( pattern[ : - 1 ] ) ] #list all the files in path that have pattern
@@ -63,11 +68,27 @@ def load_directory(path , pattern = '.txt' , sep = None , comment_char = '#' , d
 		if (dt != None):
 			trajectory.time(dt,t_unit)
 		if ('coord' in attrs.keys()):
+
 			trajectory.annotations('coord_unit',coord_unit)
-		if scale_intensity == True :
+
+		if intensity_normalisation == 'Integral' :
+			
 			trajectory.scale_f()
+
+		elif intensity_normalisation == 'Absolute' :
+		
+			trajectory.norm_f()
+
+		elif intensity_normalisation != 'None' :
+
+			raise AttributeError( "load_directory: Please, choose a value for the variable intensity_normalisation between 'None' (no normalisation, default), 'Integral' (normalise over the integral of the fluorescence intensity), or 'Absolute' (normalise the fluorescence intensity values between 0 and 1)" )
+
+		trajectory.annotations( 'intensity_normalisation' , intensity_normalisation )
 		trajectory.fill()
 		trajectories.append(trajectory)
+	
+	print( "\n >> load_directory: The 'intensity_normalisation' applied to the trajectories is '" + intensity_normalisation + "' <<\n" )
+
 	return trajectories 
 
 def MSD(input_t1 , input_t2):
