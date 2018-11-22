@@ -258,7 +258,7 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 			
 		raise AttributeError( "\n >> align: in the load_directory function you use to load the ch1 trajectories, you must choose the same value for the variable intensity_normalisation as you chose for align. In align you chose intensity_normalisation = '" + intensity_normalisation + "'. The options that you have are 'Integral' (normalise over the integral of the fluorescence intensity, default in align), or 'Absolute' (normalise the fluorescence intensity values between 0 and 1). 'None' is not recognised by align." )
 		
-	if not ch2[ 0 ].annotations()[ 'intensity_normalisation' ] not in [ 'Integral' , 'Absolute' ] :
+	if not ch2[ 0 ].annotations()[ 'intensity_normalisation' ] == intensity_normalisation :
 			
 		raise AttributeError( "\n >> align: in the load_directory function you use to load the ch2 trajectories, you must choose the same value for the variable intensity_normalisation as you chose for align. In align you chose intensity_normalisation = '" + intensity_normalisation + "'. The options that you have are 'Integral' (normalise over the integral of the fluorescence intensity, default in align), or 'Absolute' (normalise the fluorescence intensity values between 0 and 1). 'None' is not recognised by align." )
 
