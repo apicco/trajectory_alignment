@@ -20,7 +20,7 @@ from sklearn import linear_model
 #matplotlib.use('Agg')
 #from matplotlib import pyplot as plt
 
-def header( version = 1.5 , year = 2018 , printit = True ) :
+def header( version = 1.6 , year = 2018 , printit = True ) :
 
 	if printit :
 
