@@ -17,7 +17,7 @@ from scipy.interpolate import UnivariateSpline #need to install py35-scikit-lear
 import numpy as np
 import copy as cp
 
-def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = False , fimax_filter = [ -3/35 , 12/35 , 17/35 , 12/35 , -3/35 ] ):
+def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = False , fimax_filter = [ -3/35 , 12/35 , 17/35 , 12/35 , -3/35 ] , intensity_normalisation = 'Integral' ):
 
 	"""
 	align( path_target , path_reference , ch1 , ch2 , ):
@@ -196,7 +196,19 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 
 	reference_trajectory = Traj()
 	reference_trajectory.load( path_reference )
-	
+
+	if intensity_normalisation == 'Absolute' :
+
+		target_trajectory.scale_f()
+
+	elif intensity_normalisation == 'Integral' :
+
+		target_trajectory.norm_f()
+
+	else :
+
+		raise AttributeError( "align: Please, choose a value for the variable intensity_normalisation between 'Integral' (normalise over the integral of the fluorescence intensity, default), or 'Absolute' (normalise the fluorescence intensity values between 0 and 1)" )
+
 	#################################################################################################################
 	#average trajectories are centered on their center of mass and must have been previously lied down 
 	#(lie_down function in trajalign/average.py) so that they are orientad in the same way. The 
@@ -240,6 +252,15 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 	
 	#control that the dataset of loaded trajectories is complete
 	if l != len( ch2 ) : raise IndexError( 'The number of trajectories for ch1 and for ch2 differ.' )
+
+	#control thath the dataset of loaded trajectories have the fluorescence intensities normalied as specified in align for the average trajectories
+	if not ch1[ 0 ].annotations()[ 'intensity_normalisation' ] == intensity_normalisation :
+			
+		raise AttributeError( "\n >> align: in the load_directory function you use to load the ch1 trajectories, you must choose the same value for the variable intensity_normalisation as you chose for align. In align you chose intensity_normalisation = '" + intensity_normalisation + "'. The options that you have are 'Integral' (normalise over the integral of the fluorescence intensity, default in align), or 'Absolute' (normalise the fluorescence intensity values between 0 and 1). 'None' is not recognised by align." )
+		
+	if not ch2[ 0 ].annotations()[ 'intensity_normalisation' ] not in [ 'Integral' , 'Absolute' ] :
+			
+		raise AttributeError( "\n >> align: in the load_directory function you use to load the ch2 trajectories, you must choose the same value for the variable intensity_normalisation as you chose for align. In align you chose intensity_normalisation = '" + intensity_normalisation + "'. The options that you have are 'Integral' (normalise over the integral of the fluorescence intensity, default in align), or 'Absolute' (normalise the fluorescence intensity values between 0 and 1). 'None' is not recognised by align." )
 
 	#define the dictionary where the transformations will be stored
 	T = { 'angle' : [] , 'translation' : [] , 'lag' : [] }
