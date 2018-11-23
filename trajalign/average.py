@@ -494,9 +494,9 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 				
 				t1 = t1.fimax( fimax_filter )
 	
-			for t2 in [ t2 for t2 in trajectory_list ]:
+			for traj2 in [ traj2 for traj2 in trajectory_list ]:
 				
-				if trajectory_list.index(t2) >= t1_index :
+				if trajectory_list.index(traj2) >= t1_index :
 					
 					#list of trajectories called in the second loop; as the transformation matrices are 
 					#symmetric, transformations are computed only in the upper diagonal. 
@@ -511,7 +511,10 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 							})
 	
 				else :
-	
+
+					t2 = cp.deepcopy( traj2 )
+					t2.norm_f()
+
 					print( 'ref. traj.:\t' + t1.annotations()['file'] )
 					print( 'aligned traj.:\t' + t2.annotations()['file'] )
 
@@ -763,7 +766,7 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 			'lag_units' : np.array( [] )
 			}
 
-	for t1 in trajectory_list: 
+	for traj1 in trajectory_list:
 
 		#t1 is the reference trajectory to which all the other trajectories are alinged
 		#The loop goes on all trajectories as all of them are eligible to be used as reference
@@ -773,7 +776,11 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 		#by the part of t1 trajectory that stops at the peak of fluorescence intensity. This 
 		#new trajectory cannot be found animore in trajectory_list. Hence, we must compute the 
 		#index before.
-		t1_index = trajectory_list.index(t1) 	
+		
+		t1 = cp.deepcopy( traj1 )
+		t1_index = trajectory_list.index(traj1) 	
+		t1.norm_f()
+
 		selected_alignments = compute_transformations( t1 , t1_index , trajectory_list , fimax , fimax_filter )
 
 		#Create a matrix with all the transformations: angle, lag and center of masses. 
