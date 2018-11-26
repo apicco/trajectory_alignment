@@ -194,16 +194,20 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 	target_trajectory = Traj()
 	target_trajectory.load( path_target )
 
-	reference_trajectory = Traj()
-	reference_trajectory.load( path_reference )
+	t1 = cp.deepcopy( target_trajectory ) 
+
+	t2 = Traj()
+	t2.load( path_reference )
 
 	if intensity_normalisation == 'Absolute' :
 
-		target_trajectory.scale_f()
+		t1.norm_f()
+		t2.norm_f()
 
 	elif intensity_normalisation == 'Integral' :
 
-		target_trajectory.norm_f()
+		t1.scale_f()
+		t2.scale_f()
 
 	else :
 
@@ -218,20 +222,12 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 	#Picco et al. 2015, Material and Methods, Two color alignment procedure, Estimate of the average trasformations).
 	#################################################################################################################
 	
-#	t1_center_of_mass = t1.center_mass()
-#	t1.translate( - t1_center_of_mass )
-#	t2.translate( - t2.center_mass() )
-
 	if ( fimax1 ) :
 
 		print( 'fimax1 = True ; the software uses only the information of the target trajectory up to its peak of fluorescence intensity.' )
 		
-		t1 = target_trajectory.fimax( fimax_filter )
+		t1 = t1.fimax( fimax_filter )
 	
-	else :
-
-		t1 = target_trajectory
-
 	t1_center_mass = t1.center_mass()
 	t1.translate( - t1_center_mass )
 
@@ -239,11 +235,7 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 		
 		print( 'fimax2 = True ; the software uses only the information of the reference trajectory up to its peak of fluorescence intensity.' )
 		
-		t2 = reference_trajectory.fimax( fimax_filter )
-	
-	else :
-
-		t2 = reference_trajectory
+		t2 = t2.fimax( fimax_filter )
 
 	t2_center_mass = t2.center_mass()
 	t2.translate( - t2_center_mass )
@@ -256,11 +248,11 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 	#control thath the dataset of loaded trajectories have the fluorescence intensities normalied as specified in align for the average trajectories
 	if not ch1[ 0 ].annotations()[ 'intensity_normalisation' ] == intensity_normalisation :
 			
-		raise AttributeError( "\n >> align: in the load_directory function you use to load the ch1 trajectories, you must choose the same value for the variable intensity_normalisation as you chose for align. In align you chose intensity_normalisation = '" + intensity_normalisation + "'. The options that you have are 'Integral' (normalise over the integral of the fluorescence intensity, default in align), or 'Absolute' (normalise the fluorescence intensity values between 0 and 1). 'None' is not recognised by align." )
+		raise AttributeError( "\n >> align: in the load_directory function you use to load the ch1 trajectories, you must choose the same value for the variable intensity_normalisation as you chose for align. In align you chose intensity_normalisation = '" + intensity_normalisation + "'. The options that you have are 'Absolute' (normalise the fluorescence intensity values between 0 and 1, DEFAULT in align), or 'Integral' (normalise over the integral of the fluorescence intensity). 'None' is not recognised by align." )
 		
 	if not ch2[ 0 ].annotations()[ 'intensity_normalisation' ] == intensity_normalisation :
 			
-		raise AttributeError( "\n >> align: in the load_directory function you use to load the ch2 trajectories, you must choose the same value for the variable intensity_normalisation as you chose for align. In align you chose intensity_normalisation = '" + intensity_normalisation + "'. The options that you have are 'Integral' (normalise over the integral of the fluorescence intensity, default in align), or 'Absolute' (normalise the fluorescence intensity values between 0 and 1). 'None' is not recognised by align." )
+		raise AttributeError( "\n >> align: in the load_directory function you use to load the ch2 trajectories, you must choose the same value for the variable intensity_normalisation as you chose for align. In align you chose intensity_normalisation = '" + intensity_normalisation + "'. The options that you have are 'Absolute' (normalise the fluorescence intensity values between 0 and 1, DEFAULT in align), or 'Integral' (normalise over the integral of the fluorescence intensity). 'None' is not recognised by align." )
 
 	#define the dictionary where the transformations will be stored
 	T = { 'angle' : [] , 'translation' : [] , 'lag' : [] }
