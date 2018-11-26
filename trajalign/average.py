@@ -16,10 +16,6 @@ import warnings as wr
 
 from sklearn import linear_model
 
-#import matplotlib
-#matplotlib.use('Agg')
-#from matplotlib import pyplot as plt
-
 def header( version = 1.61 , year = 2018 , printit = True ) :
 
 	if printit :
@@ -513,7 +509,7 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 				else :
 
 					t2 = cp.deepcopy( traj2 )
-					t2.norm_f()
+					#t2.norm_f()
 
 					print( 'ref. traj.:\t' + t1.annotations()['file'] )
 					print( 'aligned traj.:\t' + t2.annotations()['file'] )
@@ -779,7 +775,7 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 		
 		t1 = cp.deepcopy( traj1 )
 		t1_index = trajectory_list.index(traj1) 	
-		t1.norm_f()
+		#t1.norm_f()
 
 		selected_alignments = compute_transformations( t1 , t1_index , trajectory_list , fimax , fimax_filter )
 
