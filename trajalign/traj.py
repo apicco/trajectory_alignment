@@ -41,10 +41,12 @@ class Traj:
 			.n() -> if traj() is an average trajectory, then 
 				traj().n output an array containing the number 
 				of trajectories used to compute the average.
+			.m2() -> is the second moment of brightness of the fluresencent 
+				patches.
 
-		.t(), .coord(), .f() and .n() have related attributes containing the 
+		.t(), .coord(), .f(),  .mol(), and .m2() have related attributes containing the 
 		measured errors, if known. The errors are called with .t_err(), 
-		.coord_err(), .f_err() and .mol_err() respectively
+		.coord_err(), .f_err(), .mol_err(), and .m2_err() respectively
 		
 		PROPERTIES:
 
@@ -90,7 +92,7 @@ class Traj:
 		string will be disregarded.
 		Attribute_names associate the attribute and the number of the column 
 		containing its data. Attribute_names can be only: "frames", "t", "x", 
-		"f", "n", "mol","t_err", "x_err", "f_err", "mol_err".
+		"f", "n", "mol", "m2", "t_err", "x_err", "f_err", "mol_err", "m2_err".
 
 		example of usage of the load function:
 		t = Traj() #empty trajectory
@@ -124,7 +126,7 @@ class Traj:
 
 		"""
 	
-	__slots__ = ['_annotations','_frames','_t','_coord','_f','_mol','_n','_t_err','_coord_err','_f_err','_mol_err']
+	__slots__ = ['_annotations','_frames','_t','_coord','_f','_mol','_n','_m2', '_t_err','_coord_err','_f_err','_mol_err' , '_m2_err' ]
 	 
 
 	def __init__(self,**annotations):
