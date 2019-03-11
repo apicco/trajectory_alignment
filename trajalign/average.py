@@ -829,7 +829,22 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 
 	best_average = alignment_precision.index( min( alignment_precision ) ) 
 	worst_average = alignment_precision.index( max( alignment_precision ) ) 
-	lie_down_transform = lie_down( average_trajectory[ best_average ] )
+	
+	if not unify_start_end :
+
+		# compute the lie_down only on the part of the trajectory that represents
+		# most of the average trajectories. That would be the part of average trajectory 
+		# chosen if unify_start_end = True, i.e. the part of trajectory comprised between
+		# the annotations unified_start and unified_end
+		average_trajectory_tmp = cp.deepcopy( average_trajectory[ best_average ] )
+		average_trajectory_tmp.start( float( average_trajectory_tmp.annotations()[ 'unified_start' ] ) )
+		average_trajectory_tmp.end( float( average_trajectory_tmp.annotations()[ 'unified_end' ] ) )
+		lie_down_transform = lie_down( average_trajectory_tmp )
+
+	else :
+	
+		lie_down_transform = lie_down( average_trajectory[ best_average ] )
+
 	average_trajectory[ best_average ].annotations()[ 'trajalign_version' ] = header( printit = False )
 	average_trajectory[ best_average ].save( output_file )
 
