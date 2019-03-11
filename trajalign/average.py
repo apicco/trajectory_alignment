@@ -696,8 +696,11 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 			ta.annotations( 'mean_ends' , str( mean_end ) )
 			ta.annotations( 'std_ends' , str( std_end ) )
 			ta.annotations( 'n_ends' , str( n_end ) )
-			ta.annotations( 'unified_average_start' , mean_start - 1.96 * std_start / np.sqrt( n_start ) )
-			ta.annotations( 'unified_average_end' , mean_end + 1.96 * std_end / np.sqrt( n_end ) )
+
+			if not unify_start_end :
+
+				ta.annotations( 'unified_average_start' , mean_start - 1.96 * std_start / np.sqrt( n_start ) )
+				ta.annotations( 'unified_average_end' , mean_end + 1.96 * std_end / np.sqrt( n_end ) )
 			
 			average_trajectory.append( ta )
 
