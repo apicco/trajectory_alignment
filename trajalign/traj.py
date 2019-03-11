@@ -137,12 +137,14 @@ class Traj:
 		self._f = array([],dtype='float64')
 		self._mol = array([],dtype='float64')
 		self._n = array([],dtype='float64')
+		self._m2 = array([],dtype='float64') #second moment of brightness (f is the first)
 
 		#Trajectory error attributes
 		self._t_err = array([],dtype='float64')
 		self._coord_err = array([array([]),array([])],dtype='float64') #equivalent to matrix in python3.5 provided I use @ operator
 		self._f_err = array([],dtype='float64')
 		self._mol_err = array([],dtype='float64')
+		self._m2_err = array([],dtype='float64')
 
 
 	def __dict__(self):
@@ -268,6 +270,7 @@ class Traj:
 				return(self._f[[item for item in items]])
 			except IndexError:
 				print('Indexes in Traj().f are out of bounds')
+
 	def mol(self,*items):
 		if (len(items)==0): return self._mol
 		elif len(items) == 1 : return self._mol[ items ]
@@ -277,7 +280,6 @@ class Traj:
 			except IndexError:
 				print('Indexes in Traj().mol are out of bounds')
 
-
 	def n(self,*items):
 		if (len(items)==0): return self._n
 		elif len(items) == 1 : return self._n[ items ]
@@ -286,6 +288,15 @@ class Traj:
 				return(self._n[[item for item in items]])
 			except IndexError:
 				print('Indexes in Traj().n are out of bounds')
+
+	def m2(self,*items):
+		if (len(items)==0): return self._m2
+		elif len(items) == 1 : return self._m2[ items ]
+		else: 
+			try:
+				return(self._m2[[item for item in items]])
+			except IndexError:
+				print('Indexes in Traj().m2 are out of bounds')
 
 	def t_err(self,*items):
 		if (len(items)==0): return self._t_err
@@ -338,6 +349,15 @@ class Traj:
 			except IndexError:
 				print('Indexes in Traj().mol_err are out of bounds')
 
+	def m2_err(self,*items):
+		if (len(items)==0): return self._m2_err
+		elif len(items) == 1 : return self._m2_err[ items ]
+		else:
+			try:
+				return(self._m2_err[[item for item in items]])
+			except IndexError:
+				print('Indexes in Traj().f_err are out of bounds')
+	
 	def extract(self,*items):
 		
 		"""
@@ -388,6 +408,8 @@ class Traj:
 						output.input_values(a,self.mol(new_items))
 					if a == 'n' : 
 						output.input_values(a,self.n(new_items))
+					if a == 'm2' : 
+						output.input_values(a,self.m2(new_items))
 					if a == 't_err' : 
 						output.input_values(a,self.t_err(new_items))
 					if a == 'coord_err' : 
@@ -396,6 +418,8 @@ class Traj:
 						output.input_values(a,self.f_err(new_items))
 					if a == 'mol_err' : 
 						output.input_values(a,self.mol_err(new_items)) 
+					if a == 'm2_err' : 
+						output.input_values(a,self.m2_err(new_items)) 
 			except IndexError:
 				print('Indexes in range are out of bounds')
 
