@@ -844,7 +844,7 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 		# lie_down modified average_trajectory_tmp with the transformations in dict lie_down_transform
 		# we apply these transformations to average_trajectory[ best_average ]
 		average_trajectory[ best_average ].translate( lie_down_transform[ 'translation' ] )
-		average_trajectory[ best_average ].rotate( lie_down_transform[ 'rotation' ] )
+		average_trajectory[ best_average ].rotate( lie_down_transform[ 'angle' ] )
 
 
 	else :
