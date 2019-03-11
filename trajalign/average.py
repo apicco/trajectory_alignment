@@ -16,7 +16,7 @@ import warnings as wr
 
 from sklearn import linear_model
 
-def header( version = 1.81 , year = 2018 , printit = True ) :
+def header( version = 1.82 , year = 2018 , printit = True ) :
 
 	if printit :
 
@@ -840,6 +840,12 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 		average_trajectory_tmp.start( float( average_trajectory_tmp.annotations()[ 'unified_start' ] ) )
 		average_trajectory_tmp.end( float( average_trajectory_tmp.annotations()[ 'unified_end' ] ) )
 		lie_down_transform = lie_down( average_trajectory_tmp )
+
+		# lie_down modified average_trajectory_tmp with the transformations in dict lie_down_transform
+		# we apply these transformations to average_trajectory[ best_average ]
+		average_trajectory[ best_average ].translate( lie_down_transform[ 'translation' ] )
+		average_trajectory[ best_average ].rotate( lie_down_transform[ 'rotation' ] )
+
 
 	else :
 	
