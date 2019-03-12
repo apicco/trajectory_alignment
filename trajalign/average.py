@@ -848,7 +848,6 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 		average_trajectory[ best_average ].translate( lie_down_transform[ 'translation' ] )
 		average_trajectory[ best_average ].rotate( lie_down_transform[ 'angle' ] )
 
-
 	else :
 	
 		lie_down_transform = lie_down( average_trajectory[ best_average ] )
