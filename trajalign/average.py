@@ -830,8 +830,6 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 	best_average = alignment_precision.index( min( alignment_precision ) ) 
 	worst_average = alignment_precision.index( max( alignment_precision ) ) 
 
-	average_trajectory[ best_average ].save( 'averege_trajectory_before_liedown.txt' )
-	
 	if not unify_start_end :
 
 		# compute the lie_down only on the part of the trajectory that represents
