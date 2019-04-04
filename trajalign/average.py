@@ -655,6 +655,11 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 	
 				aligned_trajectories[ r ][ j ].translate( r_cm )
 				aligned_trajectories[ r ][ j ].lag( m_lags[ j ] )
+
+				aligned_trajectories[ r ][ j ].annotations()[ 'l_cm' ] = l_cm
+				aligned_trajectories[ r ][ j ].annotations()[ 'r_cm' ] = r_cm
+				aligned_trajectories[ r ][ j ].annotations()[ 'm_angle' ] = m_angles[ j ]
+				aligned_trajectories[ r ][ j ].annotations()[ 'm_lag' ] = m_lags[ j ]
 				
 				trajectories_time_span[ 'new_start' ].append(aligned_trajectories[ r ][ j ].start())
 				trajectories_time_span[ 'new_end' ].append(aligned_trajectories[ r ][ j ].end())
@@ -858,6 +863,9 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 		aligned_trajectories[ best_average ][ i ].translate( lie_down_transform[ 'translation' ] )
 		aligned_trajectories[ best_average ][ i ].rotate( lie_down_transform[ 'angle' ] )
 		aligned_trajectories[ best_average ][ i ].annotations()[ 'trajalign_version' ] = header( printit = False )
+		aligned_trajectories[ best_average ][ i ].annotations()[ 'lie_down_angle' ] = lie_down_transform[ 'angle' ]
+		aligned_trajectories[ best_average ][ i ].annotations()[ 'lie_down_translation' ] = lie_down_transform[ 'translation' ]
+
 		filename = "./" + output_file + "/" + aligned_trajectories[ best_average ][ i ].annotations()[ 'file' ]
 		if i == 0 :
 			directory = os.path.dirname( filename )
