@@ -1043,7 +1043,7 @@ class Traj:
 	def annotations(self,annotation=None,string=''):
 		if (annotation == None ) & ( not string ) :
 			return self.__dict__()
-		elif (annotation == None ) & ( string ) :
+		elif (annotation == None ) & ( not ( not string ) ) :
 			raise AttributeError('You annotate something to no dictionary key!')
 		elif (annotation != None ) & ( not string ) :
 			if type( annotation ) == type( dict() ) :
