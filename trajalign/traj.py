@@ -1041,11 +1041,11 @@ class Traj:
 		return non_empty_attributes
 
 	def annotations(self,annotation=None,string=''):
-		if (annotation == None) & (string == '') :
+		if (annotation == None) & ( not string ) :
 			return self.__dict__()
-		elif (annotation ==None) & (string != '') :
-			raise AttributeError('You annotate a string to nothing!')
-		elif (annotation !=None) & (string == '') :
+		elif (annotation ==None) & ( string ) :
+			raise AttributeError('You annotate something to no dictionary key!')
+		elif (annotation !=None) & ( not string ) :
 			if type( annotation ) == type( dict() ) :
 				for key in annotation.keys() :
 					self._annotations[ key ] = annotation[ key ]
