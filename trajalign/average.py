@@ -216,7 +216,8 @@ def trajectory_average( aligned_trajectories_to_average , r , median , fimax ) :
 	t = Traj()
 
 	#inherit the annotations from the reference trajectory
-	for a in aligned_trajectories_to_average[ r ].annotations().keys(): 
+	for a in aligned_trajectories_to_average[ r ].annotations().keys():
+
 		if a == 'file':
 			t.annotations( 'reference_file' , aligned_trajectories_to_average[ r ].annotations()[ a ])
 		else :
@@ -656,8 +657,8 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 				aligned_trajectories[ r ][ j ].translate( r_cm )
 				aligned_trajectories[ r ][ j ].lag( m_lags[ j ] )
 
-				aligned_trajectories[ r ][ j ].annotations()[ 'l_cm' ] = l_cm
-				aligned_trajectories[ r ][ j ].annotations()[ 'r_cm' ] = r_cm
+				aligned_trajectories[ r ][ j ].annotations()[ 'l_cm' ] = tuple( l_cm )
+				aligned_trajectories[ r ][ j ].annotations()[ 'r_cm' ] = tuple( r_cm )
 				aligned_trajectories[ r ][ j ].annotations()[ 'm_angle' ] = m_angles[ j ]
 				aligned_trajectories[ r ][ j ].annotations()[ 'm_lag' ] = m_lags[ j ]
 				
@@ -742,13 +743,6 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 		print('----------------------')
 		print( 'MEAN:\t' + str( np.mean( alignment_precision ) ) )
 
-
-#		print('angles')
-#		print(all_m_angles)
-#		print('lags')
-#		print(all_m_lags)
-#		print(all_m_lags - all_m_lags[0])
-	
 		return( aligned_trajectories , average_trajectory , alignment_precision )
 	
 	#-------------------------------------END-OF-DEFINITIONS-in-compute_average-----------------------------------
@@ -864,7 +858,7 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 		aligned_trajectories[ best_average ][ i ].rotate( lie_down_transform[ 'angle' ] )
 		aligned_trajectories[ best_average ][ i ].annotations()[ 'trajalign_version' ] = header( printit = False )
 		aligned_trajectories[ best_average ][ i ].annotations()[ 'lie_down_angle' ] = lie_down_transform[ 'angle' ]
-		aligned_trajectories[ best_average ][ i ].annotations()[ 'lie_down_translation' ] = lie_down_transform[ 'translation' ]
+		aligned_trajectories[ best_average ][ i ].annotations()[ 'lie_down_translation' ] = tuple( lie_down_transform[ 'translation' ] )
 
 		filename = "./" + output_file + "/" + aligned_trajectories[ best_average ][ i ].annotations()[ 'file' ]
 		if i == 0 :
