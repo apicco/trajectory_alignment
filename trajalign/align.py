@@ -362,6 +362,7 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 	target_trajectory.annotations( 'alignment_angle_SE' , str( T_median[ 'angle_SE' ] ) + ' rad' )
 	target_trajectory.annotations( 'alignment_translation' , str( T_median[ 'translation' ] ) + ' ' + target_trajectory.annotations()[ 'coord_unit' ] )
 	target_trajectory.annotations( 'alignment_translation_SE' , str( T_median[ 'translation_SE' ] ) + ' ' + target_trajectory.annotations()[ 'coord_unit' ] )
+	target_trajectory.annotations( 'starting_center_mass' , str( t1_center_mass ) )
 	target_trajectory.annotations( 'alignment_lag' , str( T_median[ 'lag' ] ) + ' ' + target_trajectory.annotations()[ 't_unit' ] )
 	target_trajectory.annotations( 'alignment_lag_SE' , str( T_median[ 'lag_SE' ] ) + ' ' + target_trajectory.annotations()[ 't_unit' ] )
 
