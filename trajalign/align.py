@@ -220,6 +220,16 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 
 		t1 = target_trajectory
 
+	if ( fimax2 ) :
+		
+		print( 'fimax2 = True ; the software uses only the information of the reference trajectory up to its peak of fluorescence intensity.' )
+		
+		t2 = reference_trajectory.fimax( fimax_filter )
+	
+	else :
+
+		t2 = reference_trajectory
+
 	if unify_start_end :
 
 		if ( 'unified_start' in t1.annotations() ) & ( 'unified_end' in t1.annotations() ) :
@@ -264,17 +274,6 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 
 	t1_center_mass = t1.center_mass()
 	t1.translate( - t1_center_mass )
-
-	if ( fimax2 ) :
-		
-		print( 'fimax2 = True ; the software uses only the information of the reference trajectory up to its peak of fluorescence intensity.' )
-		
-		t2 = reference_trajectory.fimax( fimax_filter )
-	
-	else :
-
-		t2 = reference_trajectory
-
 
 	t2_center_mass = t2.center_mass()
 	t2.translate( - t2_center_mass )
