@@ -227,21 +227,40 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 			t1.start( float( t1.annotations()[ 'unified_start' ] ) )
 			t1.end( float( t1.annotations()[ 'unified_end' ] ) )
 
-			print( '\nunify_start_end = True ; the average trajectory new start and end are ' + t1.annotations()[ 'unified_start' ] + ' ' + t1.annotations()[ 't_unit' ] + ' and ' + t1.annotations()[ 'unified_end' ] + ' ' + t1.annotations()[ 't_unit' ] + '.' )
+			print( '\nunify_start_end = True ; the target average trajectory new start and end are ' + t1.annotations()[ 'unified_start' ] + ' ' + t1.annotations()[ 't_unit' ] + ' and ' + t1.annotations()[ 'unified_end' ] + ' ' + t1.annotations()[ 't_unit' ] + '.\n' )
 
 		else :
 
-			print( '\nunify_start_end = ' + str( unify_start_end ) )
+			print( '\nunify_start_end = ' + str( unify_start_end ) + '\n' )
+	
+		if ( 'unified_start' in t2.annotations() ) & ( 'unified_end' in t2.annotations() ) :
+			
+			t2.start( float( t2.annotations()[ 'unified_start' ] ) )
+			t2.end( float( t2.annotations()[ 'unified_end' ] ) )
+
+			print( '\nunify_start_end = True ; the reference average trajectory new start and end are ' + t2.annotations()[ 'unified_start' ] + ' ' + t2.annotations()[ 't_unit' ] + ' and ' + t2.annotations()[ 'unified_end' ] + ' ' + t2.annotations()[ 't_unit' ] + '.\n' )
 		
+		else :
+
+			print( '\nunify_start_end = ' + str( unify_start_end ) + '\n' )
+	
 	else :	
 	
 		if ( 'unified_start' not in t1.annotations() ) & ( 'unified_end' not in t1.annotations() ) :
 
-			print( '\nunify_start_end = False but the average trajectory was computed with unify_start_end = True. I cannot perform this operation. unify_start_end set to True for the target trajectory' )
+			print( '\nunify_start_end = False but the target average trajectory was computed with unify_start_end = True. I cannot perform this operation. unify_start_end set to True for the target trajectory.\n' )
 		
 		else :
 
-			print( '\nunify_start_end = ' + str( unify_start_end ) )
+			print( '\nunify_start_end = ' + str( unify_start_end ) + '\n' )
+	
+		if ( 'unified_start' not in t2.annotations() ) & ( 'unified_end' not in t2.annotations() ) :
+
+			print( '\nunify_start_end = False but the reference average trajectory was computed with unify_start_end = True. I cannot perform this operation. unify_start_end set to True for the reference trajectory\n' )
+		
+		else :
+
+			print( '\nunify_start_end = ' + str( unify_start_end ) + '\n' )
 
 	t1_center_mass = t1.center_mass()
 	t1.translate( - t1_center_mass )
@@ -256,20 +275,6 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 
 		t2 = reference_trajectory
 
-	if unify_start_end :
-
-		if ( 'unified_start' in t1.annotations() ) & ( 'unified_end' in t1.annotations() ) :
-			
-			t2.start( float( t2.annotations()[ 'unified_start' ] ) )
-			t2.end( float( t2.annotations()[ 'unified_end' ] ) )
-
-			print( 'unify_start_end = True ; the average trajectory new start and end are ' + t2.annotations()[ 'unified_start' ] + ' ' + t2.annotations()[ 't_unit' ] + ' and ' + t2.annotations()[ 'unified_end' ] + ' ' + t2.annotations()[ 't_unit' ] + '.' )
-		
-	else :	
-	
-		if ( 'unified_start' not in t1.annotations() ) & ( 'unified_end' not in t1.annotations() ) :
-
-			print( 'unify_start_end = False but the average trajectory was computed with unify_start_end = True. I cannot perform this operation. unify_start_end set to True for the reference trajectory' )
 
 	t2_center_mass = t2.center_mass()
 	t2.translate( - t2_center_mass )
