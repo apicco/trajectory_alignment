@@ -340,7 +340,7 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 	if not max_frame :
 
 		raise TypeError('You need to specify the max_frame, which is the frame number in your movies')
-	
+
 	def R(alpha):
 		"""
 		R(alpha): returns the rotation matrix:
@@ -749,6 +749,8 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 
 	header() 
 
+	print( 'unify_start_end =' + str( unify_start_end ) )
+	
 	#define the list where transformations are stored
 	transformations = {
 			'angles' : np.array( [] ),
