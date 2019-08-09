@@ -226,8 +226,8 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 
 		if ( 'unified_start' in t1.annotations() ) & ( 'unified_end' in t1.annotations() ) :
 			
-			t1.start( t1.annotations()[ 'unified_start' ] )
-			t1.end( t1.annotations()[ 'unified_end' ] )
+			t1.start( float( t1.annotations()[ 'unified_start' ] ) )
+			t1.end( float( t1.annotations()[ 'unified_end' ] ) )
 
 			print( 'unify_start_end = True ; the average trajectory new start and end are ' + t1.annotations()[ 'unified_start' ] + ' ' + t1.annotations()[ 't_unit' ] + ' and ' + t1.annotations()[ 'unified_end' ] + ' ' + t1.annotations()[ 't_unit' ] + '.' )
 		
@@ -254,8 +254,8 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 
 		if ( 'unified_start' in t1.annotations() ) & ( 'unified_end' in t1.annotations() ) :
 			
-			t2.start( t2.annotations()[ 'unified_start' ] )
-			t2.end( t2.annotations()[ 'unified_end' ] )
+			t2.start( float( t2.annotations()[ 'unified_start' ] ) )
+			t2.end( float( t2.annotations()[ 'unified_end' ] ) )
 
 			print( 'unify_start_end = True ; the average trajectory new start and end are ' + t2.annotations()[ 'unified_start' ] + ' ' + t2.annotations()[ 't_unit' ] + ' and ' + t2.annotations()[ 'unified_end' ] + ' ' + t2.annotations()[ 't_unit' ] + '.' )
 		
