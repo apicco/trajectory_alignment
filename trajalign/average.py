@@ -749,7 +749,7 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 
 	header() 
 
-	print( 'unify_start_end =' + str( unify_start_end ) )
+	print( '\nunify_start_end = ' + str( unify_start_end ) + '\n' )
 	
 	#define the list where transformations are stored
 	transformations = {
