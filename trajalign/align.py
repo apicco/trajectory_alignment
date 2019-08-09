@@ -191,6 +191,8 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 
 	header() 
 
+	print( '\nunify_start_end = ' + str( unify_start_end ) )
+
 	target_trajectory = Traj()
 	target_trajectory.load( path_target )
 
