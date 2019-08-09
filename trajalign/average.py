@@ -854,6 +854,7 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 
 	#save the trajectories use to compute the average, lied down as the average trajectory
 	for i in range(l):
+
 		aligned_trajectories[ best_average ][ i ].translate( lie_down_transform[ 'translation' ] )
 		aligned_trajectories[ best_average ][ i ].rotate( lie_down_transform[ 'angle' ] )
 		aligned_trajectories[ best_average ][ i ].annotations()[ 'trajalign_version' ] = header( printit = False )
