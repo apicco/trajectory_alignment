@@ -407,6 +407,16 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 	target_trajectory.annotations( 'starting_center_mass' , str( t1_center_mass )  + ' ' + target_trajectory.annotations()[ 'coord_unit' ] )
 	target_trajectory.annotations( 'alignment_lag' , str( T_median[ 'lag' ] ) + ' ' + target_trajectory.annotations()[ 't_unit' ] )
 	target_trajectory.annotations( 'alignment_lag_SE' , str( T_median[ 'lag_SE' ] ) + ' ' + target_trajectory.annotations()[ 't_unit' ] )
+	target_trajectory.annotations( 'unify_start_end_in_alignment_output' , str( unify_start_end_in_output ) )
+
+	# update the mean_starts and mean_ends, which are used for unify_start and unify_end.
+	target_trajectory.annotations( 'mean_starts' , str( float( target_trajctory.annotations( 'mean_starts' ) ) + T_median[ 'lag' ] ) )
+	target_trajectory.annotations( 'mean_ends' , str( float( target_trajctory.annotations( 'mean_ends' ) ) + T_median[ 'lag' ] ) )
+
+	if unify_start_end_in_output :
+
+		target_trajectory.start( unify_start( target_trajectory ) )
+		target_trajectory.end( unify_end( target_trajectory ) )
 
 	target_trajectory.save( file_name )
 
