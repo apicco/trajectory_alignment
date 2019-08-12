@@ -688,21 +688,44 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 
 			mean_start , std_start , n_start , mean_end , std_end , n_end = compute_average_start_and_end( trajectories_time_span , aligned_trajectories[ r ] , max_frame )
 
+
 			if unify_start_end :
 
 				#uniform start and end of aligned trajectories to mean_start and mean_end
 				for j in range(l):
+
+					#record the standard deviation of the average start and end, so that the user
+					#knows how the start and end timepoints of the raw trajectories are distributed,
+					#once alingned.
+					aligned_trajectories[ r ][ j ].annotations( 'mean_starts' , str( mean_start ) )
+					aligned_trajectories[ r ][ j ].annotations( 'std_starts' , str( std_start ) )
+					aligned_trajectories[ r ][ j ].annotations( 'n_starts' , str( n_start ) )
+					aligned_trajectories[ r ][ j ].annotations( 'mean_ends' , str( mean_end ) )
+					aligned_trajectories[ r ][ j ].annotations( 'std_ends' , str( std_end ) )
+					aligned_trajectories[ r ][ j ].annotations( 'n_ends' , str( n_end ) )
+					aligned_trajectories[ r ][ j ].annotations( 'unify_start_end' , str( unify_start_end ) )
 		
 					#if the unify_start_end is choosen, the average trajectory is started (and ended) from the average 
 					#start (and end) of the trajectory minus (and plus) the 95% CI. This addition (or subtraction) as
 					#been choosen to counter the intrinsic underestimate of the trajectories lifetimes.
-					aligned_trajectories[ r ][ j ].start( mean_start - 1.96 * std_start / np.sqrt( n_start ) )
-					aligned_trajectories[ r ][ j ].end( mean_end + 1.96 * std_end / np.sqrt( n_end ) ) 
+					aligned_trajectories[ r ][ j ].start( unify_start( aligned_trajectories[ r ][ i ] )
+					aligned_trajectories[ r ][ j ].end( unify_end( aligned_trajectories[ r ][ i ] )
 
 			else :
 
 				for j in range(l):
-				
+	
+					#record the standard deviation of the average start and end, so that the user
+					#knows how the start and end timepoints of the raw trajectories are distributed,
+					#once alingned.
+					aligned_trajectories[ r ][ j ].annotations( 'mean_starts' , str( mean_start ) )
+					aligned_trajectories[ r ][ j ].annotations( 'std_starts' , str( std_start ) )
+					aligned_trajectories[ r ][ j ].annotations( 'n_starts' , str( n_start ) )
+					aligned_trajectories[ r ][ j ].annotations( 'mean_ends' , str( mean_end ) )
+					aligned_trajectories[ r ][ j ].annotations( 'std_ends' , str( std_end ) )
+					aligned_trajectories[ r ][ j ].annotations( 'n_ends' , str( n_end ) )
+					aligned_trajectories[ r ][ j ].annotations( 'unify_start_end' , str( unify_start_end ) )
+		
 					aligned_trajectories[ r ][ j ].start( min( trajectories_time_span[ 'new_start' ] ) )
 					aligned_trajectories[ r ][ j ].end( max( trajectories_time_span[ 'new_end' ] ) )
 	
@@ -713,20 +736,6 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 		
 			ta = trajectory_average( aligned_trajectories[ r ] , r , median , fimax ) 
 			
-			#record the standard deviation of the average start and end, so that the user
-			#knows how the start and end timepoints of the raw trajectories are distributed,
-			#once alingned.
-
-			ta.annotations( 'mean_starts' , str( mean_start ) )
-			ta.annotations( 'std_starts' , str( std_start ) )
-			ta.annotations( 'n_starts' , str( n_start ) )
-			ta.annotations( 'mean_ends' , str( mean_end ) )
-			ta.annotations( 'std_ends' , str( std_end ) )
-			ta.annotations( 'n_ends' , str( n_end ) )
-
-			ta.annotations( 'unify_start_end' , str( unify_start_end ) )
-
-
 #TO DEL			if not unify_start_end :
 #TO DEL
 #TO DEL				ta.annotations( 'unified_start' , mean_start - 1.96 * std_start / np.sqrt( n_start ) )
