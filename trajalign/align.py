@@ -13,7 +13,7 @@ from trajalign.average import load_directory
 from trajalign.average import MSD
 from trajalign.average import nanMAD 
 from trajalign.average import header
-from trajalign.average import unify_start , unify_end
+from trajalign.average import unified_start , unified_end
 from scipy.interpolate import UnivariateSpline #need to install py35-scikit-learn
 import numpy as np
 import copy as cp
@@ -233,8 +233,8 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 
 		if t1.annotations()[ 'unify_start_end' ] is 'False' :
 			
-			t1.start( unify_start( t1 ) )
-			t1.end( unify_end( t1 ) )
+			t1.start( unified_start( t1 ) )
+			t1.end( unified_end( t1 ) )
 
 			print( '\nunify_start_end_in_alignment = True ; the target average trajectory new start and end are ' + str( unify_start( t1 ) ) + ' ' + t1.annotations()[ 't_unit' ] + ' and ' + str( unify_end( t1 ) ) + ' ' + t1.annotations()[ 't_unit' ] + '.\n' )
 
@@ -245,8 +245,8 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 		
 		if t2.annotations()[ 'unify_start_end' ] is 'False' :
 			
-			t2.start( unify_start( t2 ) )
-			t2.end( unify_end( t2 ) )
+			t2.start( unified_start( t2 ) )
+			t2.end( unified_end( t2 ) )
 
 			print( 'unify_start_end_in_alignment = True ; the reference average trajectory new start and end are ' + str( unify_start( t2 ) ) + ' ' + t2.annotations()[ 't_unit' ] + ' and ' + str( unify_end( t2 ) ) + ' ' + t2.annotations()[ 't_unit' ] + '.\n' )
 		
@@ -415,8 +415,8 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 
 	if unify_start_end_in_output :
 
-		target_trajectory.start( unify_start( target_trajectory ) )
-		target_trajectory.end( unify_end( target_trajectory ) )
+		target_trajectory.start( unified_start( target_trajectory ) )
+		target_trajectory.end( unified_end( target_trajectory ) )
 
 	target_trajectory.save( file_name )
 
