@@ -174,7 +174,7 @@ def unified_start( self ) :
 
 	try :
 
-		return float( self.annotations()[ 'mean_starts' ] ) - 1.96 * float( self.annotations()[ 'std_starts' ] ) / np.sqrt( float( self.annotations()[ 'n_start' ] ) )
+		return float( self.annotations()[ 'mean_starts' ] ) - 1.96 * float( self.annotations()[ 'std_starts' ] ) / np.sqrt( float( self.annotations()[ 'n_starts' ] ) )
 		
 	except :
 		
@@ -184,7 +184,7 @@ def unified_end( self ) :
 
 	try :
 
-		return float( self.annotations()[ 'mean_ends' ] ) + 1.96 * float( self.annotations()[ 'std_ends' ] ) / np.sqrt( float( self.annotations()[ 'n_end' ] ) )
+		return float( self.annotations()[ 'mean_ends' ] ) + 1.96 * float( self.annotations()[ 'std_ends' ] ) / np.sqrt( float( self.annotations()[ 'n_ends' ] ) )
 		
 	except :
 		
@@ -724,10 +724,10 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 			ta.annotations( 'std_ends' , str( std_end ) )
 			ta.annotations( 'n_ends' , str( n_end ) )
 
-			if not unify_start_end :
-
-				ta.annotations( 'unified_start' , mean_start - 1.96 * std_start / np.sqrt( n_start ) )
-				ta.annotations( 'unified_end' , mean_end + 1.96 * std_end / np.sqrt( n_end ) )
+#TO DEL			if not unify_start_end :
+#TO DEL
+#TO DEL				ta.annotations( 'unified_start' , mean_start - 1.96 * std_start / np.sqrt( n_start ) )
+#TO DEL				ta.annotations( 'unified_end' , mean_end + 1.96 * std_end / np.sqrt( n_end ) )
 			
 			average_trajectory.append( ta )
 
@@ -859,8 +859,10 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 		# chosen if unify_start_end = True, i.e. the part of trajectory comprised between
 		# the annotations unified_start and unified_end
 		average_trajectory_tmp = cp.deepcopy( average_trajectory[ best_average ] )
-		average_trajectory_tmp.start( float( average_trajectory_tmp.annotations()[ 'unified_start' ] ) )
-		average_trajectory_tmp.end( float( average_trajectory_tmp.annotations()[ 'unified_end' ] ) )
+		average_trajectory_tmp.start( unified_start( average_trajectory_tmp ) )
+		average_trajectory_tmp.end( unified_end( average_trajectory_tmp ) )
+#TO DEL		average_trajectory_tmp.start( float( average_trajectory_tmp.annotations()[ 'unified_start' ] ) )
+#TO DEL		average_trajectory_tmp.end( float( average_trajectory_tmp.annotations()[ 'unified_end' ] ) )
 		lie_down_transform = lie_down( average_trajectory_tmp )
 
 		# lie_down modified average_trajectory_tmp with the transformations in dict lie_down_transform
