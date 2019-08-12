@@ -170,6 +170,27 @@ def nanMAD( x , axis = None , k = 1.4826):
 	MAD = np.nanmedian( np.absolute( x - np.nanmedian( x , axis ) ) , axis )
 	return( k * MAD )
 	
+def unified_start( self ) :
+
+	try :
+
+		return float( self.annotations()[ 'mean_starts' ] ) - 1.96 * float( self.annotations()[ 'std_starts' ] ) / np.sqrt( float( self.annotations()[ 'n_start' ] ) )
+		
+	except :
+		
+		print( 'Error: one or more of the annotations mean_starts, std_starts, and n_starts is/are missiong' )
+
+def unified_end( self ) :
+
+	try :
+
+		return float( self.annotations()[ 'mean_ends' ] ) + 1.96 * float( self.annotations()[ 'std_ends' ] ) / np.sqrt( float( self.annotations()[ 'n_end' ] ) )
+		
+	except :
+		
+		print( 'Error: one or more of the annotations mean_ends, std_ends, and n_ends is/are missiong' )
+
+
 def compute_average_start_and_end( trajectories_time_span , aligned_trajectories , max_frame ) :
 	
 	l = len( trajectories_time_span[ 'old_start' ] )
