@@ -708,8 +708,8 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 					#if the unify_start_end is choosen, the average trajectory is started (and ended) from the average 
 					#start (and end) of the trajectory minus (and plus) the 95% CI. This addition (or subtraction) as
 					#been choosen to counter the intrinsic underestimate of the trajectories lifetimes.
-					aligned_trajectories[ r ][ j ].start( unify_start( aligned_trajectories[ r ][ i ] )
-					aligned_trajectories[ r ][ j ].end( unify_end( aligned_trajectories[ r ][ i ] )
+					aligned_trajectories[ r ][ j ].start( unify_start( aligned_trajectories[ r ][ i ] ) )
+					aligned_trajectories[ r ][ j ].end( unify_end( aligned_trajectories[ r ][ i ] ) )
 
 			else :
 
