@@ -410,8 +410,8 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 	target_trajectory.annotations( 'unify_start_end_in_alignment_output' , str( unify_start_end_in_output ) )
 
 	# update the mean_starts and mean_ends, which are used for unify_start and unify_end.
-	target_trajectory.annotations( 'mean_starts' , str( float( target_trajctory.annotations( 'mean_starts' ) ) + T_median[ 'lag' ] ) )
-	target_trajectory.annotations( 'mean_ends' , str( float( target_trajctory.annotations( 'mean_ends' ) ) + T_median[ 'lag' ] ) )
+	target_trajectory.annotations( 'mean_starts' , str( float( target_trajectory.annotations( 'mean_starts' ) ) + T_median[ 'lag' ] ) )
+	target_trajectory.annotations( 'mean_ends' , str( float( target_trajectory.annotations( 'mean_ends' ) ) + T_median[ 'lag' ] ) )
 
 	if unify_start_end_in_output :
 
