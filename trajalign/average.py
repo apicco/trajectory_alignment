@@ -750,10 +750,18 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 			else :
 				all_m_angles = np.vstack([ all_m_angles , m_angles ])
 				all_m_lags = np.vstack([ all_m_lags , m_lags ])
-			
+	
+			# make a copy of the average trajectory ta, and unify its start and end 
+			# to compute a mean precision that reflects the invagination dynamice
+			# and not how well noisy and/or excessively long trajectories might
+			# align.
+			ta_tmp = cp.deepcopy( ta )
+			ta_tmp.start( unify_start( ta_tmp ) )
+			ta_tmp.end( unify_end( ta_tmp ) )
+
 			mean_precision =  np.sqrt(
 					np.nanmean( 
-						average_trajectory[ r ].coord_err()[ 0 ] ** 2 + average_trajectory[ r ].coord_err()[ 1 ] ** 2 
+						ta_tmp.coord_err()[ 0 ] ** 2 + ta_tmp.coord_err()[ 1 ] ** 2 
 						)
 					)
 			alignment_precision.append(mean_precision)
