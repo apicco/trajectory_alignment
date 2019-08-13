@@ -16,7 +16,7 @@ import warnings as wr
 
 from sklearn import linear_model
 
-def header( version = 1.87 , year = 2018 , printit = True ) :
+def header( version = 1.88 , year = 2018 , printit = True ) :
 
 	if printit :
 
