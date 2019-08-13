@@ -756,8 +756,8 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 			# and not how well noisy and/or excessively long trajectories might
 			# align.
 			ta_tmp = cp.deepcopy( ta )
-			ta_tmp.start( unify_start( ta_tmp ) )
-			ta_tmp.end( unify_end( ta_tmp ) )
+			ta_tmp.start( unified_start( ta_tmp ) )
+			ta_tmp.end( unified_end( ta_tmp ) )
 
 			mean_precision =  np.sqrt(
 					np.nanmean( 
