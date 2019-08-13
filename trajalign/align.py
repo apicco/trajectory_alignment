@@ -272,11 +272,11 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 
 			print( 'unify_start_end_in_alignment = ' + str( unify_start_end_in_alignment ) + '\n' )
 
-	t1_center_mass = t1.center_mass()
-	t1.translate( - t1_center_mass )
-
-	t2_center_mass = t2.center_mass()
-	t2.translate( - t2_center_mass )
+#	t1_center_mass = t1.center_mass()
+#	t1.translate( - t1_center_mass )
+#
+#	t2_center_mass = t2.center_mass()
+#	t2.translate( - t2_center_mass )
 	
 	l = len( ch1 )
 	
@@ -329,18 +329,17 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 		#
 		#where align_ch1_to_t1[ 'rc' ], align_ch1_to_t1[ 'lc' ], align_ch2_to_t2[ 'rc' ] and align_ch2_to_t2[ 'lc' ] are 
 		#the estimates of the center of masses with the weight mean convention used in MSD.
-		#Finally, the target and reference trajectory were initially shifted by 
 		#
-		# - t2_center_mass 
-		#
-		#and
-		#
-		# - t1_center_mass 
-		#
-		#Therefore, the final transformation that align the target trajectory to the reference trajectory must be corrected for this initial shifts
-		#
-		# R_2 @ R_1^{-1} @ ( t1 - align_ch1_to_t1[ 'rc' ] ) + R_2 @ ( align_ch1_to_t1[ 'lc' ] - align_ch2_to_t2[ 'lc' ] ) + align_ch2_to_t2[ 'rc' ] +
-		# + t2_center_mass + t1_center_mass
+#DEL		# - t2_center_mass 
+#DEL		#
+#DEL		#and
+#DEL		#
+#DEL		# - t1_center_mass 
+#DEL		#
+#DEL		#Therefore, the final transformation that align the target trajectory to the reference trajectory must be corrected for this initial shifts
+#DEL		#
+#DEL		# R_2 @ R_1^{-1} @ ( t1 - align_ch1_to_t1[ 'rc' ] ) + R_2 @ ( align_ch1_to_t1[ 'lc' ] - align_ch2_to_t2[ 'lc' ] ) + align_ch2_to_t2[ 'rc' ] +
+#DEL		# + t2_center_mass + t1_center_mass
 		#
 		#NOTE: in eLife we used the geometrical center of mass, t1.center_mass(), and not the 
 		#approximation of the center of mass that best align t1 and ch1 under the weight convention in MSD, which is align_ch1_to_t1[ 'rc' ].
@@ -361,7 +360,7 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 		T[ 'translation' ].append( np.array( 
 				- R( T[ 'angle' ][ -1 ] ) @ align_ch1_to_t1[ 'rc' ]\
 						+ R( align_ch2_to_t2[ 'angle' ] ) @ ( align_ch1_to_t1[ 'lc' ] - align_ch2_to_t2[ 'lc' ] )\
-						+ align_ch2_to_t2[ 'rc' ] + t2_center_mass 
+						+ align_ch2_to_t2[ 'rc' ] #+ t2_center_mass + t1_center_mass
 				)[ 0 ] ) #the [ 0 ] is because otherwise it would be [[ x , y ]] instead of [ x , y ]
 		T[ 'lag' ].append( ch2_lag - ch1_lag )
 	
@@ -404,7 +403,7 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 	target_trajectory.annotations( 'alignment_angle_SE' , str( T_median[ 'angle_SE' ] ) + ' rad' )
 	target_trajectory.annotations( 'alignment_translation' , str( T_median[ 'translation' ] ) + ' ' + target_trajectory.annotations()[ 'coord_unit' ] )
 	target_trajectory.annotations( 'alignment_translation_SE' , str( T_median[ 'translation_SE' ] ) + ' ' + target_trajectory.annotations()[ 'coord_unit' ] )
-	target_trajectory.annotations( 'starting_center_mass' , str( t1_center_mass )  + ' ' + target_trajectory.annotations()[ 'coord_unit' ] )
+#	target_trajectory.annotations( 'starting_center_mass' , str( t1_center_mass )  + ' ' + target_trajectory.annotations()[ 'coord_unit' ] )
 	target_trajectory.annotations( 'alignment_lag' , str( T_median[ 'lag' ] ) + ' ' + target_trajectory.annotations()[ 't_unit' ] )
 	target_trajectory.annotations( 'alignment_lag_SE' , str( T_median[ 'lag_SE' ] ) + ' ' + target_trajectory.annotations()[ 't_unit' ] )
 	target_trajectory.annotations( 'unify_start_end_in_alignment_output' , str( unify_start_end_in_output ) )
