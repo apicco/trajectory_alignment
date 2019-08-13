@@ -885,14 +885,13 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 #TO DEL		average_trajectory_tmp.end( float( average_trajectory_tmp.annotations()[ 'unified_end' ] ) )
 		lie_down_transform = lie_down( average_trajectory_tmp )
 
-		# lie_down modified average_trajectory_tmp with the transformations in dict lie_down_transform
-		# we apply these transformations to average_trajectory[ best_average ]
-		average_trajectory[ best_average ].translate( lie_down_transform[ 'translation' ] )
-		average_trajectory[ best_average ].rotate( lie_down_transform[ 'angle' ] )
-
 	else :
 	
 		lie_down_transform = lie_down( average_trajectory[ best_average ] )
+
+	# lie_down transformations applied to average_trajectory[ best_average ]
+	average_trajectory[ best_average ].translate( lie_down_transform[ 'translation' ] )
+	average_trajectory[ best_average ].rotate( lie_down_transform[ 'angle' ] )
 
 	average_trajectory[ best_average ].annotations()[ 'trajalign_version' ] = header( printit = False )
 	average_trajectory[ best_average ].save( output_file )
