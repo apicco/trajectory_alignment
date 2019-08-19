@@ -272,12 +272,12 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 
 			print( 'unify_start_end_in_alignment = ' + str( unify_start_end_in_alignment ) + '\n' )
 
-#	t1_center_mass = t1.center_mass()
-#	t1.translate( - t1_center_mass )
-#
-#	t2_center_mass = t2.center_mass()
-#	t2.translate( - t2_center_mass )
-	
+#DEL	t1_center_mass = t1.center_mass()
+#DEL	t1.translate( - t1_center_mass )
+#DEL
+#DEL	t2_center_mass = t2.center_mass()
+#DEL	t2.translate( - t2_center_mass )
+
 	l = len( ch1 )
 	
 	#control that the dataset of loaded trajectories is complete
