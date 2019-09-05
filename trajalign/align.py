@@ -227,6 +227,9 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 
 		t2 = cp.deepcopy( reference_trajectory )
 
+	print( "unify_start_end_in_alignment : " + str( unify_start_end_in_alignment ) )
+	print( "unify_start_end_in_output : " + str( unify_start_end_in_output ) )
+	
 	if unify_start_end_in_alignment :
 
 		#if the input average trajectories have not unified start and end (unify_start_end = False), then unify the start and end for the sake of the alignment.
