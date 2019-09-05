@@ -272,11 +272,16 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 
 			print( 'unify_start_end_in_alignment = ' + str( unify_start_end_in_alignment ) + '\n' )
 
-#DEL	t1_center_mass = t1.center_mass()
-#DEL	t1.translate( - t1_center_mass )
-#DEL
-#DEL	t2_center_mass = t2.center_mass()
-#DEL	t2.translate( - t2_center_mass )
+	t1_center_mass = t1.center_mass()
+	t1.translate( - t1_center_mass )
+
+	t2_center_mass = t2.center_mass()
+	t2.translate( - t2_center_mass )
+	
+	print( "------------------DEBUG---------------------------")
+	print( "t1 cm = " + str( t1_center_mass ) + "; target_trajectory cm =" + str( target_trajectory.center_mass() ) )
+	print( "t2 cm = " + str( t2_center_mass ) + "; reference_trajectory cm =" + str( reference_trajectory.center_mass() ) )
+	print( "------------------DEBUG---------------------------")
 
 	l = len( ch1 )
 	
@@ -330,16 +335,16 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 		#where align_ch1_to_t1[ 'rc' ], align_ch1_to_t1[ 'lc' ], align_ch2_to_t2[ 'rc' ] and align_ch2_to_t2[ 'lc' ] are 
 		#the estimates of the center of masses with the weight mean convention used in MSD.
 		#
-#DEL		# - t2_center_mass 
-#DEL		#
-#DEL		#and
-#DEL		#
-#DEL		# - t1_center_mass 
-#DEL		#
-#DEL		#Therefore, the final transformation that align the target trajectory to the reference trajectory must be corrected for this initial shifts
-#DEL		#
-#DEL		# R_2 @ R_1^{-1} @ ( t1 - align_ch1_to_t1[ 'rc' ] ) + R_2 @ ( align_ch1_to_t1[ 'lc' ] - align_ch2_to_t2[ 'lc' ] ) + align_ch2_to_t2[ 'rc' ] +
-#DEL		# + t2_center_mass + t1_center_mass
+		# - t2_center_mass 
+		#
+		#and
+		#
+		# - t1_center_mass 
+		#
+		#Therefore, the final transformation that align the target trajectory to the reference trajectory must be corrected for this initial shifts
+		#
+		# R_2 @ R_1^{-1} @ ( t1 - align_ch1_to_t1[ 'rc' ] ) + R_2 @ ( align_ch1_to_t1[ 'lc' ] - align_ch2_to_t2[ 'lc' ] ) + align_ch2_to_t2[ 'rc' ] +
+		# + t2_center_mass + t1_center_mass
 		#
 		#NOTE: in eLife we used the geometrical center of mass, t1.center_mass(), and not the 
 		#approximation of the center of mass that best align t1 and ch1 under the weight convention in MSD, which is align_ch1_to_t1[ 'rc' ].
@@ -362,8 +367,30 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 						+ R( align_ch2_to_t2[ 'angle' ] ) @ ( align_ch1_to_t1[ 'lc' ] - align_ch2_to_t2[ 'lc' ] )\
 						+ align_ch2_to_t2[ 'rc' ] #+ t2_center_mass + t1_center_mass
 				)[ 0 ] ) #the [ 0 ] is because otherwise it would be [[ x , y ]] instead of [ x , y ]
+#bkp		T[ 'translation' ].append( np.array( 
+#bkp				- R( T[ 'angle' ][ -1 ] ) @ align_ch1_to_t1[ 'rc' ]\
+#bkp						+ R( align_ch2_to_t2[ 'angle' ] ) @ ( align_ch1_to_t1[ 'lc' ] - align_ch2_to_t2[ 'lc' ] )\
+#bkp						+ align_ch2_to_t2[ 'rc' ] #+ t2_center_mass + t1_center_mass
+#bkp				)[ 0 ] ) #the [ 0 ] is because otherwise it would be [[ x , y ]] instead of [ x , y ]
 		T[ 'lag' ].append( ch2_lag - ch1_lag )
-	
+
+		#debug
+		print( "------------------DEBUG---------------------------")
+		tmp1 =  np.array( 
+				- R( T[ 'angle' ][ -1 ] ) @ align_ch1_to_t1[ 'rc' ]\
+						+ R( align_ch2_to_t2[ 'angle' ] ) @ ( align_ch1_to_t1[ 'lc' ] - align_ch2_to_t2[ 'lc' ] )\
+						+ align_ch2_to_t2[ 'rc' ] 
+				)[ 0 ] #the [ 0 ] is because otherwise it would be [[ x , y ]] instead of [ x , y ]
+		print( "T" )
+		print( T[ 'translation' ][ len(  T[ 'translation' ] ) - 1 ] )
+		print( "T tmp1" )
+		print( tmp1 )
+
+		print( "center mass t1: "+ str( t1_center_mass ) ) 
+		print( "target center mass : "+ str( target_trajectory.center_mass() ) )
+		print( "center mass t2: "+ str( t2_center_mass ) ) 
+		print( "ref center mass : "+ str( reference_trajectory.center_mass() ) )
+		print( "------------------DEBUG---------------------------")
 	#compute the median and the standard error (SE) of the transformations.
 	#NOTE that if fimax2 is used, the center of mass of reference trajectory does not 
 	#correspond to the center of mass of the trajectory to which the target trajectory 
