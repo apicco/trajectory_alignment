@@ -921,5 +921,5 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 	
 	f.close()
 
-	return( average_trajectory[ best_average ] , average_trajectory[ worst_average ] , aligned_trajectories[ best_average ] , aligned_trajectories[ worst_average ] )
+	return( average_trajectory[ best_average ] , average_trajectory[ worst_average ] , { 'best_average' : aligned_trajectories[ best_average ] , 'worst_average' : aligned_trajectories[ worst_average ] } )
 
