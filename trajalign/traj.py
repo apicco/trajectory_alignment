@@ -489,8 +489,8 @@ class Traj:
 
 		else :
 
-			m = [ 0 ]
-			sem = [ NaN ]
+			m = [ ]
+			sem = [ ]
 		
 			l = len( self.coord()[ 0 ] )
 			ss = 1  #initiate the step size
