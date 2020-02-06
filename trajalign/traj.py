@@ -478,6 +478,37 @@ class Traj:
 
 		return output
 
+	def msd( self ) :
+
+		#check that the attribute .coord is not empty
+		if len( self.coord() ) != 2 : 
+
+			raise AttributeError( 'The size of the .coord() attribute does not match expectation, does your trajectory have a x and y coordinates?' ) 
+
+		else :
+
+			output = [ 0 ]
+		
+			l = len( self.coord()[ 0 ] )
+			ss = 1  #initiate the step size
+
+			while( ss < l ) :
+
+				x1 = self.coord()[ 0 ][ ss : ]
+				x2 = self.coord()[ 0 ][ : l - ss ]
+				
+				y1 = self.coord()[ 0 ][ ss : ]
+				y2 = self.coord()[ 0 ][ : l - ss ]
+
+				d = [ ( x1[ i ] - x2[ i ] ) ** 2  + ( y1[ i ] - y2[ i ] ) ** 2 for i in range( l - ss ) ] 
+
+				output.append( np.nanmean( d ) )
+
+				ss = ss + 1 
+
+			return output
+
+
 	#Setters
 	#Input values in the Traj object as arrays. Array length must be equal to the length of frames and time
 	def input_values(self,name,x,unit=''):
@@ -1053,41 +1084,3 @@ class Traj:
 				self._annotations[annotation] = string
 		else:
 			self._annotations[annotation] = string
-
-	def msd( self ) :
-
-		#check that the attribute .coord is not empty
-		if len( self.coord() ) != 2 : 
-
-			raise AttributeError( 'The size of the .coord() attribute does not match expectation, does your trajectory have a x and y coordinates?' ) 
-
-		else :
-
-			output = [ 0 ]
-		
-			l = len( self.coord()[ 0 ] )
-			ss = 1  #initiate the step size
-
-			while( ss < l ) :
-
-				x1 = self.coord()[ 0 ][ ss : ]
-				x2 = self.coord()[ 0 ][ : l - ss ]
-				
-				y1 = self.coord()[ 0 ][ ss : ]
-				y2 = self.coord()[ 0 ][ : l - ss ]
-
-				d = [ ( x1[ i ] - x2[ i ] ) ** 2  + ( y1[ i ] - y2[ i ] ) ** 2 for i in range( l - s ) ] 
-
-				output.append( np.nanmean( d ) )
-
-				ss = ss + 1 
-
-			return output
-
-
-
-
-
-
-
-
