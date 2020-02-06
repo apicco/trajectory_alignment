@@ -506,7 +506,7 @@ class Traj:
 
 				ss = ss + 1 
 
-			return output
+			return array( [ [ i for i in range( len( output ) ) ] , output ] )
 
 
 	#Setters
