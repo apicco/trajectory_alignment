@@ -502,7 +502,7 @@ class Traj:
 
 				d = [ ( x1[ i ] - x2[ i ] ) ** 2  + ( y1[ i ] - y2[ i ] ) ** 2 for i in range( l - ss ) ] 
 
-				output.append( np.nanmean( d ) )
+				output.append( nanmean( d ) )
 
 				ss = ss + 1 
 
