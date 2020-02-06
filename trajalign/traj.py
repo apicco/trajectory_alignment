@@ -500,8 +500,8 @@ class Traj:
 				x1 = self.coord()[ 0 ][ ss : ]
 				x2 = self.coord()[ 0 ][ : l - ss ]
 				
-				y1 = self.coord()[ 0 ][ ss : ]
-				y2 = self.coord()[ 0 ][ : l - ss ]
+				y1 = self.coord()[ 1 ][ ss : ]
+				y2 = self.coord()[ 1 ][ : l - ss ]
 
 				d = [ ( x1[ i ] - x2[ i ] ) ** 2  + ( y1[ i ] - y2[ i ] ) ** 2 for i in range( l - ss ) ] 
 
