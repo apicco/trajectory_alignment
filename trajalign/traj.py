@@ -19,11 +19,13 @@ from numpy import insert
 from numpy import NaN
 from numpy import insert
 from numpy import nanmean
+from numpy import nanstd
 from numpy import nanmax
 from numpy import nanmin
 from numpy import float64 
 from numpy import convolve
 from numpy import isclose
+from numpy import isnan
 from numpy import round
 import copy as cp
 
@@ -487,7 +489,8 @@ class Traj:
 
 		else :
 
-			output = [ 0 ]
+			m = [ 0 ]
+			sem = [ NaN ]
 		
 			l = len( self.coord()[ 0 ] )
 			ss = 1  #initiate the step size
@@ -502,11 +505,12 @@ class Traj:
 
 				d = [ ( x1[ i ] - x2[ i ] ) ** 2  + ( y1[ i ] - y2[ i ] ) ** 2 for i in range( l - ss ) ] 
 
-				output.append( nanmean( d ) )
+				m.append( nanmean( d ) )
+				sem.append( nanstd( d ) / sqrt( sum( ~isnan( d ) ) ) ) #sem, dividing by the square root of the number of not nan items
 
 				ss = ss + 1 
 
-			return array( [ [ i for i in range( len( output ) ) ] , output ] )
+			return array( [ [ i for i in range( len( m ) ) ] , m , sem ] )
 
 
 	#Setters
