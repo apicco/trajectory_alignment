@@ -510,7 +510,7 @@ class Traj:
 
 				ss = ss + 1 
 
-			return array( [ [ i for i in range( len( m ) ) ] , m , sem ] )
+			return array( [ [ i + 1  for i in range( len( m ) ) ] , m , sem ] )
 
 
 	#Setters
