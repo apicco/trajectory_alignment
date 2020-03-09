@@ -128,8 +128,8 @@ class Traj:
 
 		"""
 	
-	__slots__ = ['_annotations','_frames','_t','_coord','_f','_mol','_n','_m2', '_m3' , '_m4' , '_m5' , '_u02' , '_u20' , '_u11' , '_t_err','_coord_err','_f_err','_mol_err' , '_m2_err' ]
-	 
+	__slots__ = ['_annotations','_frames','_t','_coord','_f','_mol','_n','_m2', '_m3' , '_m4' , '_m5' , '_u02' , '_u20' , '_u11' , '_t_err','_coord_err','_f_err','_mol_err' , '_m2_err' , '_m3_err', '_m4_err', '_m5_err', '_u02_err', '_u20_err', '_u11_err' ]
+	
 
 	def __init__(self,**annotations):
 
