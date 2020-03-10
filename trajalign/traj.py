@@ -188,24 +188,31 @@ class Traj:
 					if s in ('_coord','_coord_err'):
 						#x coord
 						table.append(x[0])
-						if len(self._annotations['coord_unit']) > 0:
+
+						try :
 							names.append('x' + s[6:] + ' (' + self._annotations['coord_unit'] + ')')
-						else:
+						except :
 							names.append('x' + s[6:])
+
 						#y coord	
 						table.append(x[1])
-						if len(self._annotations['coord_unit']) > 0:
+						
+						try :
 							names.append('y' + s[6:] + ' (' + self._annotations['coord_unit'] + ')')
-						else:
+						except:
 							names.append('y' + s[6:])
 					else: 
 						table.append(x)
-						if s[1:] + '_unit' in self._annotations.keys():
-							if len(self._annotations[ s[1:] + '_unit' ]) > 0:
-								names.append( s[1:] + ' (' + self._annotations[s[1:] + '_unit' ] + ')' )
-							else: 
-								names.append(s[1:])
-						else:
+# old						if s[1:] + '_unit' in self._annotations.keys():
+# old							if len(self._annotations[ s[1:] + '_unit' ]) > 0:
+# old								names.append( s[1:] + ' (' + self._annotations[s[1:] + '_unit' ] + ')' )
+# old							else: 
+# old								names.append(s[1:])
+# old						else:
+# old							names.append(s[1:])
+						try :
+							names.append( s[1:] + ' (' + self._annotations[s[1:] + '_unit' ] + ')' )
+						except :
 							names.append(s[1:])
 			#find the best column width for the table
 			table_col_width = max(len(str(elmnt)) \
@@ -900,7 +907,7 @@ class Traj:
 			f.write(repr(self))
 		f.close()
 	
-	def load2(self,file_name,sep=None,comment_char='#',**attrs):
+	def load2( self , file_name , sep=None , coord_unit = '' , t_unit = '' , comment_char='#' , **attrs ):
 
 		# define the columns that will be exctracted from the file based on the number of attributes requested to load
 		
@@ -924,6 +931,7 @@ class Traj:
 				raise TypeError( 'The attribute ' + a + ' is ill defined does not have a correspondance in self.__slots__' )
 
 		#load the file content
+
 		with open( file_name , 'r' ) as file :
 	
 			for line in file :
@@ -956,10 +964,11 @@ class Traj:
 									annotation = annotation + str( line_elements[ len( line_elements ) - 1 ] ) #the last element has no sep following
 
 									# assign Annotations
-								
+									
 									self.annotations( annotation_name , annotation )
 
 				# load Trajectory
+
 				else :
 					
 					line_elements = line.split( sep )
@@ -975,9 +984,6 @@ class Traj:
 							
 							elif ( a == 'frames' ) :
 								
-								print( a )
-								print( attrs[ a ] )
-								print( line_elements[ attrs[ a ] ] )
 								columns[ a ].append( int( line_elements[ attrs[ a ] ] ) )
 	
 							else :
@@ -990,6 +996,28 @@ class Traj:
 								
 									raise TypeError( 'The attrs ' + a + ' expects only one value' )
 
+		# control that the inputs are correct, namely that if t and coord are inputed then the user specifies their units
+	
+		if ( 'coord' in attrs.keys() ) & ( len( coord_unit ) == 0 ) :
+				
+			try :
+				
+				coord_unit = self.annotations()[ 'coord_unit' ]
+
+			except :
+				
+				raise AttributeError( 'Please, specify the coordinate unit \'coord_unit\' in load' )
+				
+		if ( 't' in attrs.keys() ) & ( len( t_unit ) == 0 ) :
+				
+			try :
+				
+				t_unit = self.annotations()[ 't_unit' ]
+
+			except :
+				
+				raise AttributeError( 'Please, specify the t unit \'t_unit\' in load' )
+				
 
 		# assign Trajectory values to Traj object
 
@@ -997,7 +1025,11 @@ class Traj:
 
 			if ( a == 'coord' ) | ( a == 'coord_err' ) :
 					
-				self.input_values( a , [ columns[ a + '_x' ] ,  columns[ a + '_y' ] ] )
+				self.input_values( a , [ columns[ a + '_x' ] ,  columns[ a + '_y' ] ] , unit = coord_unit )
+			
+			elif a == 't' :
+					
+					self.input_values( a , columns[ a ] , unit = t_unit )
 
 			elif a == 'frames' :
 
