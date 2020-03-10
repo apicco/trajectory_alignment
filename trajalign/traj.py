@@ -321,6 +321,60 @@ class Traj:
 			except IndexError:
 				print('Indexes in Traj().m2 are out of bounds')
 
+	def m3(self,*items):
+		if (len(items)==0): return self._m3
+		elif len(items) == 1 : return self._m3[ items ]
+		else: 
+			try:
+				return(self._m3[[item for item in items]])
+			except IndexError:
+				print('Indexes in Traj().m3 are out of bounds')
+
+	def m4(self,*items):
+		if (len(items)==0): return self._m4
+		elif len(items) == 1 : return self._m4[ items ]
+		else: 
+			try:
+				return(self._m4[[item for item in items]])
+			except IndexError:
+				print('Indexes in Traj().m4 are out of bounds')
+
+	def m5(self,*items):
+		if (len(items)==0): return self._m5
+		elif len(items) == 1 : return self._m5[ items ]
+		else: 
+			try:
+				return(self._m5[[item for item in items]])
+			except IndexError:
+				print('Indexes in Traj().m5 are out of bounds')
+
+	def u02(self,*items):
+		if (len(items)==0): return self._u02
+		elif len(items) == 1 : return self._u02[ items ]
+		else: 
+			try:
+				return(self._u02[[item for item in items]])
+			except IndexError:
+				print('Indexes in Traj().u02 are out of bounds')
+
+	def u20(self,*items):
+		if (len(items)==0): return self._u20
+		elif len(items) == 1 : return self._u20[ items ]
+		else: 
+			try:
+				return(self._u20[[item for item in items]])
+			except IndexError:
+				print('Indexes in Traj().u20 are out of bounds')
+
+	def u11(self,*items):
+		if (len(items)==0): return self._u11
+		elif len(items) == 1 : return self._u11[ items ]
+		else: 
+			try:
+				return(self._u11[[item for item in items]])
+			except IndexError:
+				print('Indexes in Traj().u11 are out of bounds')
+
 	def t_err(self,*items):
 		if (len(items)==0): return self._t_err
 		elif len(items) == 1 : return self._t_err[ items ]
@@ -381,6 +435,60 @@ class Traj:
 			except IndexError:
 				print('Indexes in Traj().f_err are out of bounds')
 	
+	def m3_err(self,*items):
+		if (len(items)==0): return self._m3_err
+		elif len(items) == 1 : return self._m3_err[ items ]
+		else: 
+			try:
+				return(self._m3_err[[item for item in items]])
+			except IndexError:
+				print('Indexes in Traj().m3_err are out of bounds')
+
+	def m4_err(self,*items):
+		if (len(items)==0): return self._m4_err
+		elif len(items) == 1 : return self._m4_err[ items ]
+		else: 
+			try:
+				return(self._m4_err[[item for item in items]])
+			except IndexError:
+				print('Indexes in Traj().m4_err are out of bounds')
+
+	def m5_err(self,*items):
+		if (len(items)==0): return self._m5_err
+		elif len(items) == 1 : return self._m5_err[ items ]
+		else: 
+			try:
+				return(self._m5_err[[item for item in items]])
+			except IndexError:
+				print('Indexes in Traj().m5_err are out of bounds')
+
+	def u02_err(self,*items):
+		if (len(items)==0): return self._u02_err
+		elif len(items) == 1 : return self._u02_err[ items ]
+		else: 
+			try:
+				return(self._u02_err[[item for item in items]])
+			except IndexError:
+				print('Indexes in Traj().u02_err are out of bounds')
+
+	def u20_err(self,*items):
+		if (len(items)==0): return self._u20_err
+		elif len(items) == 1 : return self._u20_err[ items ]
+		else: 
+			try:
+				return(self._u20_err[[item for item in items]])
+			except IndexError:
+				print('Indexes in Traj().u20_err are out of bounds')
+
+	def u11_err(self,*items):
+		if (len(items)==0): return self._u11_err
+		elif len(items) == 1 : return self._u11_err[ items ]
+		else: 
+			try:
+				return(self._u11_err[[item for item in items]])
+			except IndexError:
+				print('Indexes in Traj().u11_err are out of bounds')
+
 	def extract(self,*items):
 		
 		"""
