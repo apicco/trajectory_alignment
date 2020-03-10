@@ -970,6 +970,10 @@ class Traj:
 
 							columns[ a + '_x' ].append( float(  line_elements[ attrs[ a ][ 0 ] ] ) )
 							columns[ a + '_y' ].append( float(  line_elements[ attrs[ a ][ 1 ] ] ) )
+						
+						elif ( a == 'frames' ) :
+
+							columns[ a ].append( int( line_elements[ attrs[ a ] ] ) )
 
 						else :
 							
