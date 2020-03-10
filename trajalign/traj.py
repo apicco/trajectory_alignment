@@ -961,29 +961,34 @@ class Traj:
 
 				# load Trajectory
 				else :
-	
-					line_elements = line.split( sep )
 					
-					for a in attrs.keys() :
+					line_elements = line.split( sep )
+				
+					if len( line_elements ) > 0 : 
 
-						if ( a == 'coord' ) | ( a == 'coord_err' ) :
-
-							columns[ a + '_x' ].append( float(  line_elements[ attrs[ a ][ 0 ] ] ) )
-							columns[ a + '_y' ].append( float(  line_elements[ attrs[ a ][ 1 ] ] ) )
-						
-						elif ( a == 'frames' ) :
-
-							columns[ a ].append( int( line_elements[ attrs[ a ] ] ) )
-
-						else :
+						for a in attrs.keys() :
+	
+							if ( a == 'coord' ) | ( a == 'coord_err' ) :
+	
+								columns[ a + '_x' ].append( float(  line_elements[ attrs[ a ][ 0 ] ] ) )
+								columns[ a + '_y' ].append( float(  line_elements[ attrs[ a ][ 1 ] ] ) )
 							
-							try :
-						
-								columns[ a ].append( float(  line_elements[ attrs[ a ] ] ) )
+							elif ( a == 'frames' ) :
+								
+								print( a )
+								print( attrs[ a ] )
+								print( line_elements[ attrs[ a ] ] )
+								columns[ a ].append( int( line_elements[ attrs[ a ] ] ) )
+	
+							else :
+								
+								try :
 							
-							except : 
-							
-								raise TypeError( 'The attrs ' + a + ' expects only one value' )
+									columns[ a ].append( float(  line_elements[ attrs[ a ] ] ) )
+								
+								except : 
+								
+									raise TypeError( 'The attrs ' + a + ' expects only one value' )
 
 
 		# assign Trajectory values to Traj object
