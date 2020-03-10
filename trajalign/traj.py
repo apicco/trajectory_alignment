@@ -888,6 +888,110 @@ class Traj:
 			f.write(repr(self))
 		f.close()
 	
+	def load2(self,file_name,sep=None,comment_char='#',**attrs):
+
+		# define the columns that will be exctracted from the file based on the number of attributes requested to load
+		
+		columns = {}
+
+		for a in attrs.keys() :
+
+			if '_' + a in self.__slots__[ 1 : ] :
+
+				if ( a == 'coord' ) | ( a == 'coord_err' ) :
+
+					columns[ a + '_x' ] = []
+					columns[ a + '_y' ] = []
+
+				else :
+
+					columns[ a ] = []
+					
+			else :
+
+				raise TypeError( 'The attribute ' + a + ' is ill defined does not have a correspondance in self.__slots__' )
+
+		#load the file content
+		with open( file_name , 'r' ) as file :
+	
+			for line in file :
+	
+				# load Annotations
+				if comment_char in line :
+				
+					line_elements = line.split( sep )
+					
+					# if the first element of the line is the comment_char, as for the Annotations
+					if line_elements[ 0 ][ 0 : len( comment_char ) ] == comment_char :
+		
+						# and there is more than one element in the line,
+						if len( line_elements ) > 1 :
+						
+							# and the second element is the name of an annotation, therefore with no-0 length
+							if len( line_elements[ 1 ] ) > 0 :
+							
+								# and ending with ":"
+								if line_elements[ 1 ][ -1 ] == ":" :
+		
+									annotation_name = line_elements[ 1 ][ : -1 ]
+									
+									annotation = str("")
+									
+									for i in range( 2 , len( line_elements ) - 1 ) :
+			
+										annotation = annotation + str( line_elements[ i ] ) + " " 
+			
+									annotation = annotation + str( line_elements[ len( line_elements ) - 1 ] ) #the last element has no sep following
+
+									# assign Annotations
+								
+									self.annotations( annotation_name , annotation )
+
+				# load Trajectory
+				else :
+	
+					line_elements = line.split( sep )
+					
+					for a in attrs.keys() :
+
+						if ( a == 'coord' ) | ( a == 'coord_err' ) :
+
+							columns[ a + '_x' ].append( float(  line_elements[ attrs[ a ][ 0 ] ] ) )
+							columns[ a + '_y' ].append( float(  line_elements[ attrs[ a ][ 1 ] ] ) )
+
+						else :
+							
+							try :
+						
+								columns[ a ].append( float(  line_elements[ attrs[ a ] ] ) )
+							
+							except : 
+							
+								raise TypeError( 'The attrs ' + a + ' expects only one value' )
+
+
+		# assign Trajectory values to Traj object
+
+		for a in attrs.keys() :
+
+			if ( a == 'coord' ) | ( a == 'coord_err' ) :
+					
+				self.input_values( a , [ columns[ a + '_x' ] ,  columns[ a + '_y' ] ] )
+
+			elif a == 'frames' :
+
+				try: 
+				
+					self.input_values( a , columns[ a ] )
+				
+				except:
+			
+					raise AttributeError('.load_data: chronological disorder in trajectory "' + file_name + '".')
+
+			else : 
+
+				self.input_values( a , columns[ a ] )
+
 	def load(self,file_name,sep=None,comment_char='#',**attrs):
 		"""
 		.load(file_name,sep=None,comment_char='#',**attribute_names): loads data from a txt table.
