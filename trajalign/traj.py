@@ -141,7 +141,13 @@ class Traj:
 		self._f = array([],dtype='float64')
 		self._mol = array([],dtype='float64')
 		self._n = array([],dtype='float64')
-		self._m2 = array([],dtype='float64') #second moment of brightness (f is the first)
+		self._m2 = array([],dtype='float64') # second moment of brightness (f is the first)
+		self._m3 = array([],dtype='float64') # third moment of brightness 
+		self._m4 = array([],dtype='float64') # fourth moment of brightness 
+		self._m5 = array([],dtype='float64') # fifth moment of brightness 
+		self._u02 = array([],dtype='float64') # second moment of brightness along y 
+		self._u20 = array([],dtype='float64') #	second moment of brightness along x
+		self._u11 = array([],dtype='float64') # covariance brightness 
 
 		#Trajectory error attributes
 		self._t_err = array([],dtype='float64')
@@ -149,6 +155,12 @@ class Traj:
 		self._f_err = array([],dtype='float64')
 		self._mol_err = array([],dtype='float64')
 		self._m2_err = array([],dtype='float64')
+		self._m3_err = array([],dtype='float64')
+		self._m4_err = array([],dtype='float64')
+		self._m5_err = array([],dtype='float64')
+		self._u02_err = array([],dtype='float64')
+		self._u20_err = array([],dtype='float64')
+		self._u11_err = array([],dtype='float64')
 
 
 	def __dict__(self):
