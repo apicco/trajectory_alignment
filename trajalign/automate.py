@@ -11,9 +11,9 @@ from skimage.external import tifffile as tiff
 from scipy.stats import f
 
 
-def split_pt( path_input , path_outputs , pattern = '%% Trajectory' ) :
+def split_pt( path_input , path_outputs , i0 = -1 , pattern = '%% Trajectory' ) :
 
-	i = -1
+	i = i0
 
 	with open( path_input , 'r' ) as f :
 
@@ -21,39 +21,42 @@ def split_pt( path_input , path_outputs , pattern = '%% Trajectory' ) :
 			
 			if pattern in line :
 
-				if i >= 0 : #then there is already a g open
+				if ( i >= 0 ) & ( i0 == -1 )§: #then there is already a g open. i0 not == -1 if there are already some files and the indexing has to start higher.
 
 					g.close()
 
 				i = i + 1
 
+				i0 = -1 #i0 is restored to be -1, if it is not, so that from next iteration the g will be closed
+
 			if i >= 0 :
 
-				with open( path_outputs + '/trajectory_%05d' % i + '.txt' , 'a' ) as g :
+				with open( path_outputs + '/trajectory_%06d' % i + '.txt' , 'a' ) as g :
 
 					g.write( line ) 
 
+	return i 
 					
 
-def load_traj( path , pattern = 'x' , comment_char = '%' , **kwargs ) :
-	"""
-	load all the trajectories identified by pattern in path
-	"""
-
-	output = []
-
-	#list the trajectory files identified by pattern
-	r = [ f for f in os.listdir( path ) if pattern in f ]
-
-	#load the trajectory as a Traj object
-	for i in range( len( r ) ) :
-	
-		t = Traj()
-		t.load( path + '/' + r[ i ] , comment_char = '%' , **kwargs )
-		#t.extract( t.f() == t.f() ) #remove NA
-		output.append( t )
-
-	return output
+#def load_traj( path , pattern = 'x' , comment_char = '%' , **kwargs ) :
+#	"""
+#	load all the trajectories identified by pattern in path
+#	"""
+#
+#	output = []
+#
+#	#list the trajectory files identified by pattern
+#	r = [ f for f in os.listdir( path ) if pattern in f ]
+#
+#	#load the trajectory as a Traj object
+#	for i in range( len( r ) ) :
+#	
+#		t = Traj()
+#		t.load( path + '/' + r[ i ] , comment_char = '%' , **kwargs )
+#		#t.extract( t.f() == t.f() ) #remove NA
+#		output.append( t )
+#
+#	return output
 
 def distance( a , b ) :
 
