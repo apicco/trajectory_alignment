@@ -67,9 +67,10 @@ def load_directory(path , pattern = '.txt' , sep = None , comment_char = '#' , d
 	else : 
 		files = [ f for f in os.listdir(path) if pattern in f] #list all the files in path that have pattern
 
+	print( 'Loading of trajectory files' )
 	for file in files:
 
-		print( file ) 
+		#print( file ) 
 		trajectory = Traj(experiment = path, path = os.getcwd()+'/'+path, file = file)
 		trajectory.load(path+'/'+file,sep = sep, comment_char = comment_char, **attrs)
 		if (dt != None):
@@ -96,6 +97,7 @@ def load_directory(path , pattern = '.txt' , sep = None , comment_char = '#' , d
 	
 	print( "\n >> load_directory: The 'intensity_normalisation' applied to the trajectories is '" + intensity_normalisation + "' <<\n" )
 
+	print( 'Loading of trajectory files ended' )
 	return trajectories 
 
 def MSD(input_t1 , input_t2):
