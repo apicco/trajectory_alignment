@@ -21,7 +21,7 @@ def split_pt( path_input , path_outputs , i0 = -1 , pattern = '%% Trajectory' ) 
 			
 			if pattern in line :
 
-				if ( i >= 0 ) & ( i0 == -1 )§: #then there is already a g open. i0 not == -1 if there are already some files and the indexing has to start higher.
+				if ( i >= 0 ) & ( i0 == -1 ) : #then there is already a g open. i0 not == -1 if there are already some files and the indexing has to start higher.
 
 					g.close()
 
@@ -90,12 +90,11 @@ def yxF( x , y , p1 = 1 , p2 = 2 ) :
 
 		raise AttributeError( 'lenght of x and y must be equal' ) 
 
-	rss1 = sum( [ ( y[ i ] - np.mean( y ) ) ** 2 for i in range( n ) ] )
-	rss2 = sum( [ ( y[ i ] - x[ i ] ) ** 2 for i in range( n ) ] ) # predicted y is x, because the model function is y = x 
-
+	rss1 = sum( [ ( y[ i ] - np.nanmean( y ) ) ** 2 for i in range( n ) if y[ i ] == y[ i ] ] )
+	rss2 = sum( [ ( y[ i ] - x[ i ] ) ** 2 for i in range( n ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) ) ] ) # predicted y is x, because the model function is y = x 
 
 	if ( ( p2 - p1 ) > 0 ) & ( ( n - p2 ) > 0 ) :
-		
+	
 		F = ( ( rss1 - rss2 ) / ( p2 - p1 ) ) / ( rss2 / ( n - p2 ) )
 
 		p = 1 - f.cdf( F , p2 - p1 , n - p2 )
@@ -137,7 +136,7 @@ def ichose( tt , rtt , image_shape, pval = 0.01 , d0 = 10 ) :
 	for i in range( l ) :
 
 		p = eccStats( tt[ i ] , rtt[ i ] )
-		
+	
 		if p <= pval : 
 
 			m = mean_centroid( tt[ i ] )
