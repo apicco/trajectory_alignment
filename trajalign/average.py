@@ -786,7 +786,7 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 				print( '\t' + str( a ) )
 
 		print('----------------------')
-		print( 'MEAN:\t' + str( np.mean( alignment_precision ) ) )
+		print( 'MEAN:\t' + str( np.nanmean( alignment_precision ) ) )
 
 		return( aligned_trajectories , average_trajectory , alignment_precision )
 	
