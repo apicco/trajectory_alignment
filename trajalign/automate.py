@@ -197,35 +197,3 @@ def plot_traj( tt , f , what , ms = 30 , lw = 3 ) :
 #
 #		plt.xlabel( 'Square residuals' )
 #		plt.ylabel( '$ln( p )$' )
-
-def show_on_movie( tt , rtt , path_movie , path_frame , pval ) :
-
-	#load the movie
-	im = tiff.imread( path_movie )
-	
-	sel_tt = ichose( tt , rtt , im.shape , pval = pval ) 
-
-	gs = GridSpec( 4 , 2 )
-
-	for f in range( 0 , len( im ) ) :
-
-		frameName = path_frame + 'frame' + '%04d' % f
-
-		plt.figure( figsize = ( 15 , 14 ) )
-		movie = plt.subplot( gs[ 0 : 4 , 0 : 2 ] )
-		plt.imshow( im[ f , : , : ] , cmap = 'gray' )
-
-		plot_traj( sel_tt , f , 'coord' ) 
-
-		plt.xlabel( 'Pixel' )
-		plt.ylabel( 'Pixel' )
-		movie.set_aspect( 'equal' )
-
-		#ecc = plt.subplot( gs[ 2:4 , 0:2 ] )
-		#plot_traj( sel_tt , f , 'ecc' ) 
-
-		plt.savefig( frameName )
-		
-		plt.close()
-		
-
