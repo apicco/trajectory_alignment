@@ -117,7 +117,7 @@ def eccStats( t , rt ) :
 	p , F = yxF( x , y )
 
 	return p
-	#TOTRY: try to use shannon entropy with residuals or ratios. both residuals
+	#TO-TRY: try to use shannon entropy with residuals or ratios. both residuals
 	#and ratios should approx same values (i.e. shannon entropy max) in distribution
 	# residuals from y = x
 	##R = [ ( y[ i ] - x[ i ] ) ** 2 for i in range( len( x ) ) ] 
@@ -148,6 +148,23 @@ def ichose( tt , rtt , image_shape, pval = 0.01 , d0 = 10 ) :
 					output.append( tt[ i ] )
 
 	return output
+
+def save_directory( tt , directory_path ) :
+	"""
+	save_directory( tt , directory_path ) saves the trajectories in the list 'tt' as files in the directory path named 'directory_path'. The file name and extension will be the same as in the .annotations()[ 'file' ]
+	"""
+	
+	d = os.path.dirname( directory_path )
+
+	if not os.path.exists( d ) :
+		
+		os.makedirs( d )
+
+	for t in tt :
+
+		file_name = t.annotations()[ 'file' ]
+		t.save( directory_path + '/' + file_name )
+
 
 def plot_traj( tt , f , what , ms = 30 , lw = 3 ) :
 
