@@ -1353,3 +1353,22 @@ class Traj:
 				self._annotations[annotation] = string
 		else:
 			self._annotations[annotation] = string
+	
+	def assign_datasetID( self , path , pattern = 'Traj' )
+
+		datasets =  [ f for f in os.listdir( path ) if pattern in f ] #list all the files in path that have pattern
+
+		for d in datasets :
+
+			with open( d , 'r' ) as f :
+
+				for line in f.readlines() :
+
+					if ( ( self.frames()[ 0 ] in line ) & ( self.coord()[ 0 ] in lines ) & ( self.coord()[ 1 ] in lines ) ) :
+
+						self.annotations()[ 'dataset' ] = d
+						break
+
+				f.close()
+
+
