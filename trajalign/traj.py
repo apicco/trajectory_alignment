@@ -28,6 +28,7 @@ from numpy import isclose
 from numpy import isnan
 from numpy import round
 import copy as cp
+import os
 
 class Traj:
 	"""Trajectory OBJECT:
@@ -1360,7 +1361,7 @@ class Traj:
 
 		for d in datasets :
 
-			with open( d , 'r' ) as f :
+			with open( path + '/' + d , 'r' ) as f :
 
 				for line in f.readlines() :
 
