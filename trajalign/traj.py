@@ -29,6 +29,7 @@ from numpy import isnan
 from numpy import round
 import copy as cp
 import os
+import re
 
 class Traj:
 	"""Trajectory OBJECT:
@@ -1363,13 +1364,15 @@ class Traj:
 
 			with open( path + '/' + d , 'r' ) as f :
 
-				for line in f.readlines() :
-
-					if ( ( self.frames()[ 0 ] in line ) & ( self.coord()[ 0 ] in lines ) & ( self.coord()[ 1 ] in lines ) ) :
+				for line in f :
+					
+					t = re.search( str( self.frames()[ 0 ] ) + '.+' + str( self.coord()[ 0 ][ 0 ] ) + '.+' + str( self.coord()[ 1 ][ 0 ] ), line )
+					
+					if t :
 
 						self.annotations()[ 'dataset' ] = d
 						break
 
-				f.close()
+			f.close()
 
 

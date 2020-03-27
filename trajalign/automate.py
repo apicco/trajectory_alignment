@@ -154,11 +154,10 @@ def save_directory( tt , directory_path ) :
 	save_directory( tt , directory_path ) saves the trajectories in the list 'tt' as files in the directory path named 'directory_path'. The file name and extension will be the same as in the .annotations()[ 'file' ]
 	"""
 	
-	d = os.path.dirname( directory_path )
 
-	if not os.path.exists( d ) :
+	if not os.path.exists( directory_path ) :
 		
-		os.makedirs( d )
+		os.makedirs( directory_path )
 
 	for t in tt :
 
