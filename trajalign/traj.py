@@ -1367,7 +1367,6 @@ class Traj:
 				for line in f :
 					
 					t = re.search( str( self.frames()[ 0 ] ) + '.+' + str( self.coord()[ 0 ][ 0 ] ) + '.+' + str( self.coord()[ 1 ][ 0 ] ), line )
-					
 					if t :
 
 						self.annotations()[ 'dataset' ] = d
