@@ -21,7 +21,7 @@ def split_pt( path_input , path_outputs , i0 = -1 , pattern = '%% Trajectory' ) 
 			
 			if pattern in line :
 
-				if ( i >= 0 ) & ( i0 == -1 ) : #then there is already a g open. i0 not == -1 if there are already some files and the indexing has to start higher.
+				if ( i >= 0 ) & ( i0 == -1 ) : #then there is already a g open (see following lines). i0 not == -1 if there are already some files and the indexing has to start higher.
 
 					g.close()
 
