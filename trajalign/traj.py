@@ -1359,13 +1359,13 @@ class Traj:
 	def assign_datasetID( self , path , pattern = 'Traj' ) :
 
 		datasets =  [ f for f in os.listdir( path ) if pattern in f ] #list all the files in path that have pattern
-
+	
 		for d in datasets :
 
 			with open( path + '/' + d , 'r' ) as f :
 
 				for line in f :
-					
+
 					t = re.search( str( self.frames()[ 0 ] ) + '.+' + str( self.coord()[ 0 ][ 0 ] ) + '.+' + str( self.coord()[ 1 ][ 0 ] ), line )
 					if t :
 
