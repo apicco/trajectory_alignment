@@ -70,9 +70,13 @@ def ecc( t ) :
 	u20 = t.u20()
 	u11 = t.u11()
 
+
+	a = [ ( u02[i] + u20[i] ) / 2 for i in range( len( u02 ) ) ]
+	b = [ np.sqrt( (u20[i] - u02[i]) ** 2 + 4 * u11[i] ** 2 ) / 2 for i in range( len( u02 ) ) ]
+	
 	# eccentricity, ellipse radii:
-	l_1 = [ np.sqrt( ( u02[i] + u20[i] + np.sqrt( (u20[i] - u02[i]) ** 2 + 4 * u11[i] ** 2 ) ) / 2 ) for i in range( len( u02 ) ) ]
-	l_2 = [ np.sqrt( ( u02[i] + u20[i] - np.sqrt( (u20[i] - u02[i]) ** 2 + 4 * u11[i] ** 2 ) ) / 2 ) for i in range( len( u02 ) ) ]
+	l_1 = [ a[i] + b[i] for i in range( len( u02 ) ) ]
+	l_2 = [ a[i] - b[i] for i in range( len( u02 ) ) ]
 	
 	N = len( l_1 )
 	# ration between ellipse radii:
@@ -81,6 +85,7 @@ def ecc( t ) :
 	e = [ np.sqrt( 1 - l_r[ i ] ) for i in range( N ) ] 
 	
 	return e 
+
 
 def yxF( x , y , p1 = 1 , p2 = 2 ) : 
 
@@ -203,3 +208,4 @@ def plot_traj( tt , f , what , ms = 30 , lw = 3 ) :
 				print( 'something' ) 
 				#es = eccStats( t , rt )
 				#plt.plot( es[ 0 ] , es[ 1 ] , 'o' , color = c , markersize = ms )
+
