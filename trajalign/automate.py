@@ -203,13 +203,3 @@ def plot_traj( tt , f , what , ms = 30 , lw = 3 ) :
 				print( 'something' ) 
 				#es = eccStats( t , rt )
 				#plt.plot( es[ 0 ] , es[ 1 ] , 'o' , color = c , markersize = ms )
-
-#	if not ( what == 'coord' ) : 
-	
-#		plt.plot( ( 0 , 0.5 ) , ( np.log( 0.05 ) , np.log( 0.05 ) ) , ls = '--' , lw = 1 , color = 'red' )
-#		plt.plot( ( 0 , 0.5 ) , ( np.log( 0.01 ) , np.log( 0.01 ) ) , ls = '--' , lw = 1 , color = 'green' )
-#		plt.plot( ( 0 , 0.5 ) , ( np.log( 0.001 ) , np.log( 0.001 ) ) , ls = '--' , lw = 1 , color = 'blue' )
-#		plt.plot( ( 0 , 0.5 ) , ( np.log( 0.0001 ) , np.log( 0.0001 ) ) , ls = '--' , lw = 1 , color = 'black' )
-#
-#		plt.xlabel( 'Square residuals' )
-#		plt.ylabel( '$ln( p )$' )
