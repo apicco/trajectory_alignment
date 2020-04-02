@@ -70,13 +70,14 @@ def ecc( t ) :
 	u20 = t.u20()
 	u11 = t.u11()
 
+	N = len( u02 )
 
-	a = [ ( u02[i] + u20[i] ) / 2 for i in range( len( u02 ) ) ]
-	b = [ np.sqrt( (u20[i] - u02[i]) ** 2 + 4 * u11[i] ** 2 ) / 2 for i in range( len( u02 ) ) ]
+	a = [ ( u02[i] + u20[i] ) / 2 for i in range( N ) ]
+	b = [ np.sqrt( (u20[i] - u02[i]) ** 2 + 4 * u11[i] ** 2 ) / 2 for i in range( N ) ]
 	
 	# eccentricity, ellipse radii:
-	l_1 = [ a[i] + b[i] for i in range( len( u02 ) ) ]
-	l_2 = [ a[i] - b[i] for i in range( len( u02 ) ) ]
+	l_1 = [ a[i] + b[i] for i in range( N ) ]
+	l_2 = [ a[i] - b[i] for i in range( N ) ]
 	
 	N = len( l_1 )
 	# ration between ellipse radii:
