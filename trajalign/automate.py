@@ -95,20 +95,30 @@ def yxF( x , y , p1 = 1 , p2 = 2 ) :
 
 		raise AttributeError( 'lenght of x and y must be equal' ) 
 
-	rss1 = sum( [ ( y[ i ] - np.nanmean( y ) ) ** 2 for i in range( n ) if y[ i ] == y[ i ] ] )
-	rss2 = sum( [ ( y[ i ] - x[ i ] ) ** 2 for i in range( n ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) ) ] ) # predicted y is x, because the model function is y = x 
+	rs1 = [ ( y[ i ] - np.nanmean( y ) ) ** 2 for i in range( n ) if y[ i ] == y[ i ] ]
+	rss1 = sum( rs1 )
+	rs2 = [ ( y[ i ] - x[ i ] ) ** 2 for i in range( n ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) ) ] # predicted y is x, because the model function is y = x 
+	rss2 = sum( rs2 )
 
-	if ( ( p2 - p1 ) > 0 ) & ( ( n - p2 ) > 0 ) :
+	N = len( rs1 )
+
+	if N == len( rs2 ) : 
+
+		if ( ( p2 - p1 ) > 0 ) & ( ( N - p2 ) > 0 ) :
+		
+			F = ( ( rss1 - rss2 ) / ( p2 - p1 ) ) / ( rss2 / ( N - p2 ) )
 	
-		F = ( ( rss1 - rss2 ) / ( p2 - p1 ) ) / ( rss2 / ( n - p2 ) )
-
-		p = 1 - f.cdf( F , p2 - p1 , n - p2 )
+			p = 1 - f.cdf( F , p2 - p1 , N - p2 )
+	
+		else :
+	
+			p = F = np.nan
+	
+		return p , F
 
 	else :
 
-		p = F = np.nan
-
-	return p , F
+		raise TypeError( 'There is an error in your data, the number of NaN differs between y and x' )
 
 def mean_centroid( x ) :
 
