@@ -8,7 +8,7 @@ from matplotlib.gridspec import GridSpec
 
 from trajalign.traj import Traj
 from skimage.external import tifffile as tiff
-from scipy.stats import f
+from scipy.stats import f , norm
 
 
 def split_pt( path_input , path_outputs , i0 = -1 , pattern = '%% Trajectory' ) :
@@ -114,7 +114,7 @@ def yxF( x , y , p1 = 1 , p2 = 2 ) :
 	
 			p = F = np.nan
 	
-		return p , F
+		return p , F #H0: model does not provide a better description of the data than the restricted model (i.e. average, where all possible parameters are restricted to 0)
 
 	else :
 
@@ -140,7 +140,8 @@ def eccStats( t , rt ) :
 
 def ichose( tt , rtt , image_shape, pval = 0.01 , d0 = 10 ) :
 
-	output = []
+	output_tt = []
+	output_rtt = []
 
 	l = len( tt ) 
 
@@ -160,9 +161,10 @@ def ichose( tt , rtt , image_shape, pval = 0.01 , d0 = 10 ) :
 				
 				if ( ( m[ 0 ] < ( image_shape[ 0 ] -  d0 ) ) & ( m[ 1 ] < ( image_shape[ 1 ] - d0 ) ) ) :
 
-					output.append( tt[ i ] )
+					output_tt.append( tt[ i ] )
+					output_rtt.append( rtt[ i ] )
 
-	return output
+	return output_tt , output_rtt
 
 def save_directory( tt , directory_path ) :
 	"""
@@ -241,7 +243,12 @@ def tmp_ecc( t ) :
 	l_r = [ l_2[ i ] / l_1[ i ] for i in range( N ) ]
 	# eccentricity: (because of their above definitions l_2[ i ] < l_1[ i ] for each i)
 	e = [ np.sqrt( 1 - l_r[ i ] ) for i in range( N ) ] 
+
+	p =  norm.cdf( 0 , np.nanmean( e ) , np.nanstd( e ) )
+	print( 'mean : ' + str( np.nanmean( e ) ) )
+	print( 'std : ' + str( np.nanstd( e ) ) )
+	print( 'p : ' + str( p ) )
 	
-	return a , b , l_1 , l_2 , e  
+	return l_1 , l_2 , e , p 
 
 
