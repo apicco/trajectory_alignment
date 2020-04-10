@@ -130,7 +130,7 @@ def eccStats( t , rt , m0 = 1 , c0 = 0 ) :
 
 	return p_m , p_c , [ m , sm ] , [ c , sc ]
 
-def ichose( tt , rtt , image_shape, pval = 0.01 , d0 = 10 ) :
+def ichose( tt , rtt , image_shape, pval = 0.05 , d0 = 10 ) :
 
 	# d0 sets the minimal distance from the image border
 
@@ -147,7 +147,7 @@ def ichose( tt , rtt , image_shape, pval = 0.01 , d0 = 10 ) :
 
 		p , _ , _ , _  = eccStats( tt[ i ] , rtt[ i ] )
 	
-		if p <= pval : 
+		if p > pval : 
 
 			m = mean_centroid( tt[ i ] )
 
