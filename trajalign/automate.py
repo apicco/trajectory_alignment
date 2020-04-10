@@ -111,7 +111,7 @@ def eccStats( t , rt , m0 = 1 , c0 = 0 ) :
 	# linear regression of order 1, output covariance matrix whose diagonal elements are
 	# the variance used to compute the SE over the estimates of m and c, which are then
 	# used to compute a t test
-	if n > ( 1 + 2 ) : #he number of data points must be the fit order + 2
+	if n > 4 : #he number of data points must exceed order + 2 ( + 1? )
 		
 		fit = np.polyfit( xx , yy , 1 , cov = True )
 	
