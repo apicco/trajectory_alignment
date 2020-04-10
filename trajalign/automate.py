@@ -123,8 +123,6 @@ def eccStats( t , rt , m0 = 1 , c0 = 0 ) :
 	t_c = np.abs( ( c - c0 ) / sc )
 	t_m = np.abs( ( m - m0 ) / sm )
 
-	print( df )
-	print( t_m )
 	# the p values, testing the H0 that the model characterized by the parameters 
 	# m0 and c0 well describes the data is
 	p_c = 1 - ttest.cdf( t_c , df ) + ttest.cdf( -t_c , df )
@@ -147,7 +145,7 @@ def ichose( tt , rtt , image_shape, pval = 0.01 , d0 = 10 ) :
 
 	for i in range( l ) :
 
-		p = eccStats( tt[ i ] , rtt[ i ] )
+		p , _ , _ , _  = eccStats( tt[ i ] , rtt[ i ] )
 	
 		if p <= pval : 
 
