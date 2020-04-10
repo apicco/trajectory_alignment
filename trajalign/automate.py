@@ -8,7 +8,8 @@ from matplotlib.gridspec import GridSpec
 
 from trajalign.traj import Traj
 from skimage.external import tifffile as tiff
-from scipy.stats import norm
+from scipy.stats import  t as ttest
+from scipy.stats import norm , t
 
 
 def split_pt( path_input , path_outputs , i0 = -1 , pattern = '%% Trajectory' ) :
@@ -119,15 +120,17 @@ def eccStats( t , rt , m0 = 1 , c0 = 0 ) :
 	sm = np.sqrt( fit[ 1 ][ 0 , 0 ] * ( n - 2 ) / n )
 
 	# the t variables are
-	t_c = ( c - c0 ) / sc 
-	t_m = ( m - m0 ) / sm
+	t_c = np.abs( ( c - c0 ) / sc )
+	t_m = np.abs( ( m - m0 ) / sm )
 
+	print( df )
+	print( t_m )
 	# the p values, testing the H0 that the model characterized by the parameters 
 	# m0 and c0 well describes the data is
-	p_c = 1 - t.cdf( t_c , df ) + t.cdf( -t_c , df )
-	p_m = 1 - t.cdf( t_m , df ) + t.cdf( -t_m , df )
+	p_c = 1 - ttest.cdf( t_c , df ) + ttest.cdf( -t_c , df )
+	p_m = 1 - ttest.cdf( t_m , df ) + ttest.cdf( -t_m , df )
 
-	return p_m , p_c
+	return p_m , p_c , [ m , sm ] , [ c , sc ]
 
 def ichose( tt , rtt , image_shape, pval = 0.01 , d0 = 10 ) :
 
