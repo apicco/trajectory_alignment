@@ -133,9 +133,8 @@ def eccStats( t , rt , m0 = 1 , c0 = 0 ) :
 
 	else : 
 
-		p_c = np.nan
-		p_m = np.nan
-
+		p_m = p_c = m = sm = c = sc = np.nan
+		
 	return p_m , p_c , [ m , sm ] , [ c , sc ]
 
 def ichose( tt , rtt , image_shape, pval = 0.05 , d0 = 10 ) :
