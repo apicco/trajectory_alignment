@@ -99,17 +99,17 @@ def eccStats( t , rt , m0 = 1 , c0 = 0 ) :
 	y = ecc( rt )
 	
 	# remove possible nan
-	x = [ x[ i ] for i in range( len( x ) ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) ) ]
-	y = [ y[ i ] for i in range( len( y ) ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) ) ]
+	xx = [ x[ i ] for i in range( len( x ) ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) ) ]
+	yy = [ y[ i ] for i in range( len( y ) ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) ) ]
 
 	# degree of freedom are n - 2 (m + c, two parameters to be fixed)
-	n = len( x )
+	n = len( xx )
 	df = n - 2 
 
 	# linear regression of order 1, output covariance matrix whose diagonal elements are
 	# the variance used to compute the SE over the estimates of m and c, which are then
 	# used to compute a t test
-	fit = np.polyfit( x , y , 1 , cov = True )
+	fit = np.polyfit( xx , yy , 1 , cov = True )
 
 	# SE are computed according to the definition used in R, which is approximated by replacing 
 	# the divident (n - 2) with n
@@ -238,9 +238,6 @@ def tmp_ecc( t ) :
 	e = [ np.sqrt( 1 - l_r[ i ] ) for i in range( N ) ] 
 
 	p =  norm.cdf( 0 , np.nanmean( e ) , np.nanstd( e ) )
-	print( 'mean : ' + str( np.nanmean( e ) ) )
-	print( 'std : ' + str( np.nanstd( e ) ) )
-	print( 'p : ' + str( p ) )
 	
 	return l_1 , l_2 , e , p 
 
