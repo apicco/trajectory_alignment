@@ -111,23 +111,30 @@ def eccStats( t , rt , m0 = 1 , c0 = 0 ) :
 	# linear regression of order 1, output covariance matrix whose diagonal elements are
 	# the variance used to compute the SE over the estimates of m and c, which are then
 	# used to compute a t test
-	fit = np.polyfit( xx , yy , 1 , cov = True )
+	if n > ( 1 + 2 ) : #he number of data points must be the fit order + 2
+		
+		tfit = np.polyfit( xx , yy , 1 , cov = True )
+	
+		# SE are computed according to the definition used in R, which is approximated by replacing 
+		# the divident (n - 2) with n
+		c = fit[ 0 ][ 1 ]
+		sc = np.sqrt( fit[ 1 ][ 1 , 1 ] * ( n - 2 ) / n )
+		m = fit[ 0 ][ 0 ]
+		sm = np.sqrt( fit[ 1 ][ 0 , 0 ] * ( n - 2 ) / n )
+	
+		# the t variables are
+		t_c = np.abs( ( c - c0 ) / sc )
+		t_m = np.abs( ( m - m0 ) / sm )
+	
+		# the p values, testing the H0 that the model characterized by the parameters 
+		# m0 and c0 well describes the data is
+		p_c = 1 - ttest.cdf( t_c , df ) + ttest.cdf( -t_c , df )
+		p_m = 1 - ttest.cdf( t_m , df ) + ttest.cdf( -t_m , df )
 
-	# SE are computed according to the definition used in R, which is approximated by replacing 
-	# the divident (n - 2) with n
-	c = fit[ 0 ][ 1 ]
-	sc = np.sqrt( fit[ 1 ][ 1 , 1 ] * ( n - 2 ) / n )
-	m = fit[ 0 ][ 0 ]
-	sm = np.sqrt( fit[ 1 ][ 0 , 0 ] * ( n - 2 ) / n )
+	else : 
 
-	# the t variables are
-	t_c = np.abs( ( c - c0 ) / sc )
-	t_m = np.abs( ( m - m0 ) / sm )
-
-	# the p values, testing the H0 that the model characterized by the parameters 
-	# m0 and c0 well describes the data is
-	p_c = 1 - ttest.cdf( t_c , df ) + ttest.cdf( -t_c , df )
-	p_m = 1 - ttest.cdf( t_m , df ) + ttest.cdf( -t_m , df )
+		p_c = np.nan
+		p_m = np.nan
 
 	return p_m , p_c , [ m , sm ] , [ c , sc ]
 
