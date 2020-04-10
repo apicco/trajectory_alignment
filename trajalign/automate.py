@@ -113,7 +113,7 @@ def eccStats( t , rt , m0 = 1 , c0 = 0 ) :
 	# used to compute a t test
 	if n > ( 1 + 2 ) : #he number of data points must be the fit order + 2
 		
-		tfit = np.polyfit( xx , yy , 1 , cov = True )
+		fit = np.polyfit( xx , yy , 1 , cov = True )
 	
 		# SE are computed according to the definition used in R, which is approximated by replacing 
 		# the divident (n - 2) with n
