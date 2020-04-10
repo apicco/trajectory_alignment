@@ -95,7 +95,8 @@ def eccStats( t , rt , m0 = 1 , c0 = 0 ) :
 
 	# compare if the eccentricity values compute in the region where the spot
 	# is quantified and in the surrounding region are falling on a line close to the 
-	# diagonal: y = m0 * x + c0
+	# diagonal: y = m0 * x + c0. The H0 is that y = m0 * x + c0 is sufficient to describe 
+	# the correlation between the eccentricities (i.e. the spot needs to be kept).
 	x = ecc( t )
 	y = ecc( rt )
 	
@@ -146,7 +147,8 @@ def ichose( tt , rtt , image_shape, pval = 0.05 , d0 = 10 ) :
 	for i in range( l ) :
 
 		p , _ , _ , _  = eccStats( tt[ i ] , rtt[ i ] )
-	
+
+		"The H0 is that the data are well described by "
 		if p > pval : 
 
 			m = mean_centroid( tt[ i ] )
