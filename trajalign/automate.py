@@ -8,7 +8,7 @@ from matplotlib.gridspec import GridSpec
 
 from trajalign.traj import Traj
 from skimage.external import tifffile as tiff
-from scipy.stats import f , norm
+from scipy.stats import norm
 
 
 def split_pt( path_input , path_outputs , i0 = -1 , pattern = '%% Trajectory' ) :
@@ -79,7 +79,6 @@ def ecc( t ) :
 	l_1 = [ np.sqrt( a[i] + b[i] ) for i in range( N ) ]
 	l_2 = [ np.sqrt( a[i] - b[i] ) for i in range( N ) ]
 	
-	N = len( l_1 )
 	# ration between ellipse radii:
 	l_r = [ l_2[ i ] / l_1[ i ] for i in range( N ) ]
 	# eccentricity: (because of their above definitions l_2[ i ] < l_1[ i ] for each i)
@@ -87,56 +86,48 @@ def ecc( t ) :
 	
 	return e 
 
-def yxF( x , y , p1 = 1 , p2 = 2 ) : 
-
-	n = len( x )
-	
-	if not n == len( y ) :
-
-		raise AttributeError( 'lenght of x and y must be equal' ) 
-
-	rs1 = [ ( y[ i ] - np.nanmean( y ) ) ** 2 for i in range( n ) if y[ i ] == y[ i ] ]
-	rss1 = sum( rs1 )
-	rs2 = [ ( y[ i ] - x[ i ] ) ** 2 for i in range( n ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) ) ] # predicted y is x, because the model function is y = x 
-	rss2 = sum( rs2 )
-
-	N = len( rs1 )
-
-	if N == len( rs2 ) : 
-
-		if ( ( p2 - p1 ) > 0 ) & ( ( N - p2 ) > 0 ) :
-		
-			F = ( ( rss1 - rss2 ) / ( p2 - p1 ) ) / ( rss2 / ( N - p2 ) )
-	
-			p = 1 - f.cdf( F , p2 - p1 , N - p2 )
-	
-		else :
-	
-			p = F = np.nan
-	
-		return p , F #H0: model does not provide a better description of the data than the restricted model (i.e. average, where all possible parameters are restricted to 0)
-
-	else :
-
-		raise TypeError( 'There is an error in your data, the number of NaN differs between y and x' )
-
 def mean_centroid( x ) :
 
 	return( [ np.nanmean( x.coord()[ 0 ] ) , np.nanmean( x.coord()[ 1 ] ) ] )
 
-def eccStats( t , rt ) :
-	
+def eccStats( t , rt , m0 = 1 , c0 = 0 ) :
+
+	# compare if the eccentricity values compute in the region where the spot
+	# is quantified and in the surrounding region are falling on a line close to the 
+	# diagonal: y = m0 * x + c0
 	x = ecc( t )
 	y = ecc( rt )
+	
+	# remove possible nan
+	x = [ x[ i ] for i in range( len( x ) ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) ) ]
+	y = [ y[ i ] for i in range( len( y ) ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) ) ]
 
-	p , F = yxF( x , y )
+	# degree of freedom are n - 2 (m + c, two parameters to be fixed)
+	n = len( x )
+	df = n - 2 
 
-	return p
-	#TO-TRY: try to use shannon entropy with residuals or ratios. both residuals
-	#and ratios should approx same values (i.e. shannon entropy max) in distribution
-	# residuals from y = x
-	##R = [ ( y[ i ] - x[ i ] ) ** 2 for i in range( len( x ) ) ] 
-	##return  [ R , [ np.log( p ) ] * len( R ) ] #[ np.median( r ) , np.median( R ) ]
+	# linear regression of order 1, output covariance matrix whose diagonal elements are
+	# the variance used to compute the SE over the estimates of m and c, which are then
+	# used to compute a t test
+	fit = np.polyfit( x , y , 1 , cov = True )
+
+	# SE are computed according to the definition used in R, which is approximated by replacing 
+	# the divident (n - 2) with n
+	c = fit[ 0 ][ 1 ]
+	sc = np.sqrt( fit[ 1 ][ 1 , 1 ] * ( n - 2 ) / n )
+	m = fit[ 0 ][ 0 ]
+	sm = np.sqrt( fit[ 1 ][ 0 , 0 ] * ( n - 2 ) / n )
+
+	# the t variables are
+	t_c = ( c - c0 ) / sc 
+	t_m = ( m - m0 ) / sm
+
+	# the p values, testing the H0 that the model characterized by the parameters 
+	# m0 and c0 well describes the data is
+	p_c = 1 - t.cdf( t_c , df ) + t.cdf( -t_c , df )
+	p_m = 1 - t.cdf( t_m , df ) + t.cdf( -t_m , df )
+
+	return p_m , p_c
 
 def ichose( tt , rtt , image_shape, pval = 0.01 , d0 = 10 ) :
 
