@@ -126,8 +126,8 @@ def eccStats( t , rt , m0 = 1 , c0 = 0 ) :
 		t_c = np.abs( ( c - c0 ) / sc )
 		t_m = np.abs( ( m - m0 ) / sm )
 	
-		# the p values, testing the H0 that the model characterized by the parameters 
-		# m0 and c0 well describes the data is
+		# the p values, testing the H0 that the data are sufficiently described by the simple model defined
+		# by the parameters m0 and c0 rather than by the one from the interpolation.
 		p_c = 1 - ttest.cdf( t_c , df ) + ttest.cdf( -t_c , df )
 		p_m = 1 - ttest.cdf( t_m , df ) + ttest.cdf( -t_m , df )
 
@@ -152,18 +152,20 @@ def ichose( tt , rtt , image_shape, pval = 0.05 , d0 = 10 ) :
 
 	for i in range( l ) :
 
-		p , _ , _ , _  = eccStats( tt[ i ] , rtt[ i ] )
+		p , _ , m , c  = eccStats( tt[ i ] , rtt[ i ] )
 
 		"The H0 is that the data are well described by "
 		if p > pval : 
 
-			m = mean_centroid( tt[ i ] )
+			mc = mean_centroid( tt[ i ] )
 
-			if ( ( m[ 0 ] > d0 ) & ( m[ 1 ] > d0 ) ) :
+			if ( ( mc[ 0 ] > d0 ) & ( mc[ 1 ] > d0 ) ) :
 				
-				if ( ( m[ 0 ] < ( image_shape[ 0 ] -  d0 ) ) & ( m[ 1 ] < ( image_shape[ 1 ] - d0 ) ) ) :
+				if ( ( mc[ 0 ] < ( image_shape[ 0 ] -  d0 ) ) & ( mc[ 1 ] < ( image_shape[ 1 ] - d0 ) ) ) :
 					
 					tt[ i ].annotations( 'eccentricity_pval' , str( p ) )
+					tt[ i ].annotations( 'eccentricity_m' , str( m[ 0 ] ) )
+					tt[ i ].annotations( 'eccentricity_c' , str( c[ 0 ] ) )
 					rtt[ i ].annotations( 'eccentricity_pval' , str( p ) )
 					output_tt.append( tt[ i ] )
 					output_rtt.append( rtt[ i ] )
