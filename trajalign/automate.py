@@ -104,6 +104,10 @@ def eccStats( t , rt , m0 = 1 , c0 = 0 ) :
 	xx = [ x[ i ] for i in range( len( x ) ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) ) ]
 	yy = [ y[ i ] for i in range( len( y ) ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) ) ]
 
+	# degree of freedom are n - 2 (m + c, two parameters to be fixed)
+	n = len( xx )
+	df = n - 2 
+
 	# First, perform an F-test to exclude that data are not random, with:
 	p1 = 1
 	p2 = 2
@@ -123,10 +127,6 @@ def eccStats( t , rt , m0 = 1 , c0 = 0 ) :
 	else :
 
 		pf = F = np.nan
-
-	# degree of freedom are n - 2 (m + c, two parameters to be fixed)
-	n = len( xx )
-	df = n - 2 
 
 	# linear regression of order 1, output covariance matrix whose diagonal elements are
 	# the variance used to compute the SE over the estimates of m and c, which are then
