@@ -115,12 +115,12 @@ def eccStats( t , rt , m0 = 1 , c0 = 0 ) :
 		
 		fit = np.polyfit( xx , yy , 1 , cov = True )
 	
-		# SE are computed according to the definition used in R, which is approximated by replacing 
-		# the divident (n - 2) with n
+		# SE are computed according to the definition used in python with the divident (n - 2)
+		# in the hope that small trajectories are penalized
 		c = fit[ 0 ][ 1 ]
-		sc = np.sqrt( fit[ 1 ][ 1 , 1 ] * ( n - 2 ) / n )
+		sc = np.sqrt( fit[ 1 ][ 1 , 1 ] )
 		m = fit[ 0 ][ 0 ]
-		sm = np.sqrt( fit[ 1 ][ 0 , 0 ] * ( n - 2 ) / n )
+		sm = np.sqrt( fit[ 1 ][ 0 , 0 ] )
 	
 		# the t variables are
 		t_c = np.abs( ( c - c0 ) / sc )
