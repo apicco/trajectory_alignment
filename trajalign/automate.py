@@ -147,9 +147,7 @@ def eccStats( t , rt , m0 = 1 , c0 = 0 ) :
 	if   n > 2 :
 	
 		F = ( ( rss1 - rss2 ) / ( p2 - p1 ) ) / ( rss2 / ( n - p2 ) )
-
 		pf = 1 - f.cdf( F , p2 - p1 , n - p2 )
-		print( 'p mytest : ' + str( p ) )
 
 	else :
 
