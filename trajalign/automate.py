@@ -162,7 +162,9 @@ def ichose( tt , rtt , image_shape, pval = 0.05 , d0 = 10 ) :
 			if ( ( m[ 0 ] > d0 ) & ( m[ 1 ] > d0 ) ) :
 				
 				if ( ( m[ 0 ] < ( image_shape[ 0 ] -  d0 ) ) & ( m[ 1 ] < ( image_shape[ 1 ] - d0 ) ) ) :
-
+					
+					tt[ i ].annotations( 'eccentricity pval' , str( p ) )
+					rtt[ i ].annotations( 'eccentricity pval' , str( p ) )
 					output_tt.append( tt[ i ] )
 					output_rtt.append( rtt[ i ] )
 
