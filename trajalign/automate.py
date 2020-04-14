@@ -105,7 +105,7 @@ def eccStats( t , rt , m0 = 1 , c0 = 0 ) :
 	yy = [ y[ i ] for i in range( len( y ) ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) ) ]
 
 	# First, perform an F-test to exclude that data are not random, with:
-	p1 = 0
+	p1 = 1
 	p2 = 2
 
 	rs1 = [ ( yy[ i ] - np.mean( xx[ i ] ) ) ** 2 for i in range( N ) ]
