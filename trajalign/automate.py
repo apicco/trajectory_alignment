@@ -108,16 +108,16 @@ def eccStats( t , rt , m0 = 1 , c0 = 0 ) :
 	p1 = 1
 	p2 = 2
 
-	rs1 = [ ( yy[ i ] - np.mean( xx[ i ] ) ) ** 2 for i in range( N ) ]
+	rs1 = [ ( yy[ i ] - np.mean( xx[ i ] ) ) ** 2 for i in range( n ) ]
 	rss1 = sum( rs1 )
-	rs2 = [ ( yy[ i ] - m * xx[ i ] - c ) ** 2 for i in range( N ) ] # predicted y is x, because the model function is y = x 
+	rs2 = [ ( yy[ i ] - m * xx[ i ] - c ) ** 2 for i in range( n ) ] # predicted y is x, because the model function is y = x 
 	rss2 = sum( rs2 )
 
 	if   n > 2 :
 	
-		F = ( ( rss1 - rss2 ) / ( p2 - p1 ) ) / ( rss2 / ( N - p2 ) )
+		F = ( ( rss1 - rss2 ) / ( p2 - p1 ) ) / ( rss2 / ( n - p2 ) )
 
-		pf = 1 - f.cdf( F , p2 - p1 , N - p2 )
+		pf = 1 - f.cdf( F , p2 - p1 , n - p2 )
 		print( 'p mytest : ' + str( p ) )
 
 	else :
