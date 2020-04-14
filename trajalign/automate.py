@@ -9,7 +9,7 @@ from matplotlib.gridspec import GridSpec
 from trajalign.traj import Traj
 from skimage.external import tifffile as tiff
 from scipy.stats import  t as ttest
-from scipy.stats import norm , t
+from scipy.stats import norm , t , f 
 
 
 def split_pt( path_input , path_outputs , i0 = -1 , pattern = '%% Trajectory' ) :
