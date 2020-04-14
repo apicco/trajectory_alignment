@@ -104,6 +104,26 @@ def eccStats( t , rt , m0 = 1 , c0 = 0 ) :
 	xx = [ x[ i ] for i in range( len( x ) ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) ) ]
 	yy = [ y[ i ] for i in range( len( y ) ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) ) ]
 
+	# First, perform an F-test to exclude that data are not random, with:
+	p1 = 0
+	p2 = 2
+
+	rs1 = [ ( yy[ i ] - np.mean( xx[ i ] ) ) ** 2 for i in range( N ) ]
+	rss1 = sum( rs1 )
+	rs2 = [ ( yy[ i ] - m * xx[ i ] - c ) ** 2 for i in range( N ) ] # predicted y is x, because the model function is y = x 
+	rss2 = sum( rs2 )
+
+	if   n > 2 :
+	
+		F = ( ( rss1 - rss2 ) / ( p2 - p1 ) ) / ( rss2 / ( N - p2 ) )
+
+		pf = 1 - f.cdf( F , p2 - p1 , N - p2 )
+		print( 'p mytest : ' + str( p ) )
+
+	else :
+
+		pf = F = np.nan
+
 	# degree of freedom are n - 2 (m + c, two parameters to be fixed)
 	n = len( xx )
 	df = n - 2 
@@ -135,7 +155,7 @@ def eccStats( t , rt , m0 = 1 , c0 = 0 ) :
 
 		p_m = p_c = m = sm = c = sc = np.nan
 		
-	return p_m , p_c , [ m , sm ] , [ c , sc ]
+	return p_m , p_c , [ m , sm ] , [ c , sc ] , pf
 
 def ichose( tt , rtt , image_shape, pval = 0.05 , d0 = 10 ) :
 
@@ -152,7 +172,7 @@ def ichose( tt , rtt , image_shape, pval = 0.05 , d0 = 10 ) :
 
 	for i in range( l ) :
 
-		p , _ , m , c  = eccStats( tt[ i ] , rtt[ i ] )
+		p , _ , m , c , pf = eccStats( tt[ i ] , rtt[ i ] )
 
 		"The H0 is that the data are well described by "
 		if p > pval : 
@@ -166,6 +186,7 @@ def ichose( tt , rtt , image_shape, pval = 0.05 , d0 = 10 ) :
 					tt[ i ].annotations( 'eccentricity_pval' , str( p ) )
 					tt[ i ].annotations( 'eccentricity_m' , str( m[ 0 ] ) )
 					tt[ i ].annotations( 'eccentricity_c' , str( c[ 0 ] ) )
+					tt[ i ].annotations( 'eccentricity_pf' , str( pf ) )
 					rtt[ i ].annotations( 'eccentricity_pval' , str( p ) )
 					output_tt.append( tt[ i ] )
 					output_rtt.append( rtt[ i ] )
