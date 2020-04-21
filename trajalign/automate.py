@@ -135,7 +135,7 @@ def eccStats( t , rt , m0 = 1 , c0 = 0 ) :
 
 		p_m = p_c = m = sm = c = sc = np.nan
 	
-	# Also, perform an F-test to exclude that data are not random, with:
+	# Also, perform an F-test to exclude that data are not correlated, with:
 	p1 = 1
 	p2 = 2
 
@@ -153,12 +153,11 @@ def eccStats( t , rt , m0 = 1 , c0 = 0 ) :
 
 		pf = F = np.nan
 
-	return p_m , p_c , [ m , sm ] , [ c , sc ] , pf
+	return p_m , [ m , sm ] , p_c , [ c , sc ] , pf
 
-def ichose( tt , rtt , image_shape, pval = 0.05 , d0 = 10 ) :
+def ichose( tt , rtt , image_shape, pval_m = 0.1 , pval_c = 0.0 , pval_F = 0.0001 , d0 = 10 ) :
 
 	# d0 sets the minimal distance from the image border
-
 	output_tt = []
 	output_rtt = []
 
@@ -170,22 +169,29 @@ def ichose( tt , rtt , image_shape, pval = 0.05 , d0 = 10 ) :
 
 	for i in range( l ) :
 
-		p , _ , m , c , pf = eccStats( tt[ i ] , rtt[ i ] )
+		pm , m , pc , c , pf = eccStats( tt[ i ] , rtt[ i ] )
 
 		"The H0 is that the data are well described by "
-		if p > pval : 
+		if ( ( pm > pval_m ) & ( pc > pval_c ) & ( pf < pval_f ) ) : 
 
 			mc = mean_centroid( tt[ i ] )
 
 			if ( ( mc[ 0 ] > d0 ) & ( mc[ 1 ] > d0 ) ) :
 				
 				if ( ( mc[ 0 ] < ( image_shape[ 0 ] -  d0 ) ) & ( mc[ 1 ] < ( image_shape[ 1 ] - d0 ) ) ) :
-					
-					tt[ i ].annotations( 'eccentricity_pval' , str( p ) )
+				
+					# annotations useful to check selection parameters
 					tt[ i ].annotations( 'eccentricity_m' , str( m[ 0 ] ) )
 					tt[ i ].annotations( 'eccentricity_c' , str( c[ 0 ] ) )
-					tt[ i ].annotations( 'eccentricity_pf' , str( pf ) )
-					rtt[ i ].annotations( 'eccentricity_pval' , str( p ) )
+					
+					tt[ i ].annotations( 'eccentricity_pval_m' , str( pm ) )
+					tt[ i ].annotations( 'eccentricity_pval_c' , str( pc ) )
+					tt[ i ].annotations( 'eccentricity_pval_F' , str( pf ) )
+
+					tt[ i ].annotations( 'threshold_pval_m' , str( pval_m ) )
+					tt[ i ].annotations( 'threshold_pval_c' , str( pval_c ) )
+					tt[ i ].annotations( 'threshold_pval_F' , str( pval_F ) )
+					
 					output_tt.append( tt[ i ] )
 					output_rtt.append( rtt[ i ] )
 
