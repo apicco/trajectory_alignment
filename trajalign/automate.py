@@ -172,7 +172,7 @@ def ichose( tt , rtt , image_shape, pval_m = 0.1 , pval_c = 0.0 , pval_F = 0.000
 		pm , m , pc , c , pf = eccStats( tt[ i ] , rtt[ i ] )
 
 		"The H0 is that the data are well described by "
-		if ( ( pm > pval_m ) & ( pc > pval_c ) & ( pf < pval_f ) ) : 
+		if ( ( pm > pval_m ) & ( pc > pval_c ) & ( pf < pval_F ) ) : 
 
 			mc = mean_centroid( tt[ i ] )
 
