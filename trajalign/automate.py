@@ -85,7 +85,7 @@ def ecc( t ) :
 	# eccentricity: (because of their above definitions l_2[ i ] < l_1[ i ] for each i)
 	e = [ np.sqrt( 1 - l_r[ i ] ) for i in range( N ) ] 
 	
-	return e 
+	return e  , [ l_1 , l_2 ]
 
 def mean_centroid( x ) :
 
@@ -97,8 +97,8 @@ def eccStats( t , rt , m0 = 1 , c0 = 0 ) :
 	# is quantified and in the surrounding region are falling on a line close to the 
 	# diagonal: y = m0 * x + c0. The H0 is that y = m0 * x + c0 is sufficient to describe 
 	# the correlation between the eccentricities (i.e. the spot needs to be kept).
-	x = ecc( t )
-	y = ecc( rt )
+	x , _ = ecc( t )
+	y , _ = ecc( rt )
 	
 	# remove possible nan
 	xx = [ x[ i ] for i in range( len( x ) ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) ) ]
