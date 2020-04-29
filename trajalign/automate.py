@@ -96,7 +96,7 @@ def mean_centroid( x ) :
 
 	return( [ np.nanmean( x.coord()[ 0 ] ) , np.nanmean( x.coord()[ 1 ] ) ] )
 
-def eccStats( t , rt , m0 = 1 , c0 = 0 , maxit = 20 ) :
+def eccStats( t , rt , m0 = 1 , maxit = 20 ) :
 
 	# compare if the eccentricity values compute in the region where the spot
 	# is quantified and in the surrounding region are falling on a line close to the 
@@ -106,9 +106,11 @@ def eccStats( t , rt , m0 = 1 , c0 = 0 , maxit = 20 ) :
 	y , _ = ecc( rt )
 
 	# remove possible nan and select only eccentricities smaller than the median
-	xx = [ x[ i ] for i in range( len( x ) ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) & ( x[ i ] <= np.nanmedian( x ) ) ) ]
+	xn = [ x[ i ] for i in range( len( x ) ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) & ( x[ i ] <= np.nanmedian( x ) ) ) ]
 	yy = [ y[ i ] for i in range( len( y ) ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) & ( x[ i ] <= np.nanmedian( x ) ) ) ]
 
+	xshift = c0 = np.median( xn ) #now that the ecc are shifted left, the excpected intercept ( c0 ) must be 1 * xshift + 0 
+	xx = [ xn[ i ] - xshift  for i in range( len( xn ) ) ]
 	# degree of freedom are n - 2 (m + c, two parameters to be fixed)
 	n = len( xx )
 	df = n - 2 
@@ -127,11 +129,12 @@ def eccStats( t , rt , m0 = 1 , c0 = 0 , maxit = 20 ) :
 
 		s = base.summary( rfit ).rx2( 'coefficients' )
 		# SE are computed according to the definition used in python with the divident (n - 2)
-		# in the hope that small trajectories are penalized
+		# in the hope that small trajectories are penalized TODO: double check that's true now
+		# that I use rpy2 (R)
 		c = s[ 0 ]
 		m = s[ 1 ]
-		sc = s[ 2 ]
-		sm = s[ 3 ]
+		sc = s[ 2 ] * n / df
+		sm = s[ 3 ] * n / df
 	
 		# the t variables are
 		t_c = np.abs( ( c - c0 ) / sc )
@@ -164,7 +167,11 @@ def eccStats( t , rt , m0 = 1 , c0 = 0 , maxit = 20 ) :
 
 		pf = F = np.nan
 
-	return p_m , [ m , sm ] , p_c , [ c , sc ] , pf
+	# estimate c' (ce) for the fitting of data not shifted by xshift using the y = m*x+c
+	ce = m * ( -xshift ) + c
+	sce = np.sqrt( ( -xshift * sm ) ** 2 + sc ** 2 )
+
+	return p_m , [ m , sm ] , p_c , [ ce , sce ] , pf
 
 def ichose( tt , rtt , image_shape, pval_m = 0.1 , pval_c = 0.1 , pval_F = 1 , maxit = 100 , d0 = 10 ) :
 
