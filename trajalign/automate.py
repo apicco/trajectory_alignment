@@ -96,7 +96,7 @@ def mean_centroid( x ) :
 
 	return( [ np.nanmean( x.coord()[ 0 ] ) , np.nanmean( x.coord()[ 1 ] ) ] )
 
-def eccStats( t , rt , m0 = 1 , c0 = 0 ) :
+def eccStats( t , rt , m0 = 1 , c0 = 0 , maxit = 20 ) :
 
 	# compare if the eccentricity values compute in the region where the spot
 	# is quantified and in the surrounding region are falling on a line close to the 
@@ -123,7 +123,7 @@ def eccStats( t , rt , m0 = 1 , c0 = 0 ) :
 		r.globalenv[ "y" ] = r.FloatVector( yy )
 		
 		fmla = r.Formula('y ~ x')
-		rfit = MASS.rlm( fmla )
+		rfit = MASS.rlm( fmla , maxit = maxit )
 
 		s = base.summary( rfit ).rx2( 'coefficients' )
 		# SE are computed according to the definition used in python with the divident (n - 2)
