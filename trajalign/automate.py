@@ -104,10 +104,10 @@ def eccStats( t , rt , m0 = 1 , c0 = 0 ) :
 	# the correlation between the eccentricities (i.e. the spot needs to be kept).
 	x , _ = ecc( t )
 	y , _ = ecc( rt )
-	
+
 	# remove possible nan and select only eccentricities smaller than the median
 	xx = [ x[ i ] for i in range( len( x ) ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) & ( x[ i ] <= np.nanmedian( x ) ) ) ]
-	yy = [ y[ i ] for i in range( len( y ) ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) & ( y[ i ] <= np.nanmedian( y ) ) ) ]
+	yy = [ y[ i ] for i in range( len( y ) ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) & ( x[ i ] <= np.nanmedian( x ) ) ) ]
 
 	# degree of freedom are n - 2 (m + c, two parameters to be fixed)
 	n = len( xx )
