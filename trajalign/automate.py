@@ -9,6 +9,7 @@ from matplotlib.gridspec import GridSpec
 from trajalign.traj import Traj
 from skimage.external import tifffile as tiff
 from scipy.stats import  t as ttest
+from scipy.stats import  f
 
 import rpy2.robjects as r
 from rpy2.robjects.packages import importr
