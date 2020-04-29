@@ -96,7 +96,7 @@ def mean_centroid( x ) :
 
 	return( [ np.nanmean( x.coord()[ 0 ] ) , np.nanmean( x.coord()[ 1 ] ) ] )
 
-def eccStats( t , rt , m0 = 1 , maxit = 20 ) :
+def eccStats( t , rt , m0 = 1 , c0 = 0 , maxit = 20 ) :
 
 	# compare if the eccentricity values compute in the region where the spot
 	# is quantified and in the surrounding region are falling on a line close to the 
@@ -106,11 +106,9 @@ def eccStats( t , rt , m0 = 1 , maxit = 20 ) :
 	y , _ = ecc( rt )
 
 	# remove possible nan and select only eccentricities smaller than the median
-	xn = [ x[ i ] for i in range( len( x ) ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) & ( x[ i ] <= np.nanmedian( x ) ) ) ]
+	xx = [ x[ i ] for i in range( len( x ) ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) & ( x[ i ] <= np.nanmedian( x ) ) ) ]
 	yy = [ y[ i ] for i in range( len( y ) ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) & ( x[ i ] <= np.nanmedian( x ) ) ) ]
 
-	xshift = c0 = np.median( xn ) #now that the ecc are shifted left, the excpected intercept ( c0 ) must be 1 * xshift + 0 
-	xx = [ xn[ i ] - xshift  for i in range( len( xn ) ) ]
 	# degree of freedom are n - 2 (m + c, two parameters to be fixed)
 	n = len( xx )
 	df = n - 2 
@@ -167,11 +165,7 @@ def eccStats( t , rt , m0 = 1 , maxit = 20 ) :
 
 		pf = F = np.nan
 
-	# estimate c' (ce) for the fitting of data not shifted by xshift using the y = m*x+c
-	ce = m * ( -xshift ) + c
-	sce = np.sqrt( ( -xshift * sm ) ** 2 + sc ** 2 )
-
-	return p_m , [ m , sm ] , p_c , [ ce , sce ] , pf
+	return p_m , [ m , sm ] , p_c , [ c , sc ] , pf
 
 def ichose( tt , rtt , image_shape, pval_m = 0.1 , pval_c = 0.1 , pval_F = 1 , maxit = 100 , d0 = 10 ) :
 
