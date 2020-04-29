@@ -9,8 +9,10 @@ from matplotlib.gridspec import GridSpec
 from trajalign.traj import Traj
 from skimage.external import tifffile as tiff
 from scipy.stats import  t as ttest
-from scipy.stats import norm , t , f 
 
+
+import rpy2.robjects as r
+from rpy2.robjects.packages import importr
 
 def split_pt( path_input , path_outputs , i0 = -1 , pattern = '%% Trajectory' ) :
 
@@ -251,32 +253,4 @@ def plot_traj( tt , f , what , ms = 30 , lw = 3 ) :
 				print( 'something' ) 
 				#es = eccStats( t , rt )
 				#plt.plot( es[ 0 ] , es[ 1 ] , 'o' , color = c , markersize = ms )
-
-def tmp_ecc( t ) :
-
-	# Computes the eccentricity of the trajectory t
-
-	u02 = t.u02()
-	u20 = t.u20()
-	u11 = t.u11()
-
-	N = len( u02 )
-
-	a = [ ( u02[i] + u20[i] ) / 2 for i in range( N ) ]
-	b = [ np.sqrt( (u20[i] - u02[i]) ** 2 + 4 * u11[i] ** 2 ) / 2 for i in range( N ) ]
-	
-	# eccentricity, ellipse radii:
-	l_1 = [ np.sqrt( a[i] + b[i] ) for i in range( N ) ]
-	l_2 = [ np.sqrt( a[i] - b[i] ) for i in range( N ) ]
-	
-	N = len( l_1 )
-	# ration between ellipse radii:
-	l_r = [ l_2[ i ] / l_1[ i ] for i in range( N ) ]
-	# eccentricity: (because of their above definitions l_2[ i ] < l_1[ i ] for each i)
-	e = [ np.sqrt( 1 - l_r[ i ] ) for i in range( N ) ] 
-
-	p =  norm.cdf( 0 , np.nanmean( e ) , np.nanstd( e ) )
-	
-	return l_1 , l_2 , e , p 
-
 
