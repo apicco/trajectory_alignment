@@ -166,7 +166,7 @@ def eccStats( t , rt , m0 = 1 , c0 = 0 , maxit = 20 ) :
 
 	return p_m , [ m , sm ] , p_c , [ c , sc ] , pf
 
-def ichose( tt , rtt , image_shape, pval_m = 0.1 , pval_c = 0.1 , pval_F = 1 , maxit = 50 , d0 = 10 ) :
+def ichose( tt , rtt , image_shape, pval_m = 0.1 , pval_c = 0.1 , pval_F = 1 , maxit = 100 , d0 = 10 ) :
 
 	# d0 sets the minimal distance from the image border
 	output_tt = []
