@@ -10,9 +10,11 @@ from trajalign.traj import Traj
 from skimage.external import tifffile as tiff
 from scipy.stats import  t as ttest
 
-
 import rpy2.robjects as r
 from rpy2.robjects.packages import importr
+
+MASS = importr( 'MASS' )
+base = importr( 'base' )
 
 def split_pt( path_input , path_outputs , i0 = -1 , pattern = '%% Trajectory' ) :
 
@@ -114,15 +116,21 @@ def eccStats( t , rt , m0 = 1 , c0 = 0 ) :
 	# the variance used to compute the SE over the estimates of m and c, which are then
 	# used to compute a t test
 	if n > 4 : #he number of data points must exceed order + 2 ( + 1? )
-		
-		fit = np.polyfit( xx , yy , 1 , cov = True )
 	
+		#load the variables in R to perform the fitting
+		r.globalenv[ "x" ] = r.FloatVector( xx )
+		r.globalenv[ "y" ] = r.FloatVector( yy )
+		
+		fmla = r.Formula('y ~ x')
+		rfit = MASS.rlm( fmla )
+
+		s = base.summary( rfit ).rx2( 'coefficients' )
 		# SE are computed according to the definition used in python with the divident (n - 2)
 		# in the hope that small trajectories are penalized
-		c = fit[ 0 ][ 1 ]
-		sc = np.sqrt( fit[ 1 ][ 1 , 1 ] )
-		m = fit[ 0 ][ 0 ]
-		sm = np.sqrt( fit[ 1 ][ 0 , 0 ] )
+		c = s[ 0 ]
+		m = s[ 1 ]
+		sc = s[ 2 ]
+		sm = s[ 3 ]
 	
 		# the t variables are
 		t_c = np.abs( ( c - c0 ) / sc )
