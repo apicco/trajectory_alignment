@@ -105,7 +105,7 @@ def eccStats( t , rt , m0 = 1 , c0 = 0 ) :
 	x , _ = ecc( t )
 	y , _ = ecc( rt )
 	
-	# remove possible nan
+	# remove possible nan and select only eccentricities smaller than the median
 	xx = [ x[ i ] for i in range( len( x ) ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) & ( x[ i ] <= np.nanmedian( x ) ) ) ]
 	yy = [ y[ i ] for i in range( len( y ) ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) & ( y[ i ] <= np.nanmedian( y ) ) ) ]
 
