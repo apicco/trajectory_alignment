@@ -147,7 +147,7 @@ def eccStats( t , rt , m0 = 1 , c0 = 0 , maxit = 20 ) :
 
 		p_m = p_c = m = sm = c = sc = np.nan
 	
-	# Also, perform an F-test to exclude that data are not correlated, with:
+	# Also, perform an F-test to exclude that data are not correlated, F-test parameters are:
 	p1 = 1
 	p2 = 2
 
