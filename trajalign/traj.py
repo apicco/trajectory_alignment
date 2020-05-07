@@ -1371,7 +1371,8 @@ class Traj:
 					t = re.search( str( self.frames()[ 0 ] ) + '.+' + str( self.coord()[ 0 ][ 0 ] ) + '.+' + str( self.coord()[ 1 ][ 0 ] ) , line )
 					
 					if t :
-
+						
+						found_dataset = True
 						self.annotations()[ 'dataset' ] = d
 						break
 
