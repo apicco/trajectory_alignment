@@ -1380,6 +1380,6 @@ class Traj:
 		# if the loop did not break by now, there was a problem 
 		if not found_dataset :
 			
-			raise TypeError( 'assign_datasetID has not found the trajectory in any dataset. Check that the  path is correct, or that the frame() and coord() defined in the trajectory match the definitions in the dataset.\n assign_dataseID was searching for the string: ' + self.frames()[ 0 ] ) + '.+' + str( self.coord()[ 0 ][ 0 ] ) + '.+' + str( self.coord()[ 1 ][ 0 ] ) )
+			raise TypeError( 'assign_datasetID has not found the trajectory in any dataset. Check that the  path is correct, or that the frame() and coord() defined in the trajectory match the definitions in the dataset.\n assign_dataseID was searching for the string: ' + str( self.frames()[ 0 ] ) + '.+' + str( self.coord()[ 0 ][ 0 ] ) + '.+' + str( self.coord()[ 1 ][ 0 ] ) )
 
 
