@@ -1366,8 +1366,7 @@ class Traj:
 
 				for line in f :
 
-					pattern = str( self.frames()[ 0 ] ) + '.+' + str( self.coord()[ 0 ][ 0 ] ) + '.+' + str( self.coord()[ 1 ][ 0 ] )
-					t = re.search( pattern , line )
+					t = re.search( str( self.frames()[ 0 ] ) + '.+' + str( self.coord()[ 0 ][ 0 ] ) + '.+' + str( self.coord()[ 1 ][ 0 ] ) , line )
 					
 					if t :
 
