@@ -1359,7 +1359,9 @@ class Traj:
 	def assign_datasetID( self , path , pattern = 'Traj' ) :
 
 		datasets =  [ f for f in os.listdir( path ) if pattern in f ] #list all the files in path that have pattern
-	
+
+		found_dataset = False
+
 		for d in datasets :
 
 			with open( path + '/' + d , 'r' ) as f :
@@ -1374,5 +1376,10 @@ class Traj:
 						break
 
 			f.close()
+
+		# if the loop did not break by now, there was a problem 
+		if not found_dataset :
+			
+			raise TypeError( 'assign_datasetID has not found the trajectory in any dataset. Check that the  path is correct, or that the frame() and coord() defined in the trajectory match the definitions in the dataset' )
 
 
