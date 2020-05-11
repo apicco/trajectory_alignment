@@ -7,7 +7,6 @@ from matplotlib import pyplot as plt
 from matplotlib.gridspec import GridSpec
 
 from trajalign.traj import Traj
-from skimage.external import tifffile as tiff
 from scipy.stats import  t as ttest
 from scipy.stats import  f
 
