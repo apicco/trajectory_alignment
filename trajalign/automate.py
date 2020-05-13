@@ -166,7 +166,20 @@ def eccStats( t , rt , m0 = 1 , c0 = 0 , maxit = 20 ) :
 
 	return p_m , [ m , sm ] , p_c , [ c , sc ] , pf
 
-def ichose( tt , rtt , image_shape, pval_m = 0.1 , pval_c = 0.1 , pval_F = 1 , maxit = 100 , d0 = 10 ) :
+def ichose( tt , rtt , image_shape, image_len, pval_m = 0.1 , pval_c = 0.1 , pval_F = 1 , maxit = 100 , d0 = 10 , t0 = 0 ) :
+	"""
+	ichose( tt , rtt , image_shape, image_len, pval_m = 0.1 , pval_c = 0.1 , pval_F = 1 , maxit = 100 , d0 = 10 , t0 = 0 )
+	select the trajectories in the trajectory list 'tt' whose spots have eccentricities that do not change if measured in
+	a larger region around the spot. These eccentricity values are inputed through the trajectory list 'rtt'. 
+	- image_shape, define the shape of the image so that d0 (see below) can be used
+	- image_len, define the length of the image so that t0 (see below) can be used
+	- pval_m and pval_c define the cutoffs on the t-tests on the interpolation of the eccentricities. The higher the pvalues, the 
+	more stringent the spot selection
+	- pval_F, deprecated
+	- maxit, max number of iterations in rlm (R)
+	- d0, the region on the image border where trajectories are rejected by default (too close to the image edges)
+	- t0, trajectories starting before frame t0 and ending after frame image_len - t0 - 1 are rejected
+	"""
 
 	# d0 sets the minimal distance from the image border
 	output_tt = []
@@ -190,21 +203,23 @@ def ichose( tt , rtt , image_shape, pval_m = 0.1 , pval_c = 0.1 , pval_F = 1 , m
 			if ( ( mc[ 0 ] > d0 ) & ( mc[ 1 ] > d0 ) ) :
 				
 				if ( ( mc[ 0 ] < ( image_shape[ 0 ] -  d0 ) ) & ( mc[ 1 ] < ( image_shape[ 1 ] - d0 ) ) ) :
-				
-					# annotations useful to check selection parameters
-					tt[ i ].annotations( 'eccentricity_m' , str( m[ 0 ] ) )
-					tt[ i ].annotations( 'eccentricity_c' , str( c[ 0 ] ) )
-					
-					tt[ i ].annotations( 'eccentricity_pval_m' , str( pm ) )
-					tt[ i ].annotations( 'eccentricity_pval_c' , str( pc ) )
-					tt[ i ].annotations( 'eccentricity_pval_F' , str( pf ) )
 
-					tt[ i ].annotations( 'threshold_pval_m' , str( pval_m ) )
-					tt[ i ].annotations( 'threshold_pval_c' , str( pval_c ) )
-					tt[ i ].annotations( 'threshold_pval_F' , str( pval_F ) )
+					if ( ( tt[ i ].frames( 0 ) > t0 ) & ( tt[ i ].frames( len( tt[ i ] ) - 1 ) < image_len - 1 - t0 ) ) :
 					
-					output_tt.append( tt[ i ] )
-					output_rtt.append( rtt[ i ] )
+						# annotations useful to check selection parameters
+						tt[ i ].annotations( 'eccentricity_m' , str( m[ 0 ] ) )
+						tt[ i ].annotations( 'eccentricity_c' , str( c[ 0 ] ) )
+						
+						tt[ i ].annotations( 'eccentricity_pval_m' , str( pm ) )
+						tt[ i ].annotations( 'eccentricity_pval_c' , str( pc ) )
+						tt[ i ].annotations( 'eccentricity_pval_F' , str( pf ) )
+	
+						tt[ i ].annotations( 'threshold_pval_m' , str( pval_m ) )
+						tt[ i ].annotations( 'threshold_pval_c' , str( pval_c ) )
+						tt[ i ].annotations( 'threshold_pval_F' , str( pval_F ) )
+						
+						output_tt.append( tt[ i ] )
+						output_rtt.append( rtt[ i ] )
 
 	return output_tt , output_rtt
 
