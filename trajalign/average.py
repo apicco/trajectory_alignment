@@ -34,7 +34,7 @@ def header( version = 1.90 , year = 2020 , printit = True ) :
 		raise AttributeError('Please, if you want to print the header (printit = True) or if you want to return the verion number only (printit = False).')
 
 
-def load_directory(path , pattern = '.txt' , sep = None , comment_char = '#' , dt = None , t_unit = '' , coord_unit = '' , intensity_normalisation = 'None' , **attrs ):
+def load_directory(path , pattern = '.txt' , sep = None , comment_char = '#' , dt = None , t_unit = '' , coord_unit = '' , intensity_normalisation = 'None' , fill_trajectory = True , **attrs ):
 
 	"""
 	load_directory(path , pattern = '.txt' , sep = None , comment_char = '#' , dt = None , t_unit = '' , coord_unit = '' , intensity_normalisation = 'None' , **attrs ):
@@ -50,6 +50,7 @@ def load_directory(path , pattern = '.txt' , sep = None , comment_char = '#' , d
 	If the time interval is added (and 't' is not called in the **attrs) 
 	then the time column 't' is added, and the 't_unit' can be set.
 	If 'coord' is called then the unit must be added.
+	fill_trajectory = True (default) fills missing frames with nan
 	"""
 
 	if ('coord' in attrs.keys()) & (len(coord_unit) == 0): 
@@ -92,7 +93,7 @@ def load_directory(path , pattern = '.txt' , sep = None , comment_char = '#' , d
 			raise AttributeError( "load_directory: Please, choose a value for the variable intensity_normalisation between 'None' (no normalisation, default), 'Integral' (normalise over the integral of the fluorescence intensity), or 'Absolute' (normalise the fluorescence intensity values between 0 and 1)" )
 
 		trajectory.annotations( 'intensity_normalisation' , intensity_normalisation )
-		trajectory.fill()
+		if fill_trajectory : trajectory.fill()
 		trajectories.append(trajectory)
 	
 	print( "\n >> load_directory: The 'intensity_normalisation' applied to the trajectories is '" + intensity_normalisation + "' <<\n" )
