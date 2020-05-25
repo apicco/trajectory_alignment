@@ -108,63 +108,9 @@ def eccStats( t , rt , m0 = 1 , c0 = 0 , maxit = 20 ) :
 	xx = [ x[ i ] for i in range( len( x ) ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) & ( x[ i ] <= np.nanmedian( x ) ) ) ]
 	yy = [ y[ i ] for i in range( len( y ) ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) & ( x[ i ] <= np.nanmedian( x ) ) ) ]
 
-	# degree of freedom are n - 2 (m + c, two parameters to be fixed)
-	n = len( xx )
-	df = n - 2 
+	chisq = sum( [ ( yy[ i ] - xx[ i ] ) **2 / xx[ i ] for i in range( len( xx ) ) ] )
 
-	# linear regression of order 1, output covariance matrix whose diagonal elements are
-	# the variance used to compute the SE over the estimates of m and c, which are then
-	# used to compute a t test
-	if n > 4 : #he number of data points must exceed order + 2 ( + 1? )
-	
-		#load the variables in R to perform the fitting
-		r.globalenv[ "x" ] = r.FloatVector( xx )
-		r.globalenv[ "y" ] = r.FloatVector( yy )
-		
-		fmla = r.Formula('y ~ x')
-		rfit = MASS.rlm( fmla , maxit = maxit )
-
-		s = base.summary( rfit ).rx2( 'coefficients' )
-		# SE are computed according to the definition used in python with the divident (n - 2)
-		# in the hope that small trajectories are penalized TODO: double check that's true now
-		# that I use rpy2 (R)
-		c = s[ 0 ]
-		m = s[ 1 ]
-		sc = s[ 2 ] * n / df
-		sm = s[ 3 ] * n / df
-	
-		# the t variables are
-		t_c = np.abs( ( c - c0 ) / sc )
-		t_m = np.abs( ( m - m0 ) / sm )
-	
-		# the p values, testing the H0 that the data are sufficiently described by the simple model defined
-		# by the parameters m0 and c0 rather than by the one from the interpolation.
-		p_c = 1 - ttest.cdf( t_c , df ) + ttest.cdf( -t_c , df )
-		p_m = 1 - ttest.cdf( t_m , df ) + ttest.cdf( -t_m , df )
-
-	else : 
-
-		p_m = p_c = m = sm = c = sc = np.nan
-	
-	# Also, perform an F-test to exclude that data are not correlated, F-test parameters are:
-	p1 = 1
-	p2 = 2
-
-	rs1 = [ ( yy[ i ] - np.mean( xx[ i ] ) ) ** 2 for i in range( n ) ]
-	rss1 = sum( rs1 )
-	rs2 = [ ( yy[ i ] - m * xx[ i ] - c ) ** 2 for i in range( n ) ] # predicted y is x, because the model function is y = x 
-	rss2 = sum( rs2 )
-
-	if   n > 2 :
-	
-		F = ( ( rss1 - rss2 ) / ( p2 - p1 ) ) / ( rss2 / ( n - p2 ) )
-		pf = 1 - f.cdf( F , p2 - p1 , n - p2 )
-
-	else :
-
-		pf = F = np.nan
-
-	return p_m , [ m , sm ] , p_c , [ c , sc ] , pf
+	return chisq
 
 def ichose( tt , rtt , image_shape, image_len, pval_m = 0.1 , pval_c = 0.1 , pval_F = 1 , maxit = 100 , d0 = 10 , t0 = 0 ) :
 	"""

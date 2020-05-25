@@ -1259,7 +1259,7 @@ class Traj:
 				self.annotations(a,attrs[a])	
 			else :
 				raise AttributeError(a+' has been already annotated as: '+self._annotations[a])
-		
+
 	def fill(self):
 		"""
 		fill() fills attributes of missing frames with Nan
