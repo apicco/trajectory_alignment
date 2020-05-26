@@ -8,7 +8,7 @@ from matplotlib.gridspec import GridSpec
 
 from trajalign.traj import Traj
 from scipy.stats import  t as ttest
-from scipy.stats import  f
+from scipy.stats import  f , chi2
 
 import rpy2.robjects as r
 from rpy2.robjects.packages import importr
@@ -105,12 +105,12 @@ def eccStats( t , rt , m0 = 1 , c0 = 0 , maxit = 20 ) :
 	y , _ = ecc( rt )
 
 	# remove possible nan and select only eccentricities smaller than the median
-	xx = [ x[ i ] for i in range( len( x ) ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) & ( x[ i ] <= np.nanmedian( x ) ) ) ]
-	yy = [ y[ i ] for i in range( len( y ) ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) & ( x[ i ] <= np.nanmedian( x ) ) ) ]
+	xx = [ x[ i ] for i in range( len( x ) ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) ) ] #& ( x[ i ] <= np.nanmedian( x ) ) ) ]
+	yy = [ y[ i ] for i in range( len( y ) ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) ) ] #& ( x[ i ] <= np.nanmedian( x ) ) ) ]
 
-	chisq = sum( [ ( yy[ i ] - xx[ i ] ) **2 / xx[ i ] for i in range( len( xx ) ) ] )
+	chi = sum( [ ( yy[ i ] - xx[ i ] ) ** 2 / xx[ i ] for i in range( len( xx ) ) ] )
 
-	return chisq
+	return chi2.cdf( chi , len( xx ) )
 
 def ichose( tt , rtt , image_shape, image_len, pval_m = 0.1 , pval_c = 0.1 , pval_F = 1 , maxit = 100 , d0 = 10 , t0 = 0 ) :
 	"""
