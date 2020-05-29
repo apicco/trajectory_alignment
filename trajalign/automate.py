@@ -95,7 +95,75 @@ def mean_centroid( x ) :
 
 	return( [ np.nanmean( x.coord()[ 0 ] ) , np.nanmean( x.coord()[ 1 ] ) ] )
 
-def eccStats( t , rt , m0 = 1 , c0 = 0 , maxit = 20 ) :
+def intervals( x , y ) : 
+
+	# compute the number of observed (O) and expected (E) counts in equally spaced
+	# bins that span the ecentricity range covered by the eccentricities x and y.
+	# Intervals are maximised to have a better description of the distribution of x
+	# and y, but they are constrained to have at least 5 counts in eacy for the chisp
+	# accuracy. Note that this condition imposes a strong constrain on the number of
+	# bins and could be relaxed by having bins of unequal size (TODO). To work well
+	# this algorithm implies that there are a lot of timepoints in the trajectories, 
+	# therefore a lot of counts that can be well distributed in small bins. 
+
+	# remove nan if any
+	xx = [ x[ i ] for i in range( len( x ) ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) & ( x[ i ] <= np.nanmedian( x ) ) ) ]
+	yy = [ y[ i ] for i in range( len( y ) ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) & ( x[ i ] <= np.nanmedian( x ) ) ) ]
+	
+	l = len( xx ) 
+	if len( yy ) != l :
+		raise AttributeError( 'intervals: x and y number of not nan values differs' )
+
+	# start with a bin large that contains the whole dataset.
+	O = [ l ]
+	E = [ l ]
+	n = 1
+
+	# until there are more than 5 elements in each bin, reduce the bin size equally
+	while ( min( E ) > 5 ) :
+
+		O_old = O
+		E_old = E
+		O = []
+		E = []
+		n = n + 1 
+		ints = [ max( xx + yy ) * i / n  for i in range( 0 , n + 1) ]
+		for  j in range( n ) :
+
+			if j == n - 1 : 
+				E.append( len( [ xx[ i ] for i in range( l ) if ( ( xx[ i ] >= ints[ j ] ) & ( xx[ i ] <= ints[ j + 1 ] ) ) ] ) )
+				O.append( len( [ yy[ i ] for i in range( l ) if ( ( yy[ i ] >= ints[ j ] ) & ( yy[ i ] <= ints[ j + 1 ] ) ) ] ) )
+			else :
+				E.append( len( [ xx[ i ] for i in range( l ) if ( ( xx[ i ] >= ints[ j ] ) & ( xx[ i ] < ints[ j + 1 ] ) ) ] ) )
+				O.append( len( [ yy[ i ] for i in range( l ) if ( ( yy[ i ] >= ints[ j ] ) & ( yy[ i ] < ints[ j + 1 ] ) ) ] ) )
+		print( E )
+		print( O )
+		print( '---------------' )
+
+	# if there was only one iteration of the while loop then relax the constraint of
+	# having at least 5 elements in each bin and use 2 bins. If there were more than
+	# one iteration of the while loop, then n will be greater than 2. In this case 
+	# save the last O and E before the while loop was exited, i.e. O_old and E_old
+	if n > 2 : return O_old , E_old , n - 1  	
+	else : return O , E , n
+
+def chi2test( O , E , n , v = 0 ) :
+	"""
+	chisqu( O , E , n , v = 1 ) coputes the chi squared statistics on the number of 
+	(O)bserved VS (E)xpected counts. n is the number of bins and (v) is the number of 
+	constrains. Default is v = 0. 
+	"""
+	
+	l = len( O )
+	if len( E ) != l :
+		raise AttributeError( 'chisq: O and E numbers differ' )
+
+	chi  = sum( [ ( O[ i ] - E[ i ] ) ** 2 / np.sqrt( E[ i ] ) for i in range( l ) ] )
+	df = n - v 
+
+	return 1 - chi2.cdf( chi , df ) , chi , df
+
+def eccStats( t , rt ) :
 
 	# compare if the eccentricity values compute in the region where the spot
 	# is quantified and in the surrounding region are falling on a line close to the 
@@ -104,13 +172,10 @@ def eccStats( t , rt , m0 = 1 , c0 = 0 , maxit = 20 ) :
 	x , _ = ecc( t )
 	y , _ = ecc( rt )
 
-	# remove possible nan and select only eccentricities smaller than the median
-	xx = [ x[ i ] for i in range( len( x ) ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) ) ] #& ( x[ i ] <= np.nanmedian( x ) ) ) ]
-	yy = [ y[ i ] for i in range( len( y ) ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) ) ] #& ( x[ i ] <= np.nanmedian( x ) ) ) ]
+	O , E , n = intervals( x , y )
+	p , _ , _ = chi2test( O , E , n )
 
-	chi = sum( [ ( yy[ i ] - xx[ i ] ) ** 2 / xx[ i ] for i in range( len( xx ) ) ] )
-
-	return chi2.cdf( chi , len( xx ) )
+	return p
 
 def ichose( tt , rtt , image_shape, image_len, pval_m = 0.1 , pval_c = 0.1 , pval_F = 1 , maxit = 100 , d0 = 10 , t0 = 0 ) :
 	"""
