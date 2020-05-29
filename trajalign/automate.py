@@ -98,6 +98,12 @@ def mean_centroid( x ) :
 
 def intervals( x , y , n_min = 5 ) : 
 
+	l = len( x )
+
+	if len( y ) != l :
+	
+		raise AttributeError( 'intervals: x and y number of not nan values differs' )
+
 	# compute the number of observed (O) and expected (E) counts in equally spaced
 	# bins that span the ecentricity range covered by the eccentricities x and y.
 	# Intervals are maximised to have a better description of the distribution of x
@@ -105,25 +111,24 @@ def intervals( x , y , n_min = 5 ) :
 	# accuracy. 
 
 	# remove nan if any
-	xx = [ x[ i ] for i in range( len( x ) ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) & ( x[ i ] <= np.nanmedian( x ) ) ) ]
-	yy = [ y[ i ] for i in range( len( y ) ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) & ( x[ i ] <= np.nanmedian( x ) ) ) ]
+	xx = [ x[ i ] for i in range( l ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) & ( x[ i ] <= np.nanmedian( x ) ) ) ]
+	yy = [ y[ i ] for i in range( l ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) & ( x[ i ] <= np.nanmedian( x ) ) ) ]
 
-	l = len( xx ) 
-	if len( yy ) != l :
-		raise AttributeError( 'intervals: x and y number of not nan values differs' )
+	ll = len( xx )
 
 	n = 1
 
+	#
 	while n == 1 :
 
 		# get the id k of the xx elements that are n_min elements apart.
 		# this will define the bin intervals.
-		k = [ i for i in range( 0 , l , n_min ) ]
+		k = [ i for i in range( 0 , ll , n_min ) ]
 		# if between the last id k and the end of xx there are less than
 		# n_min elemnts, merge the last two bins by popping out the last
 		# id k 
-		if len( range( k[ -1 ] , l ) ) < n_min : k.pop()
-		k.append( l - 1 ) # add the last element
+		if len( range( k[ -1 ] , ll ) ) < n_min : k.pop()
+		k.append( ll - 1 ) # add the last element
 	
 		# reverse xx, it is more important to have an accurate description
 		# of the larger eccentricity values rather than the small ones. 
