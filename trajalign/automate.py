@@ -96,7 +96,7 @@ def mean_centroid( x ) :
 
 	return( [ np.nanmean( x.coord()[ 0 ] ) , np.nanmean( x.coord()[ 1 ] ) ] )
 
-def intervals( x , y , n_min = 5 ) : 
+def intervals( x , y , delta_e = 0.5 , E_min = 5 ) : 
 
 	l = len( x )
 
@@ -104,63 +104,85 @@ def intervals( x , y , n_min = 5 ) :
 	
 		raise AttributeError( 'intervals: x and y number of not nan values differs' )
 
-	# compute the number of observed (O) and expected (E) counts in equally spaced
-	# bins that span the ecentricity range covered by the eccentricities x and y.
+	# compute the number of observed (O) and expected (E) counts in bins defined by delta_e.
+	# These bins span the ecentricity range covered by the eccentricities x and y.
 	# Intervals are maximised to have a better description of the distribution of x
-	# and y, but they are constrained to have at least 5 counts in eacy for the chisp
-	# accuracy. 
+	# and y, by the choice of delta_e. However, they are constrained to have at least 
+	# 5 counts each for the chisq accuracy. Neighbour bins with small counts are merged
+	# together.
 
 	# remove nan if any
 	xx = [ x[ i ] for i in range( l ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) & ( x[ i ] <= np.nanmedian( x ) ) ) ]
 	yy = [ y[ i ] for i in range( l ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) & ( x[ i ] <= np.nanmedian( x ) ) ) ]
 
-	ll = len( xx )
+	r = [ min( xx + yy ) , max( xx + yy ) ] # range of eccentricity values
 
-	n = 1
+	# create the intervals in the range of values defined by r
+	ints = r[ 0 ]
+	while ints[ -1 ] < r[ 1 ] :
+		ints.append( ints[ -1 ] + delta_e )
 
-	#
-	while n == 1 :
-
-		# get the id k of the xx elements that are n_min elements apart.
-		# this will define the bin intervals.
-		k = [ i for i in range( 0 , ll , n_min ) ]
-		# if between the last id k and the end of xx there are less than
-		# n_min elemnts, merge the last two bins by popping out the last
-		# id k 
-		if len( range( k[ -1 ] , ll ) ) < n_min : k.pop()
-		k.append( ll - 1 ) # add the last element
-	
-		# reverse xx, it is more important to have an accurate description
-		# of the larger eccentricity values rather than the small ones. 
-		# These can be grouped together if the last id k has been popped out. 
-		xx.sort( reverse = True )
-		ints = [ xx[ i ] for i in k ]
-	
-		O = []
-		E = []
-	
-		for i in range( len( ints ) - 1 ) :
-			
-			if i == 0 :
-	
-				E.append( len( [ x for x in xx if ( ( x <= ints[ i ] ) & ( x >= ints[ i + 1 ] ) ) ] ) )
-				O.append( len( [ y for y in yy if ( ( y <= ints[ i ] ) & ( y >= ints[ i + 1 ] ) ) ] ) )
-	
-			elif i == len( ints ) - 1 :
-	
-				E.append( len( [ x for x in xx if ( ( x < ints[ i ] ) & ( x >= ints[ i + 1 ] ) ) ] ) )
-				O.append( len( [ y for y in yy if ( ( y < ints[ i ] ) & ( y >= ints[ i + 1 ] ) ) ] ) )
-	
-			else : 
-	
-				E.append( len( [ x for x in xx if ( ( x < ints[ i ] ) & ( x >= ints[ i + 1 ] ) ) ] ) )
-				O.append( len( [ y for y in yy if ( ( y < ints[ i ] ) & ( y >= ints[ i + 1 ] ) ) ] ) )
+	# count the Expected and Observed counts in each interval
+	for i in range( len( ints ) - 1 ) :
 		
-		n = len( E )
-		if n == 1 : 
+		if i == 0 :
 
-			print( "Warning for intervals: only one interval for n_min = " + str( n_min ) + ". I am reducing n_min, consider inputing trajectories with more datapoints" )
-			n_min = n_min - 1
+			E.append( len( [ x for x in xx if ( ( x >= ints[ i ] ) & ( x <= ints[ i + 1 ] ) ) ] ) )
+			O.append( len( [ y for y in yy if ( ( y >= ints[ i ] ) & ( y <= ints[ i + 1 ] ) ) ] ) )
+
+		elif i == len( ints ) - 1 :
+
+			E.append( len( [ x for x in xx if ( ( x > ints[ i ] ) & ( x <= ints[ i + 1 ] ) ) ] ) )
+			O.append( len( [ y for y in yy if ( ( y > ints[ i ] ) & ( y <= ints[ i + 1 ] ) ) ] ) )
+
+		else : 
+
+			E.append( len( [ x for x in xx if ( ( x > ints[ i ] ) & ( x <= ints[ i + 1 ] ) ) ] ) )
+			O.append( len( [ y for y in yy if ( ( y > ints[ i ] ) & ( y <= ints[ i + 1 ] ) ) ] ) )
+
+	# if there are Expected counts smaller than Emin group those interval with the neighbour interval.
+	while min( E ) < E_min :
+
+		EE = []
+		OO = []
+		
+		e = o = 0
+
+		for i in range( len( E ) ) :
+			
+			e = e + E[ i ]
+			o = o + O[ i ]
+
+		    if i == len( E ) - 1 :
+				
+				if e < 5 :
+
+					EE[-1] = EE[-1] + e
+					OO[-1] = OO[-1] + o
+				
+				else :
+					
+					EE.append( e )
+					OO.append( o )
+			
+			elif e < 5 :
+				
+				continue
+			
+			else :
+
+				EE.append( e )
+				OO.append( o )
+				e = o = 0
+
+		E = EE
+		O = OO
+
+	n = len( E )
+
+	if n == 1 : 
+
+		print( "Warning from intervals: only one interval with <= " + str( E_min ) + " expected observations. Consider inputing trajectories with more datapoints" )
 
 	return O , E , n
 
