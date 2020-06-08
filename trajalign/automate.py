@@ -96,7 +96,7 @@ def mean_centroid( x ) :
 
 	return( [ np.nanmean( x.coord()[ 0 ] ) , np.nanmean( x.coord()[ 1 ] ) ] )
 
-def intervals( x , y , delta_e = 0.5 , E_min = 5 ) : 
+def intervals( x , y , delta_e , E_min = 5 ) : 
 
 	l = len( x )
 
@@ -112,17 +112,20 @@ def intervals( x , y , delta_e = 0.5 , E_min = 5 ) :
 	# together.
 
 	# remove nan if any
-	xx = [ x[ i ] for i in range( l ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) & ( x[ i ] <= np.nanmedian( x ) ) ) ]
-	yy = [ y[ i ] for i in range( l ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) & ( x[ i ] <= np.nanmedian( x ) ) ) ]
+	xx = [ x[ i ] for i in range( l ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) ) ] # & ( x[ i ] <= np.nanmedian( x ) ) ) ]
+	yy = [ y[ i ] for i in range( l ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) ) ] # & ( x[ i ] <= np.nanmedian( x ) ) ) ]
 
 	r = [ min( xx + yy ) , max( xx + yy ) ] # range of eccentricity values
 
 	# create the intervals in the range of values defined by r
-	ints = r[ 0 ]
+	ints = []
+	ints.append( r[ 0 ] )
 	while ints[ -1 ] < r[ 1 ] :
 		ints.append( ints[ -1 ] + delta_e )
 
 	# count the Expected and Observed counts in each interval
+	E = []
+	O = []
 	for i in range( len( ints ) - 1 ) :
 		
 		if i == 0 :
@@ -152,8 +155,8 @@ def intervals( x , y , delta_e = 0.5 , E_min = 5 ) :
 			
 			e = e + E[ i ]
 			o = o + O[ i ]
-
-		    if i == len( E ) - 1 :
+			
+			if i == len( E ) - 1 :
 				
 				if e < 5 :
 
@@ -186,11 +189,11 @@ def intervals( x , y , delta_e = 0.5 , E_min = 5 ) :
 
 	return O , E , n
 
-def chi2test( O , E , n , v = 0 ) :
+def chi2test( O , E , n , v ) :
 	"""
 	chisqu( O , E , n , v = 0 ) coputes the chi squared statistics on the number of 
 	(O)bserved VS (E)xpected counts. n is the number of bins and (v) is the number of 
-	constrains. Default is v = 0. 
+	constrains. 
 	"""
 	
 	l = len( O )
@@ -208,7 +211,7 @@ def chi2test( O , E , n , v = 0 ) :
 
 	return p , chi , df
 
-def eccStats( t , rt ) :
+def eccStats( t , rt , delta_e = 0.1 , v = 0 ) :
 
 	# compare if the eccentricity values compute in the region where the spot
 	# is quantified and in the surrounding region are falling on a line close to the 
@@ -217,12 +220,12 @@ def eccStats( t , rt ) :
 	x , _ = ecc( t )
 	y , _ = ecc( rt )
 
-	O , E , n = intervals( x , y )
-	p , _ , _ = chi2test( O , E , n )
+	O , E , n = intervals( x , y , delta_e = delta_e )
+	p , _ , _ = chi2test( O , E , n , v = v )
 
 	return p
 
-def ichose( tt , rtt , image_shape, image_len, pval_m = 0.1 , pval_c = 0.1 , pval_F = 1 , maxit = 100 , d0 = 10 , t0 = 0 ) :
+def ichose( tt , rtt , image_shape, image_len, pval_m = 0.1 , pval_c = 0.1 , pval_F = 1 , d0 = 10 , t0 = 0 ) :
 	"""
 	ichose( tt , rtt , image_shape, image_len, pval_m = 0.1 , pval_c = 0.1 , pval_F = 1 , maxit = 100 , d0 = 10 , t0 = 0 )
 	select the trajectories in the trajectory list 'tt' whose spots have eccentricities that do not change if measured in
@@ -249,7 +252,7 @@ def ichose( tt , rtt , image_shape, image_len, pval_m = 0.1 , pval_c = 0.1 , pva
 
 	for i in range( l ) :
 
-		pm , m , pc , c , pf = eccStats( tt[ i ] , rtt[ i ] , maxit = maxit )
+		pm , m , pc , c , pf = eccStats( tt[ i ] , rtt[ i ] )
 
 		"The H0 is that the data are well described by "
 		if ( ( pm > pval_m ) & ( pc > pval_c ) & ( pf < pval_F ) ) : 
