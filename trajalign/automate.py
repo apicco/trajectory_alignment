@@ -98,12 +98,6 @@ def mean_centroid( x ) :
 
 def intervals( x , y , delta_e , E_min = 5 ) : 
 
-	l = len( x )
-
-	if len( y ) != l :
-	
-		raise AttributeError( 'intervals: x and y number of not nan values differs' )
-
 	# compute the number of observed (O) and expected (E) counts in bins defined by delta_e.
 	# These bins span the ecentricity range covered by the eccentricities x and y.
 	# Intervals are maximised to have a better description of the distribution of x
@@ -111,17 +105,27 @@ def intervals( x , y , delta_e , E_min = 5 ) :
 	# 5 counts each for the chisq accuracy. Neighbour bins with small counts are merged
 	# together.
 
-	# remove nan if any
-	xx = [ x[ i ] for i in range( l ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) ) ] # & ( x[ i ] <= np.nanmedian( x ) ) ) ]
-	yy = [ y[ i ] for i in range( l ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) ) ] # & ( x[ i ] <= np.nanmedian( x ) ) ) ]
+	# remove nan if any and perform a log transform on the distribution of observed and expected values
+	l = len( x )
+	xx = [ np.log( x[ i ] ) for i in range( l ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) ) ] # & ( x[ i ] <= np.nanmedian( x ) ) ) ]
+	yy = [ np.log( y[ i ] ) for i in range( l ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) ) ] # & ( x[ i ] <= np.nanmedian( x ) ) ) ]
 
-	r = [ min( xx + yy ) , max( xx + yy ) ] # range of eccentricity values
+	if len( yy ) != len( xx ) :
+		raise AttributeError( 'intervals: x and y number of not nan values differs' )
 
-	# create the intervals in the range of values defined by r
-	ints = []
-	ints.append( r[ 0 ] )
-	while ints[ -1 ] < r[ 1 ] :
-		ints.append( ints[ -1 ] + delta_e )
+#DEPRECATED	r = [ min( xx + yy ) , max( xx + yy ) ] # range of eccentricity values
+#DEPRECATED
+#DEPRECATED	# create the intervals in the range of values defined by r
+#DEPRECATED	if delta_e != delta_e :
+#DEPRECATED		delta_e = ( r[ 1 ] - r[ 0 ] ) / 5 
+#DEPRECATED	
+#DEPRECATED	ints = []
+#DEPRECATED	ints.append( r[ 0 ] )
+#DEPRECATED	while ints[ -1 ] < r[ 1 ] :
+#DEPRECATED		ints.append( ints[ -1 ] + delta_e )
+
+	# use Freedman-Diaconis to find the intervals starting from the Observed yy
+	ints = np.histogram_bin_edges( yy , bins = 'fd' )
 
 	# count the Expected and Observed counts in each interval
 	E = []
@@ -144,12 +148,12 @@ def intervals( x , y , delta_e , E_min = 5 ) :
 			O.append( len( [ y for y in yy if ( ( y > ints[ i ] ) & ( y <= ints[ i + 1 ] ) ) ] ) )
 
 	# if there are Expected counts smaller than Emin group those interval with the neighbour interval.
-	while min( E ) < E_min :
-
-		EE = []
-		OO = []
-		
-		e = o = 0
+	while ( ( min( E ) < E_min ) & ( len( E ) > 1 ) ) :		# it can happen that there are no values in
+															# the bins identified by the observed values 
+		EE = []												# yy, if so, all E will be 0 and will be 
+		OO = []												# groued into one E = [ 0 ] bin. At this 
+															# point the while loop can stop, hence the 
+		e = o = 0											# condition len( E ) > 1 
 
 		for i in range( len( E ) ) :
 			
@@ -158,7 +162,7 @@ def intervals( x , y , delta_e , E_min = 5 ) :
 			
 			if i == len( E ) - 1 :
 				
-				if e < 5 :
+				if e < E_min :
 
 					EE[-1] = EE[-1] + e
 					OO[-1] = OO[-1] + o
@@ -168,7 +172,7 @@ def intervals( x , y , delta_e , E_min = 5 ) :
 					EE.append( e )
 					OO.append( o )
 			
-			elif e < 5 :
+			elif e < E_min :
 				
 				continue
 			
@@ -211,7 +215,7 @@ def chi2test( O , E , n , v ) :
 
 	return p , chi , df
 
-def eccStats( t , rt , delta_e = 0.1 , v = 0 ) :
+def eccStats( t , rt , delta_e = np.nan , v = 0 ) :
 
 	# compare if the eccentricity values compute in the region where the spot
 	# is quantified and in the surrounding region are falling on a line close to the 
@@ -219,6 +223,7 @@ def eccStats( t , rt , delta_e = 0.1 , v = 0 ) :
 	# the correlation between the eccentricities (i.e. the spot needs to be kept).
 	x , _ = ecc( t )
 	y , _ = ecc( rt )
+
 
 	O , E , n = intervals( x , y , delta_e = delta_e )
 	p , _ , _ = chi2test( O , E , n , v = v )
