@@ -96,33 +96,26 @@ def mean_centroid( x ) :
 
 	return( [ np.nanmean( x.coord()[ 0 ] ) , np.nanmean( x.coord()[ 1 ] ) ] )
 
-def intervals( x , y , delta_e , E_min = 5 ) : 
+def intervals( x , y , E_min = 5 ) : 
 
-	# compute the number of observed (O) and expected (E) counts in bins defined by delta_e.
-	# These bins span the ecentricity range covered by the eccentricities x and y.
-	# Intervals are maximised to have a better description of the distribution of x
-	# and y, by the choice of delta_e. However, they are constrained to have at least 
-	# 5 counts each for the chisq accuracy. Neighbour bins with small counts are merged
-	# together.
+	# compute the number of observed (O) and expected (E) counts in bins defined by
+	#						np.histogram_bin_edges
+	# These bins span the ecentricity range covered by the observed eccentricities y.
+	# Bins are constrained to have at least 5 counts each for the chisq accuracy. 
+	# Neighbour bins with small counts are merged together. It can happen that the
+	# number of bins n is smaller than the recommended number of 4. However, there are 
+	# no constrains on E and O, which technically allows n = 1. Obviously, the chisq 
+	# accuracy will be extremely poor. Acquire movies with shorter exposure times to 
+	# counter that.
 
 	# remove nan if any and perform a log transform on the distribution of observed and expected values
 	l = len( x )
+	
 	xx = [ np.log( x[ i ] ) for i in range( l ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) ) ] # & ( x[ i ] <= np.nanmedian( x ) ) ) ]
 	yy = [ np.log( y[ i ] ) for i in range( l ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) ) ] # & ( x[ i ] <= np.nanmedian( x ) ) ) ]
 
 	if len( yy ) != len( xx ) :
 		raise AttributeError( 'intervals: x and y number of not nan values differs' )
-
-#DEPRECATED	r = [ min( xx + yy ) , max( xx + yy ) ] # range of eccentricity values
-#DEPRECATED
-#DEPRECATED	# create the intervals in the range of values defined by r
-#DEPRECATED	if delta_e != delta_e :
-#DEPRECATED		delta_e = ( r[ 1 ] - r[ 0 ] ) / 5 
-#DEPRECATED	
-#DEPRECATED	ints = []
-#DEPRECATED	ints.append( r[ 0 ] )
-#DEPRECATED	while ints[ -1 ] < r[ 1 ] :
-#DEPRECATED		ints.append( ints[ -1 ] + delta_e )
 
 	# use Freedman-Diaconis to find the intervals starting from the Observed yy
 	ints = np.histogram_bin_edges( yy , bins = 'auto' )
@@ -209,24 +202,29 @@ def chi2test( O , E , n , v ) :
 
 	p = 1 - chi2.cdf( chi , df )
 
-	print( E )
-	print( O )
-	print( p )
-
 	return p , chi , df
 
-def eccStats( t , rt , delta_e = np.nan , v = 0 ) :
+def eccStats( t , rt , v = 0 , fimax = True ) :
 
 	# compare if the eccentricity values compute in the region where the spot
 	# is quantified and in the surrounding region are falling on a line close to the 
 	# diagonal: y = m0 * x + c0. The H0 is that y = m0 * x + c0 is sufficient to describe 
 	# the correlation between the eccentricities (i.e. the spot needs to be kept).
-	x , _ = ecc( t )
-	y , _ = ecc( rt )
+	if fimax :
+		x , _ = ecc( t.fimax() )
+		y , _ = ecc( rt.fimax() )
+	else :
+		x , _ = ecc( t )
+		y , _ = ecc( rt )
 
 
-	O , E , n = intervals( x , y , delta_e = delta_e )
+	O , E , n = intervals( x , y )
 	p , _ , _ = chi2test( O , E , n , v = v )
+
+	print( '-- ' + t.annotations()[ 'file' ] + ' --' )
+	print( 'Observed counts (O): ' + str( O ) )
+	print( 'Expected counts (E): ' + str( E ) )
+	print( 'p-value: ' + str( p ) )
 
 	return p
 
