@@ -204,7 +204,7 @@ def chi2test( O , E , n , v ) :
 	return p , chi , df
 
 def eccStats( t , rt , v = 1 , fimax = True , plot = False ) :
-	
+
 	filename = t.annotations()[ 'file' ]
 
 	# compare if the eccentricity values compute in the region where the spot
@@ -231,6 +231,7 @@ def eccStats( t , rt , v = 1 , fimax = True , plot = False ) :
 	print( 'Observed counts (O): ' + str( O ) )
 	print( 'Expected counts (E): ' + str( E ) )
 	print( 'Intervals (I) : ' + str( i ) )
+	print( 'Constrains (v) : ' + str( v ) )
 	print( '-> p-value: ' + str( p ) )
 
 	if plot :
