@@ -125,7 +125,7 @@ def intervals( x , y , delta_e , E_min = 5 ) :
 #DEPRECATED		ints.append( ints[ -1 ] + delta_e )
 
 	# use Freedman-Diaconis to find the intervals starting from the Observed yy
-	ints = np.histogram_bin_edges( yy , bins = 'fd' )
+	ints = np.histogram_bin_edges( yy , bins = 'auto' )
 
 	# count the Expected and Observed counts in each interval
 	E = []
@@ -162,11 +162,11 @@ def intervals( x , y , delta_e , E_min = 5 ) :
 			
 			if i == len( E ) - 1 :
 				
-				if e < E_min :
-
-					EE[-1] = EE[-1] + e
-					OO[-1] = OO[-1] + o
-				
+				if ( ( e < E_min ) & ( len( EE ) > 0 ) ) :	# if all e were smaller than E_min, no value
+															# has been appended to EE, hence EE[-1] does 
+					EE[-1] = EE[-1] + e						# not exist. In this case, skip this option
+					OO[-1] = OO[-1] + o						# append what is in e to EE (next else), and
+															# exit the while loop ( len( E ) == 1 )
 				else :
 					
 					EE.append( e )
