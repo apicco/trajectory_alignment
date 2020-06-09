@@ -111,74 +111,82 @@ def intervals( xx , yy , E_min = 5 ) :
 	if len( yy ) != len( xx ) :
 		raise AttributeError( 'intervals: x and y number of not nan values differs' )
 
-	# use Freedman-Diaconis to find the intervals starting from the Observed yy
-	ints = np.histogram_bin_edges( yy , bins = 'auto' )
+	# use hist auto bins to find the intervals I starting from the Observed yy
+	I = np.histogram_bin_edges( xx + yy , bins = 'auto' )
 
 	# count the Expected and Observed counts in each interval
 	E = []
 	O = []
-	for i in range( len( ints ) - 1 ) :
+	for i in range( len( I ) - 1 ) :
 		
 		if i == 0 :
 
-			E.append( len( [ x for x in xx if ( ( x >= ints[ i ] ) & ( x <= ints[ i + 1 ] ) ) ] ) )
-			O.append( len( [ y for y in yy if ( ( y >= ints[ i ] ) & ( y <= ints[ i + 1 ] ) ) ] ) )
+			E.append( len( [ x for x in xx if ( ( x >= I[ i ] ) & ( x <= I[ i + 1 ] ) ) ] ) )
+			O.append( len( [ y for y in yy if ( ( y >= I[ i ] ) & ( y <= I[ i + 1 ] ) ) ] ) )
 
-		elif i == len( ints ) - 1 :
+		elif i == len( I ) - 1 :
 
-			E.append( len( [ x for x in xx if ( ( x > ints[ i ] ) & ( x <= ints[ i + 1 ] ) ) ] ) )
-			O.append( len( [ y for y in yy if ( ( y > ints[ i ] ) & ( y <= ints[ i + 1 ] ) ) ] ) )
+			E.append( len( [ x for x in xx if ( ( x > I[ i ] ) & ( x <= I[ i + 1 ] ) ) ] ) )
+			O.append( len( [ y for y in yy if ( ( y > I[ i ] ) & ( y <= I[ i + 1 ] ) ) ] ) )
 
 		else : 
 
-			E.append( len( [ x for x in xx if ( ( x > ints[ i ] ) & ( x <= ints[ i + 1 ] ) ) ] ) )
-			O.append( len( [ y for y in yy if ( ( y > ints[ i ] ) & ( y <= ints[ i + 1 ] ) ) ] ) )
+			E.append( len( [ x for x in xx if ( ( x > I[ i ] ) & ( x <= I[ i + 1 ] ) ) ] ) )
+			O.append( len( [ y for y in yy if ( ( y > I[ i ] ) & ( y <= I[ i + 1 ] ) ) ] ) )
 
 	# if there are Expected counts smaller than Emin group those interval with the neighbour interval.
 	while ( ( min( E ) < E_min ) & ( len( E ) > 1 ) ) :		# it can happen that there are no values in
 															# the bins identified by the observed values 
 		EE = []												# yy, if so, all E will be 0 and will be 
 		OO = []												# groued into one E = [ 0 ] bin. At this 
-															# point the while loop can stop, hence the 
-		e = o = 0											# condition len( E ) > 1 
+		II = [ I[ 0 ] ]										# point the while loop can stop, hence the 
+															# condition len( E ) > 1 
+		e = o = 0
+		print( E )
 
 		for i in range( len( E ) ) :
 			
 			e = e + E[ i ]
 			o = o + O[ i ]
 			
+			print( i )
+			print( e )
 			if i == len( E ) - 1 :
 				
 				if ( ( e < E_min ) & ( len( EE ) > 0 ) ) :	# if all e were smaller than E_min, no value
 															# has been appended to EE, hence EE[-1] does 
 					EE[-1] = EE[-1] + e						# not exist. In this case, skip this option
 					OO[-1] = OO[-1] + o						# append what is in e to EE (next else), and
-															# exit the while loop ( len( E ) == 1 )
+					II[-1] = I[ i + 1 ]						# exit the while loop ( len( E ) == 1 )
+
 				else :
 					
 					EE.append( e )
 					OO.append( o )
+					II.append( I[ i + 1 ] )
 			
 			elif e < E_min :
 				
 				continue
 			
 			else :
-
+				
 				EE.append( e )
 				OO.append( o )
+				II.append( I[ i + 1 ] )
 				e = o = 0
 
 		E = EE
 		O = OO
-
+		I = II
+		
 	n = len( E )
 
 	if n == 1 : 
 
-		print( "Warning from intervals: only one interval with <= " + str( E_min ) + " expected observations. Consider inputing trajectories with more datapoints" )
+		print( "Warning from intervals: only one interval with <= " + str( E_min ) + " expected observations. Consider inputing trajectories with more datapoI" )
 
-	return O , E , n
+	return O , E , n , I
 
 def chi2test( O , E , n , v ) :
 	"""
@@ -191,14 +199,14 @@ def chi2test( O , E , n , v ) :
 	if len( E ) != l :
 		raise AttributeError( 'chisq: O and E numbers differ' )
 
-	chi  = sum( [ ( O[ i ] - E[ i ] ) ** 2 / np.sqrt( E[ i ] ) for i in range( l ) ] )
+	chi  = sum( [ ( O[ i ] - E[ i ] ) ** 2 / E[ i ] for i in range( l ) ] )
 	df = n - v 
 
 	p = 1 - chi2.cdf( chi , df )
 
 	return p , chi , df
 
-def eccStats( t , rt , v = 0 , fimax = True , plot = False ) :
+def eccStats( t , rt , v = 1 , fimax = True , plot = False ) :
 	
 	filename = t.annotations()[ 'file' ]
 
@@ -219,13 +227,14 @@ def eccStats( t , rt , v = 0 , fimax = True , plot = False ) :
 	yy = [ np.log( y[ i ] ) for i in range( l ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) ) ] # & ( x[ i ] <= np.nanmedian( x ) ) ) ]
 
 
-	O , E , n = intervals( xx , yy )
+	O , E , n , i = intervals( xx , yy )
 	p , _ , _ = chi2test( O , E , n , v = v )
 
 	print( '-- ' + filename + ' --' )
 	print( 'Observed counts (O): ' + str( O ) )
 	print( 'Expected counts (E): ' + str( E ) )
-	print( 'p-value: ' + str( p ) )
+	print( 'Intervals (I) : ' + str( i ) )
+	print( '-> p-value: ' + str( p ) )
 
 	if plot :
 		
@@ -234,20 +243,25 @@ def eccStats( t , rt , v = 0 , fimax = True , plot = False ) :
 			
 		plt.figure( figsize = ( 12 , 5 ) )
 	
+		plt.subplot( 121 )
 		plt.title( filename ) 
-		
-		plt.subplot( 211 )
 		plt.plot( xx , yy , marker = 'o' , ls = '' )
 		plt.plot( xx , xx , ls = '-' )
-		plt.xlabel( r'$\epsilon$' )
-		plt.ylabel( r'$\epsilon_r$' )
+		plt.xlabel( r'$\log(\epsilon)$' )
+		plt.ylabel( r'$\log(\epsilon_r)$' )
 
-		plt.subplot( 212 )
-		plt.hist( xx , label = r'$\epsilon$' , alpha = 0.5 )
-		plt.hist( yy ,  label = r'$\epsilon_r$' , alpha = 0.5 )
-		plt.xlabel( r'$\epsilon$' )
+		plt.subplot( 122 )
+		plt.title( r'$p(\chi^2 > \chi^2_0)=$' + str( round( p , 3 ) ) + '; ' + r'$n=$' + str( n ) + '; ' + r'$df=$' + str( n - v ) )
+		plt.hist( xx , label = 'Expected (E): ' + r'$\log(\epsilon)$' , alpha = 0.5 , color = '#00ff00' )
+		plt.hist( yy ,  label = 'Observed (O): ' + r'$\log(\epsilon_r)$' , alpha = 0.5 , color = '#ff0000' )
+		plt.bar( i[1:] , E , width = [ i[j-1] - i[j] for j in range( 1 , len( i ) ) ] , align = 'edge' , color = 'none' , edgecolor = '#00ff00' ) 
+		plt.bar( i[1:] , O , width = [ i[j-1] - i[j] for j in range( 1 , len( i ) ) ] , align = 'edge' , color = 'none' , edgecolor = '#ff0000' , ls = '--' ) 
+		plt.legend()
+		plt.xlabel( r'$\log(\epsilon)$' )
+		plt.ylabel( 'Density' )
 		
 		plt.savefig( 'Plots/' + filename[:-4] + '.pdf' )
+		plt.close()
 
 	return p
 
