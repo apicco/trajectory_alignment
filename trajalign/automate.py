@@ -142,15 +142,12 @@ def intervals( xx , yy , E_min = 5 ) :
 		II = [ I[ 0 ] ]										# point the while loop can stop, hence the 
 															# condition len( E ) > 1 
 		e = o = 0
-		print( E )
 
 		for i in range( len( E ) ) :
 			
 			e = e + E[ i ]
 			o = o + O[ i ]
 			
-			print( i )
-			print( e )
 			if i == len( E ) - 1 :
 				
 				if ( ( e < E_min ) & ( len( EE ) > 0 ) ) :	# if all e were smaller than E_min, no value
