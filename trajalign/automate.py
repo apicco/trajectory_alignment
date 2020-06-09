@@ -96,7 +96,7 @@ def mean_centroid( x ) :
 
 	return( [ np.nanmean( x.coord()[ 0 ] ) , np.nanmean( x.coord()[ 1 ] ) ] )
 
-def intervals( x , y , E_min = 5 ) : 
+def intervals( xx , yy , E_min = 5 ) : 
 
 	# compute the number of observed (O) and expected (E) counts in bins defined by
 	#						np.histogram_bin_edges
@@ -107,12 +107,6 @@ def intervals( x , y , E_min = 5 ) :
 	# no constrains on E and O, which technically allows n = 1. Obviously, the chisq 
 	# accuracy will be extremely poor. Acquire movies with shorter exposure times to 
 	# counter that.
-
-	# remove nan if any and perform a log transform on the distribution of observed and expected values
-	l = len( x )
-	
-	xx = [ np.log( x[ i ] ) for i in range( l ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) ) ] # & ( x[ i ] <= np.nanmedian( x ) ) ) ]
-	yy = [ np.log( y[ i ] ) for i in range( l ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) ) ] # & ( x[ i ] <= np.nanmedian( x ) ) ) ]
 
 	if len( yy ) != len( xx ) :
 		raise AttributeError( 'intervals: x and y number of not nan values differs' )
@@ -204,7 +198,9 @@ def chi2test( O , E , n , v ) :
 
 	return p , chi , df
 
-def eccStats( t , rt , v = 0 , fimax = True ) :
+def eccStats( t , rt , v = 0 , fimax = True , plot = False ) :
+	
+	filename = t.annotations()[ 'file' ]
 
 	# compare if the eccentricity values compute in the region where the spot
 	# is quantified and in the surrounding region are falling on a line close to the 
@@ -217,14 +213,41 @@ def eccStats( t , rt , v = 0 , fimax = True ) :
 		x , _ = ecc( t )
 		y , _ = ecc( rt )
 
+	# remove nan if any and perform a log transform on the distribution of observed and expected values
+	l = len( x )
+	xx = [ np.log( x[ i ] ) for i in range( l ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) ) ] # & ( x[ i ] <= np.nanmedian( x ) ) ) ]
+	yy = [ np.log( y[ i ] ) for i in range( l ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) ) ] # & ( x[ i ] <= np.nanmedian( x ) ) ) ]
 
-	O , E , n = intervals( x , y )
+
+	O , E , n = intervals( xx , yy )
 	p , _ , _ = chi2test( O , E , n , v = v )
 
-	print( '-- ' + t.annotations()[ 'file' ] + ' --' )
+	print( '-- ' + filename + ' --' )
 	print( 'Observed counts (O): ' + str( O ) )
 	print( 'Expected counts (E): ' + str( E ) )
 	print( 'p-value: ' + str( p ) )
+
+	if plot :
+		
+		if not os.path.exists( 'Plots' ) :
+			os.makedirs( 'Plots' )
+			
+		plt.figure( figsize = ( 12 , 5 ) )
+	
+		plt.title( filename ) 
+		
+		plt.subplot( 211 )
+		plt.plot( xx , yy , marker = 'o' , ls = '' )
+		plt.plot( xx , xx , ls = '-' )
+		plt.xlabel( r'$\epsilon$' )
+		plt.ylabel( r'$\epsilon_r$' )
+
+		plt.subplot( 212 )
+		plt.hist( xx , label = r'$\epsilon$' , alpha = 0.5 )
+		plt.hist( yy ,  label = r'$\epsilon_r$' , alpha = 0.5 )
+		plt.xlabel( r'$\epsilon$' )
+		
+		plt.savefig( 'Plots/' + filename[:-4] + '.pdf' )
 
 	return p
 
