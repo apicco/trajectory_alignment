@@ -261,6 +261,10 @@ def eccStats( t , rt , v = 1 , fimax = True , plot = False ) :
 		plt.savefig( 'Plots/' + filename[:-4] + '.pdf' )
 		plt.close()
 
+	if p != p :
+		
+		p = 0
+
 	return p
 
 def ichose( tt , rtt , image_shape, image_len, pval_m = 0.1 , pval_c = 0.1 , pval_F = 1 , d0 = 10 , t0 = 0 ) :
