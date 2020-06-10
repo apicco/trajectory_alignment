@@ -181,7 +181,7 @@ def intervals( xx , yy , E_min = 5 ) :
 
 	if n == 1 : 
 
-		print( "Warning from intervals: only one interval with <= " + str( E_min ) + " expected observations. Consider inputing trajectories with more datapoI" )
+		print( "Warning from intervals: only one interval with <= " + str( E_min ) + " expected observations. Consider inputing trajectories with more datapoints" )
 
 	return O , E , n , I
 
