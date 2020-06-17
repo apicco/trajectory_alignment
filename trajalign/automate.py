@@ -113,6 +113,7 @@ def intervals( xx , yy , E_min = 5 ) :
 
 	# use hist auto bins to find the intervals I starting from the Observed yy
 	I = np.histogram_bin_edges( xx + yy , bins = 'auto' )
+	#I = np.histogram_bin_edges( xx , bins = 'auto' )
 
 	# count the Expected and Observed counts in each interval
 	E = []
@@ -195,15 +196,21 @@ def chi2test( O , E , n , v ) :
 	l = len( O )
 	if len( E ) != l :
 		raise AttributeError( 'chisq: O and E numbers differ' )
-
-	chi  = sum( [ ( O[ i ] - E[ i ] ) ** 2 / E[ i ] for i in range( l ) ] )
+	
 	df = n - v 
-
-	p = 1 - chi2.cdf( chi , df )
+	try :
+	
+		chi  = sum( [ ( O[ i ] - E[ i ] ) ** 2 / E[ i ] for i in range( l ) ] )
+		p = 1 - chi2.cdf( chi , df )
+	
+	except :
+		
+		chi = np.nan
+		p = 0 
 
 	return p , chi , df
 
-def eccStats( t , rt , v = 1 , fimax = True , plot = False ) :
+def eccStats( t , rt , v = 1 , fimax = True , plot = False , verbose = True ) :
 
 	filename = t.annotations()[ 'file' ]
 
@@ -222,17 +229,31 @@ def eccStats( t , rt , v = 1 , fimax = True , plot = False ) :
 	l = len( x )
 	xx = [ np.log( x[ i ] ) for i in range( l ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) ) ] # & ( x[ i ] <= np.nanmedian( x ) ) ) ]
 	yy = [ np.log( y[ i ] ) for i in range( l ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) ) ] # & ( x[ i ] <= np.nanmedian( x ) ) ) ]
-
+	
+	#xx = [ x[ i ] for i in range( l ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) ) ] # & ( x[ i ] <= np.nanmedian( x ) ) ) ]
+	#yy = [ y[ i ] for i in range( l ) if ( ( x[ i ] == x[ i ] ) & ( y[ i ] == y[ i ] ) ) ] # & ( x[ i ] <= np.nanmedian( x ) ) ) ]
 
 	O , E , n , i = intervals( xx , yy )
+
+	if v == 1 : # constrain the sum( E ) == sum( O )
+		
+		if ( ( sum( E ) > 0 ) & ( sum( O ) > 0 ) ):
+		
+			E_constrained = [ E[ i ] * sum( O ) / sum( E ) for i in range( len( E ) ) ]
+			E = E_constrained
+
+		# else keept the E and O unchanged, no Expected or Observed values in the binning range cannot be changed.
+		
 	p , _ , _ = chi2test( O , E , n , v = v )
 
-	print( '-- ' + filename + ' --' )
-	print( 'Observed counts (O): ' + str( O ) )
-	print( 'Expected counts (E): ' + str( E ) )
-	print( 'Intervals (I) : ' + str( i ) )
-	print( 'Constrains (v) : ' + str( v ) )
-	print( '-> p-value: ' + str( p ) )
+	if verbose :
+	
+		print( '-- ' + filename + ' --' )
+		print( 'Observed counts (O): ' + str( O ) )
+		print( 'Expected counts (E): ' + str( E ) )
+		print( 'Intervals (I) : ' + str( i ) )
+		print( 'Constrains (v) : ' + str( v ) )
+		print( '-> p-value: ' + str( p ) )
 
 	if plot :
 		
@@ -261,7 +282,7 @@ def eccStats( t , rt , v = 1 , fimax = True , plot = False ) :
 		plt.savefig( 'Plots/' + filename[:-4] + '.pdf' )
 		plt.close()
 
-	if p != p :
+	if p != p : # convert nan pvalues to 0 pvalues
 		
 		p = 0
 
