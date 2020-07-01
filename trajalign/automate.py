@@ -36,7 +36,7 @@ def split_pt( path_input , path_outputs , i0 = -1 , pattern = '%% Trajectory' ) 
 
 			if i >= 0 :
 
-				with open( path_outputs + '/trajectory_%06d' % i + '.txt' , 'w' ) as g :
+				with open( path_outputs + '/trajectory_%06d' % i + '.txt' , 'a' ) as g :
 
 					g.write( line ) 
 
@@ -267,7 +267,7 @@ def eccStats( t , rt , v = 1 , fimax = True , plot = False , verbose = True ) :
 		plt.figure( figsize = ( 12 , 5 ) )
 	
 		plt.subplot( 121 )
-		plt.title( filename + '; ' + r'$R=$' + str( r ) ) 
+		plt.title( filename + '; ' + r'$R=$' + str( round( r , 3 ) ) ) 
 		plt.plot( xx , yy , marker = 'o' , ls = '' )
 		plt.plot( xx , xx , ls = '-' )
 		plt.xlabel( r'$\log(\epsilon)$' )
@@ -392,6 +392,4 @@ def plot_traj( tt , f , what , ms = 30 , lw = 3 ) :
 			else :
 		
 				print( 'something' ) 
-				#es = eccStats( t , rt )
-				#plt.plot( es[ 0 ] , es[ 1 ] , 'o' , color = c , markersize = ms )
 
