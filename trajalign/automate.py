@@ -36,7 +36,7 @@ def split_pt( path_input , path_outputs , i0 = -1 , pattern = '%% Trajectory' ) 
 
 			if i >= 0 :
 
-				with open( path_outputs + '/trajectory_%06d' % i + '.txt' , 'a' ) as g :
+				with open( path_outputs + '/trajectory_%06d' % i + '.txt' , 'w' ) as g :
 
 					g.write( line ) 
 
