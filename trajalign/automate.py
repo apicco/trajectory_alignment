@@ -8,8 +8,7 @@ from matplotlib import pyplot as plt
 from matplotlib.gridspec import GridSpec
 
 from trajalign.traj import Traj
-from scipy.stats import  t as ttest
-from scipy.stats import  f , chi2
+from scipy.stats import chi2 , linregress
 
 import rpy2.robjects as r
 from rpy2.robjects.packages import importr
@@ -245,6 +244,10 @@ def eccStats( t , rt , v = 1 , fimax = True , plot = False , verbose = True ) :
 		# else keept the E and O unchanged, no Expected or Observed values in the binning range cannot be changed.
 		
 	p , _ , _ = chi2test( O , E , n , v = v )
+	
+	# compute the regression coefficient
+	_ , _ , r , _ , _ = linregress( xx , yy )
+
 
 	if verbose :
 	
@@ -254,6 +257,7 @@ def eccStats( t , rt , v = 1 , fimax = True , plot = False , verbose = True ) :
 		print( 'Intervals (I) : ' + str( i ) )
 		print( 'Constrains (v) : ' + str( v ) )
 		print( '-> p-value: ' + str( p ) )
+		print( '-> R: ' + str( r ) )
 
 	if plot :
 		
@@ -263,7 +267,7 @@ def eccStats( t , rt , v = 1 , fimax = True , plot = False , verbose = True ) :
 		plt.figure( figsize = ( 12 , 5 ) )
 	
 		plt.subplot( 121 )
-		plt.title( filename ) 
+		plt.title( filename + '; ' + r'$R=$' + str( r ) ) 
 		plt.plot( xx , yy , marker = 'o' , ls = '' )
 		plt.plot( xx , xx , ls = '-' )
 		plt.xlabel( r'$\log(\epsilon)$' )
@@ -285,25 +289,25 @@ def eccStats( t , rt , v = 1 , fimax = True , plot = False , verbose = True ) :
 	if p != p : # convert nan pvalues to 0 pvalues
 		
 		p = 0
+	
+	return p , r 
 
-	return p
-
-def ichose( tt , rtt , image_shape, image_len, pval_m = 0.1 , pval_c = 0.1 , pval_F = 1 , d0 = 10 , t0 = 0 ) :
+def ichose( tt , rtt , image_shape, image_len, pval = 0.05 , r_min = 0.5 , d0 = 10 , f0 = 0 , plot = True , fimax = True , verbose = True , v = 1 ) :
 	"""
-	ichose( tt , rtt , image_shape, image_len, pval_m = 0.1 , pval_c = 0.1 , pval_F = 1 , maxit = 100 , d0 = 10 , t0 = 0 )
+	ichose( tt , rtt , image_shape, image_len, maxit = 100 , d0 = 10 , f0 = 0 )
 	select the trajectories in the trajectory list 'tt' whose spots have eccentricities that do not change if measured in
 	a larger region around the spot. These eccentricity values are inputed through the trajectory list 'rtt'. 
 	- image_shape, define the shape of the image so that d0 (see below) can be used
-	- image_len, define the length of the image so that t0 (see below) can be used
-	- pval_m and pval_c define the cutoffs on the t-tests on the interpolation of the eccentricities. The higher the pvalues, the 
+	- image_len, define the length of the image so that f0 (see below) can be used
 	more stringent the spot selection
-	- pval_F, deprecated
 	- maxit, max number of iterations in rlm (R)
 	- d0, the region on the image border where trajectories are rejected by default (too close to the image edges)
-	- t0, trajectories starting before frame t0 and ending after frame image_len - t0 - 1 are rejected
+	- f0, trajectories starting before frame f0 and ending after frame image_len - f0 - 1 are rejected
 	"""
 
 	# d0 sets the minimal distance from the image border
+
+	# define the list of selected trajectories that will be outputed
 	output_tt = []
 	output_rtt = []
 
@@ -315,10 +319,9 @@ def ichose( tt , rtt , image_shape, image_len, pval_m = 0.1 , pval_c = 0.1 , pva
 
 	for i in range( l ) :
 
-		pm , m , pc , c , pf = eccStats( tt[ i ] , rtt[ i ] )
+		p , r = eccStats( tt[ i ] , rtt[ i ] , plot = plot , fimax = fimax , verbose = verbose , v = v )
 
-		"The H0 is that the data are well described by "
-		if ( ( pm > pval_m ) & ( pc > pval_c ) & ( pf < pval_F ) ) : 
+		if ( ( p > pval ) & ( r > r_min ) ) : 
 
 			mc = mean_centroid( tt[ i ] )
 
@@ -326,20 +329,12 @@ def ichose( tt , rtt , image_shape, image_len, pval_m = 0.1 , pval_c = 0.1 , pva
 				
 				if ( ( mc[ 0 ] < ( image_shape[ 0 ] -  d0 ) ) & ( mc[ 1 ] < ( image_shape[ 1 ] - d0 ) ) ) :
 
-					if ( ( tt[ i ].frames( 0 ) > t0 ) & ( tt[ i ].frames( len( tt[ i ] ) - 1 ) < image_len - 1 - t0 ) ) :
+					if ( ( tt[ i ].frames( 0 ) > f0 ) & ( tt[ i ].frames( len( tt[ i ] ) - 1 ) < image_len - 1 - f0 ) ) :
 					
 						# annotations useful to check selection parameters
-						tt[ i ].annotations( 'eccentricity_m' , str( m[ 0 ] ) )
-						tt[ i ].annotations( 'eccentricity_c' , str( c[ 0 ] ) )
-						
-						tt[ i ].annotations( 'eccentricity_pval_m' , str( pm ) )
-						tt[ i ].annotations( 'eccentricity_pval_c' , str( pc ) )
-						tt[ i ].annotations( 'eccentricity_pval_F' , str( pf ) )
+						tt[ i ].annotations( 'eccentricity_pval' , str( p ) )
+						tt[ i ].annotations( 'eccentricity_R' , str( r ) )
 	
-						tt[ i ].annotations( 'threshold_pval_m' , str( pval_m ) )
-						tt[ i ].annotations( 'threshold_pval_c' , str( pval_c ) )
-						tt[ i ].annotations( 'threshold_pval_F' , str( pval_F ) )
-						
 						output_tt.append( tt[ i ] )
 						output_rtt.append( rtt[ i ] )
 
