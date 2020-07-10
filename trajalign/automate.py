@@ -16,9 +16,10 @@ from rpy2.robjects.packages import importr
 MASS = importr( 'MASS' )
 base = importr( 'base' )
 
-def split_pt( path_input , path_outputs , i0 = -1 , pattern = '%% Trajectory' ) :
+def split_pt( path_input , path_outputs , i0 = 0 , pattern = '%% Trajectory' ) :
 
 	i = i0
+	writing = False 
 
 	with open( path_input , 'r' ) as f :
 
@@ -26,19 +27,19 @@ def split_pt( path_input , path_outputs , i0 = -1 , pattern = '%% Trajectory' ) 
 			
 			if pattern in line :
 
-				if ( i >= 0 ) & ( i0 == -1 ) : #then there is already a g open (see following lines). i0 not == -1 if there are already some files and the indexing has to start higher.
-
+				if writing :
+					# there is already a file opened, then close it
 					g.close()
-
-				i = i + 1
-
-				i0 = -1 #i0 is restored to be -1, if it is not, so that from next iteration the g will be closed
-
-			if i >= 0 :
 
 				with open( path_outputs + '/trajectory_%06d' % i + '.txt' , 'a' ) as g :
 
 					g.write( line ) 
+					
+					writing = True
+					i = i + 1
+
+			else :
+				g.write( line )
 
 	return i 
 					
