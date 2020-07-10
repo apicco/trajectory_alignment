@@ -24,19 +24,19 @@ def split_pt( path_input , path_outputs , i0 = 0 , pattern = '%% Trajectory' ) :
 	with open( path_input , 'r' ) as f :
 
 		for line in f :
-			
+
 			if pattern in line :
 
 				if writing :
 					# there is already a file opened, then close it
 					g.close()
 
-				with open( path_outputs + '/trajectory_%06d' % i + '.txt' , 'a' ) as g :
+				g = open( path_outputs + '/trajectory_%06d' % i + '.txt' , 'a' )
 
-					g.write( line ) 
+				g.write( line ) 
 					
-					writing = True
-					i = i + 1
+				writing = True
+				i = i + 1
 
 			elif writing :
 				g.write( line )
