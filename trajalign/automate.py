@@ -320,7 +320,6 @@ def ichose( tt , rtt , image_shape, image_len, pval = 0.05 , r_min = 0.5 , d0 = 
 
 	for i in range( l ) :
 
-		selected = False
 		p , r = eccStats( tt[ i ] , rtt[ i ] , plot = plot , fimax = fimax , verbose = verbose , v = v )
 
 		if ( ( p > pval ) & ( r > r_min ) ) : 
@@ -338,10 +337,7 @@ def ichose( tt , rtt , image_shape, image_len, pval = 0.05 , r_min = 0.5 , d0 = 
 						tt[ i ].annotations( 'eccentricity_R' , str( r ) )
 	
 						output_tt.append( tt[ i ] )
-						selected = True
-		
-		if not selected :
-			output_rtt.append( rtt[ i ] )
+						output_rtt.append( rtt[ i ] )
 
 	return output_tt , output_rtt
 
