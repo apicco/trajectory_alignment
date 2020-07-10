@@ -38,7 +38,7 @@ def split_pt( path_input , path_outputs , i0 = 0 , pattern = '%% Trajectory' ) :
 					writing = True
 					i = i + 1
 
-			else :
+			elif writing :
 				g.write( line )
 
 	return i 
