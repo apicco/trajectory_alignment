@@ -343,8 +343,8 @@ def ichose( tt , rtt , image_shape, image_len, pval = 0.05 , r_min = 0.5 , d0 = 
 		else :
 
 			# append bad trajectory
-			output_good_tt.append( tt[ i ] )
-			output_good_rtt.append( rtt[ i ] )
+			output_bad_tt.append( tt[ i ] )
+			output_bad_rtt.append( rtt[ i ] )
 
 	if output_rtt :
 		
