@@ -293,7 +293,7 @@ def eccStats( t , rt , v = 1 , fimax = True , plot = False , verbose = True ) :
 	
 	return p , r 
 
-def ichose( tt , rtt , image_shape, image_len, pval = 0.05 , r_min = 0.5 , d0 = 10 , f0 = 0 , plot = True , fimax = True , verbose = True , v = 1 ) :
+def ichose( tt , rtt , image_shape, image_len, pval = 0.05 , r_min = 0.5 , d0 = 10 , f0 = 0 , plot = True , fimax = True , verbose = True , v = 1 , output_rtt = False ) :
 	"""
 	ichose( tt , rtt , image_shape, image_len, maxit = 100 , d0 = 10 , f0 = 0 )
 	select the trajectories in the trajectory list 'tt' whose spots have eccentricities that do not change if measured in
@@ -306,11 +306,11 @@ def ichose( tt , rtt , image_shape, image_len, pval = 0.05 , r_min = 0.5 , d0 = 
 	- f0, trajectories starting before frame f0 and ending after frame image_len - f0 - 1 are rejected
 	"""
 
-	# d0 sets the minimal distance from the image border
-
 	# define the list of selected trajectories that will be outputed
-	output_tt = []
-	output_rtt = []
+	output_good_tt = [] # selected trajectory list
+	output_good_rtt = [] # selected trajectory list with excentricities in larger r
+	output_bad_tt = [] # rejected trajectory list
+	output_bad_rtt = [] # rejected trajectory list with excentricities in larger r
 
 	l = len( tt ) 
 
@@ -335,11 +335,25 @@ def ichose( tt , rtt , image_shape, image_len, pval = 0.05 , r_min = 0.5 , d0 = 
 						# annotations useful to check selection parameters
 						tt[ i ].annotations( 'eccentricity_pval' , str( p ) )
 						tt[ i ].annotations( 'eccentricity_R' , str( r ) )
-	
-						output_tt.append( tt[ i ] )
-						output_rtt.append( rtt[ i ] )
 
-	return output_tt , output_rtt
+						# append good trajectory
+						output_good_tt.append( tt[ i ] )
+						output_good_rtt.append( rtt[ i ] )
+		
+		else :
+
+			# append bad trajectory
+			output_good_tt.append( tt[ i ] )
+			output_good_rtt.append( rtt[ i ] )
+
+	if output_rtt :
+		
+		return output_good_tt , output_good_rtt , output_bad_tt , output_bad_rtt
+
+	else : # default
+		
+		return output_good_tt , output_bad_tt
+
 
 def save_directory( tt , directory_path ) :
 	"""
