@@ -799,7 +799,7 @@ class Traj:
 
 	def center_mass(self):
 		"""
-		center_mass(): centers the trajectory on its center of mass
+		center_mass(): outputs the trajectory center of mass
 		"""
 
 		return( array( [ nanmean( self._coord[0,] ), nanmean( self._coord[1,] ) ] ))
