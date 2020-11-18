@@ -186,7 +186,8 @@ class Traj:
 			output = '#'
 			for s in self.__slots__[1:]:
 				x = getattr(self,s)
-				if (x.shape[x.ndim-1] > 0):
+				# old, deprecated because not all attributes are to be represented in a table <- if (x.shape[x.ndim-1] > 0):
+				if (x.shape[x.ndim-1] == len( self ) ):
 					if s in ('_coord','_coord_err'):
 						#x coord
 						table.append(x[0])
