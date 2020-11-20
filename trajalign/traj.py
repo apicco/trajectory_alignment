@@ -666,7 +666,6 @@ class Traj:
 		"""
 		if ('_'+name in self.__slots__[1:]):
 
-			print( 'I am here' ) 
 			if ((name=='frames') & (len(self._t)==0)):
 				#copute the extent of gaps between frames (in general it is >= 1). If a 
 				#gap is negative it means that the chronological order of the frames
