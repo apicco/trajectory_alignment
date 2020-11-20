@@ -130,7 +130,7 @@ class Traj:
 
 		"""
 	
-	__slots__ = ['_annotations','_frames','_t','_coord','_f','_mol','_n','_m2', '_m3' , '_m4' , '_m5' , '_u02' , '_u20' , '_u11' , '_t_err','_coord_err','_f_err','_mol_err' , '_m2_err' , '_m3_err', '_m4_err', '_m5_err', '_u02_err', '_u20_err', '_u11_err' ]
+	__slots__ = ['_annotations','_frames','_t','_coord','_f','_mol','_n','_m2', '_m3' , '_m4' , '_m5' , '_u02' , '_u20' , '_u11' , '_ecc' , '_t_err','_coord_err','_f_err','_mol_err' , '_m2_err' , '_m3_err', '_m4_err', '_m5_err', '_u02_err', '_u20_err', '_u11_err' ]
 	
 
 	def __init__(self,**annotations):
@@ -150,6 +150,7 @@ class Traj:
 		self._u02 = array([],dtype='float64') # second moment of brightness along y 
 		self._u20 = array([],dtype='float64') #	second moment of brightness along x
 		self._u11 = array([],dtype='float64') # covariance brightness 
+		self._ecc = array([],dtype='float64') # trajectory eccentricity
 
 		#Trajectory error attributes
 		self._t_err = array([],dtype='float64')
@@ -492,6 +493,16 @@ class Traj:
 			except IndexError:
 				print('Indexes in Traj().u11_err are out of bounds')
 
+	def ecc(self,*items):
+		if (len(items)==0): return self._ecc
+		elif len(items) == 1 : return self._ecc[ items ]
+		else: 
+			try:
+				return(self._ecc[[item for item in items]])
+			except IndexError:
+				print('Indexes in Traj().ecc are out of bounds')
+
+
 	def extract(self,*items):
 		
 		"""
@@ -544,6 +555,8 @@ class Traj:
 						output.input_values(a,self.n(new_items))
 					if a == 'm2' : 
 						output.input_values(a,self.m2(new_items))
+					if a == 'ecc' : 
+						output.input_values(a,self.ecc(new_items))
 					if a == 't_err' : 
 						output.input_values(a,self.t_err(new_items))
 					if a == 'coord_err' : 
@@ -652,6 +665,8 @@ class Traj:
 		attribute values.
 		"""
 		if ('_'+name in self.__slots__[1:]):
+
+			print( 'I am here' ) 
 			if ((name=='frames') & (len(self._t)==0)):
 				#copute the extent of gaps between frames (in general it is >= 1). If a 
 				#gap is negative it means that the chronological order of the frames
