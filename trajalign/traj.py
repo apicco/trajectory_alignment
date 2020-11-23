@@ -729,6 +729,7 @@ class Traj:
 					raise AttributeError('The input length of the attribute does not match frames or time array of non-zero length, or coord_err is not defined for this trajectory')
 
 			elif (len(x)==(len(self._frames) | len(self._t))): 
+
 				if (name=='frames'): setattr(self,"_"+name,array(x,dtype='int64')) #add frames array checking it is as long as frames or times
 				else: setattr(self,"_"+name,array(x,dtype='float64')) #add array checking it is as long as frames or times
 				if len(unit) > 0:
