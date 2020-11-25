@@ -655,7 +655,10 @@ class Traj:
 
 			return array( [ [ i + 1  for i in range( len( m ) ) ] , m , sem ] )
 
-	def msdfit( self , sel = len( self ) , scale = None ) :
+	def msdfit( self , sel = None , scale = None ) :
+
+		if sel == None :
+			sel = len( self )
 
 		m = self.msd()
 
@@ -676,7 +679,7 @@ class Traj:
 			y = m[ 1 ][ 0 : sel ]
 			y_err = m[ 2 ][ 0 : sel ]
 
-		t = m[ 0 ][ 0 : sel ] * float( self.annotations()[ delta_t ] )
+		t = m[ 0 ][ 0 : sel ] * float( self.annotations()[ 'delta_t' ] )
 
 		p , cov = np.polyfit( t , y , w = 1/err , deg = 2 , cov = True )
 
