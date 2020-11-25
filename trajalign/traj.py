@@ -655,6 +655,35 @@ class Traj:
 
 			return array( [ [ i + 1  for i in range( len( m ) ) ] , m , sem ] )
 
+	def msdfit( self , sel = len( self ) , scale = None ) :
+
+		m = self.msd()
+
+		if ( ( scale == None ) & ( self.annotations()[ 'coord_unit' ] == 'pxl' ) ):
+
+			raise AttributeError( 'coordinates are in pxl units, add a scaling factor' )
+		elif ( ( scale != None ) & ( self.annotations()[ 'coord_unit' ] != 'pxl' ) ) :
+		
+			raise AttributeError( 'coordinates are in units, you do not need a scaling factor' )
+	
+		elif ( ( scale != None ) & ( self.annotations()[ 'coord_unit' ] == 'pxl' ) ) :
+
+			y = m[ 1 ][ 0 : sel ] * scale  
+			y_err = m[ 2 ][ 0 : sel ] * scale  
+
+		else :
+			
+			y = m[ 1 ][ 0 : sel ]
+			y_err = m[ 2 ][ 0 : sel ]
+
+		t = m[ 0 ][ 0 : sel ] * float( self.annotations()[ delta_t ] )
+
+		p , cov = np.polyfit( t , y , w = 1/err , deg = 2 , cov = True )
+
+		v = [ np.sqrt( p[ 0 ] ) , np.sqrt( cov[ 0 , 0 ] ) / ( 2 * np.sqrt( p[ 0 ] ) ) ]
+		D = [ p[ 1 ] / 4 , cov[ 1 , 1 ] / 4 ]
+		
+		return v , D
 
 	#Setters
 	#Input values in the Traj object as arrays. Array length must be equal to the length of frames and time
