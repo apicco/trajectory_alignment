@@ -26,6 +26,7 @@ from numpy import float64
 from numpy import convolve
 from numpy import isclose
 from numpy import isnan
+from numpy import polyfit
 from numpy import round
 import copy as cp
 import os
@@ -681,9 +682,12 @@ class Traj:
 
 		t = m[ 0 ][ 0 : sel ] * float( self.annotations()[ 'delta_t' ] )
 
-		p , cov = np.polyfit( t , y , w = 1/err , deg = 2 , cov = True )
+		try: 
+			p , cov = polyfit( t , y , w = 1/y_err , deg = 2 , cov = True )
+		except :
+			p , cov = polyfit( t , y , deg = 2 , cov = True )
 
-		v = [ np.sqrt( p[ 0 ] ) , np.sqrt( cov[ 0 , 0 ] ) / ( 2 * np.sqrt( p[ 0 ] ) ) ]
+		v = [ sqrt( p[ 0 ] ) , sqrt( cov[ 0 , 0 ] ) / ( 2 * sqrt( p[ 0 ] ) ) ]
 		D = [ p[ 1 ] / 4 , cov[ 1 , 1 ] / 4 ]
 		
 		return v , D
