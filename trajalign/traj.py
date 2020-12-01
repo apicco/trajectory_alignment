@@ -1248,6 +1248,9 @@ class Traj:
 			else:
 				output[a] = []
 		
+		# annotate the file_name
+		self.annotations( 'file' , file_name )	
+
 		with open( file_name , 'r' ) as file:
 			
 			for line in file:
