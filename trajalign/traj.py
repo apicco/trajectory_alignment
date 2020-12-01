@@ -656,13 +656,17 @@ class Traj:
 
 			return array( [ [ i + 1  for i in range( len( m ) ) ] , m , sem ] )
 
-	def msdfit( self , sel = None , scale = None ) :
+	def msdfit( self , sel = None , scale = None , deg = 2 , return_data = False ) :
 
 		if sel == None :
 			sel = len( self )
 
 		m = self.msd()
-
+		
+		# time intervals
+		t = m[ 0 ][ 0 : sel ] * float( self.annotations()[ 'delta_t' ] )
+		
+		# msd units:
 		if ( ( scale == None ) & ( self.annotations()[ 'coord_unit' ] == 'pxl' ) ):
 
 			raise AttributeError( 'coordinates are in pxl units, add a scaling factor' )
@@ -680,17 +684,24 @@ class Traj:
 			y = m[ 1 ][ 0 : sel ]
 			y_err = m[ 2 ][ 0 : sel ]
 
-		t = m[ 0 ][ 0 : sel ] * float( self.annotations()[ 'delta_t' ] )
-
+		# compute the msd polyfit of deg 
 		try: 
-			p , cov = polyfit( t , y , w = 1/y_err , deg = 2 , cov = True )
+			p , cov = polyfit( t , y , w = 1/y_err , deg = deg , cov = True )
 		except :
-			p , cov = polyfit( t , y , deg = 2 , cov = True )
+			p , cov = polyfit( t , y , deg = deg , cov = True )
 
 		v = [ sqrt( p[ 0 ] ) , sqrt( cov[ 0 , 0 ] ) / ( 2 * sqrt( p[ 0 ] ) ) ]
 		D = [ p[ 1 ] / 4 , cov[ 1 , 1 ] / 4 ]
-		
-		return v , D
+	
+		if return_data :
+	
+			data = { 'x' : t , 'y' : y , 'err' : y_err , 'p' : p , 'cov' : cov }
+			
+			return v , D , data
+
+		else : 
+			
+			return v , D
 
 	#Setters
 	#Input values in the Traj object as arrays. Array length must be equal to the length of frames and time
