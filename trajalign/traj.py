@@ -673,7 +673,7 @@ class Traj:
 				ss = ss + 1 
 			
 			return array( [ 
-				[ i * float( self.annotations()[ 'delta_t' ] ) for i in range( len( m ) + 1 ) ] , # + 1 because we start from msd 0
+				[ i * float( self.annotations()[ 'delta_t' ] ) for i in range( len( m ) ) ] ,
 				m , 
 				sem ] 
 				)
@@ -688,7 +688,7 @@ class Traj:
 		t = m[ 0 ][ 0 : sel ]
 		y = m[ 1 ][ 0 : sel ]
 		y_err = m[ 2 ][ 0 : sel ]
-
+		
 		# compute the msd polyfit of deg 
 		try: 
 
