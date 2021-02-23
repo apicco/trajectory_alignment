@@ -624,15 +624,32 @@ class Traj:
 
 		return output
 
-	def msd( self ) :
+	def msd( self , scale = 1 ) :
 
 		#check that the attribute .coord is not empty
 		if len( self.coord() ) != 2 : 
 
 			raise AttributeError( 'The size of the .coord() attribute does not match expectation, does your trajectory have a x and y coordinates?' ) 
+		
+		# check that the annotation delta_t is not emplty
+		if not self.annotations()[ 'delta_t' ] :
+			
+			raise AttributeError( 'msd: The trajectory has no annotation delta_t!' ) 
 
 		else :
 
+			# fill the trajectory, it is important that missing gaps are filled
+			self.fill()
+		
+			# msd units:
+			if ( ( scale == 1 ) & ( self.annotations()[ 'coord_unit' ] == 'pxl' ) ):
+	
+				raise AttributeError( 'coordinates are in pxl units, add a scaling factor' )
+			
+			elif ( ( scale != 1 ) & ( self.annotations()[ 'coord_unit' ] != 'pxl' ) ) :
+			
+				raise AttributeError( 'coordinates are in units, you do not need a scaling factor' )
+		
 			m = [ ]
 			sem = [ ]
 		
@@ -641,11 +658,11 @@ class Traj:
 
 			while( ss < l ) :
 
-				x1 = self.coord()[ 0 ][ ss : ]
-				x2 = self.coord()[ 0 ][ : l - ss ]
+				x1 = self.coord()[ 0 ][ ss : ] * scale
+				x2 = self.coord()[ 0 ][ : l - ss ] * scale
 				
-				y1 = self.coord()[ 1 ][ ss : ]
-				y2 = self.coord()[ 1 ][ : l - ss ]
+				y1 = self.coord()[ 1 ][ ss : ] * scale
+				y2 = self.coord()[ 1 ][ : l - ss ] * scale
 
 				d = [ ( x1[ i ] - x2[ i ] ) ** 2  + ( y1[ i ] - y2[ i ] ) ** 2 for i in range( l - ss ) ] 
 
@@ -653,44 +670,35 @@ class Traj:
 				sem.append( nanstd( d ) / sqrt( sum( ~isnan( d ) ) ) ) #sem, dividing by the square root of the number of not nan items
 
 				ss = ss + 1 
+			
+			return array( [ 
+				[ ( i + 1 ) * float( self.annotations()[ 'delta_t' ] ) for i in range( len( m ) ) ] ,
+				m , 
+				sem ] 
+				)
 
-			return array( [ [ i + 1  for i in range( len( m ) ) ] , m , sem ] )
-
-	def msdfit( self , sel = None , scale = None , deg = 2 , return_data = False ) :
+	def msdfit( self , sel = None , scale = 1 , deg = 2 , return_data = False ) :
 
 		if sel == None :
 			sel = len( self )
 
-		m = self.msd()
-		
-		# time intervals
-		t = m[ 0 ][ 0 : sel ] * float( self.annotations()[ 'delta_t' ] )
-		
-		# msd units:
-		if ( ( scale == None ) & ( self.annotations()[ 'coord_unit' ] == 'pxl' ) ):
-
-			raise AttributeError( 'coordinates are in pxl units, add a scaling factor' )
-		elif ( ( scale != None ) & ( self.annotations()[ 'coord_unit' ] != 'pxl' ) ) :
-		
-			raise AttributeError( 'coordinates are in units, you do not need a scaling factor' )
-	
-		elif ( ( scale != None ) & ( self.annotations()[ 'coord_unit' ] == 'pxl' ) ) :
-
-			y = m[ 1 ][ 0 : sel ] * scale  
-			y_err = m[ 2 ][ 0 : sel ] * scale  
-
-		else :
-			
-			y = m[ 1 ][ 0 : sel ]
-			y_err = m[ 2 ][ 0 : sel ]
+		# output dt , msd , msd_err into m
+		m = self.msd( scale ) 
+		t = m[ 0 ][ 0 : sel ]
+		y = m[ 1 ][ 0 : sel ]
+		y_err = m[ 2 ][ 0 : sel ]
 
 		# compute the msd polyfit of deg 
 		try: 
+
 			p , cov = polyfit( t , y , w = 1/y_err , deg = deg , cov = True )
+
 		except :
+
 			p , cov = polyfit( t , y , deg = deg , cov = True )
 
 		v = [ sqrt( p[ 0 ] ) , sqrt( cov[ 0 , 0 ] ) / ( 2 * sqrt( p[ 0 ] ) ) ]
+
 		D = [ p[ 1 ] / 4 , cov[ 1 , 1 ] / 4 ]
 	
 		if return_data :
