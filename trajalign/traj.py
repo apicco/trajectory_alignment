@@ -27,6 +27,7 @@ from numpy import convolve
 from numpy import isclose
 from numpy import isnan
 from numpy import polyfit
+from numpy import inf
 from numpy import round
 import copy as cp
 import os
@@ -650,8 +651,8 @@ class Traj:
 			
 				raise AttributeError( 'coordinates are in units, you do not need a scaling factor' )
 		
-			m = [ ]
-			sem = [ ]
+			m = [ 0 ]
+			sem = [ inf ]
 		
 			l = len( self.coord()[ 0 ] )
 			ss = 1  #initiate the step size
@@ -672,7 +673,7 @@ class Traj:
 				ss = ss + 1 
 			
 			return array( [ 
-				[ ( i + 1 ) * float( self.annotations()[ 'delta_t' ] ) for i in range( len( m ) ) ] ,
+				[ i * float( self.annotations()[ 'delta_t' ] ) for i in range( len( m ) + 1 ) ] , # + 1 because we start from msd 0
 				m , 
 				sem ] 
 				)
@@ -692,7 +693,7 @@ class Traj:
 		try: 
 
 			p , cov = polyfit( t , y , w = 1/y_err , deg = deg , cov = True )
-
+		
 		except :
 
 			p , cov = polyfit( t , y , deg = deg , cov = True )
