@@ -18,6 +18,81 @@ from scipy.interpolate import UnivariateSpline #need to install py35-scikit-lear
 import numpy as np
 import copy as cp
 
+def spline( t1 , t2 ) :
+
+	"""
+	interpolate t1 or t2 with a spline.
+	"""
+
+	#the interpolation function
+	def interpolation( to_interpolate , delta_t , k = 3 ) :
+	
+		interpolated_traj = Traj( interpolated = 'True' )
+		interpolated_traj.annotations( to_interpolate.annotations() )
+		interpolated_traj.annotations()[ 'delta_t' ] = delta_t
+
+		l = len( to_interpolate )
+
+		if not l > k :
+			
+			#UnivariateSpline requires that m > k, where m is the number of points interpolated 
+			#and k is the degree of smoothing spline. Default in UnivatiateSpline and in here is k = 3.
+			k = l - 1
+
+		#the new time intervals for the trajectory interpolated
+		t = [ to_interpolate.start() ]
+		while( t[ len(t) - 1 ] <= to_interpolate.end() ) :
+			t.append( t[ len(t) - 1 ] + delta_t )
+		
+		interpolated_traj.input_values( 
+				name = 't' , 
+				x = t ,
+				unit = to_interpolate.annotations()[ 't_unit' ]
+				)
+
+		for attribute in to_interpolate.attributes() : 	
+			
+			if attribute in [ 'f' , 'mol' ] :
+
+				s = UnivariateSpline( to_interpolate.t() , getattr( to_interpolate , '_'+attribute ) , k = k )
+				interpolated_traj.input_values( 
+						name = attribute , 
+						x = s( interpolated_traj.t() )
+						)
+
+			if attribute == 'coord' :
+
+				s_x = UnivariateSpline( to_interpolate.t() , to_interpolate.coord()[ 0 ] , k = k )
+				s_y = UnivariateSpline( to_interpolate.t() , to_interpolate.coord()[ 1 ] , k = k )
+				interpolated_traj.input_values( 
+						name = 'coord' , 
+						x = [ s_x( interpolated_traj.t() ) , s_y( interpolated_traj.t() ) ],
+						)
+
+		return( interpolated_traj )
+
+	#the trajectory with the largest delta_t will be the one that will 
+	#be splined. 
+
+	if t1.annotations()[ 'delta_t' ] >= t2.annotations()[ 'delta_t' ] :
+
+		delta_t = float(t2.annotations()[ 'delta_t' ])
+	
+	else :
+		
+		delta_t = float(t1.annotations()[ 'delta_t' ])
+
+	not_nan = [ i for i in range( len( t1 ) ) if t1.f( i ) == t1.f( i ) ]
+	t1_to_interpolate = t1.extract( not_nan )
+
+	not_nan = [ i for i in range( len( t2 ) ) if t2.f( i ) == t2.f( i ) ]
+	t2_to_interpolate = t2.extract( not_nan )
+
+	return( 
+			interpolation( t1_to_interpolate , delta_t ) ,
+			interpolation( t2_to_interpolate , delta_t )
+			)
+
 def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = False , fimax_filter = [ -3/35 , 12/35 , 17/35 , 12/35 , -3/35 ] , unify_start_end_in_alignment = True , unify_start_end_in_output = False ):
 
 	"""
@@ -35,81 +110,6 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 	is used to compute where the peak of fluorescence intensity is. If no filter is desired, set 
 	fimax_filer = [ 1 ].
 	"""
-
-	def spline( t1 , t2 ) :
-
-		"""
-		interpolate t1 or t2 with a spline.
-		"""
-
-		#the interpolation function
-		def interpolation( to_interpolate , delta_t , k = 3 ) :
-		
-			interpolated_traj = Traj( interpolated = 'True' )
-			interpolated_traj.annotations( to_interpolate.annotations() )
-			interpolated_traj.annotations()[ 'delta_t' ] = delta_t
-
-			l = len( to_interpolate )
-
-			if not l > k :
-				
-				#UnivariateSpline requires that m > k, where m is the number of points interpolated 
-				#and k is the degree of smoothing spline. Default in UnivatiateSpline and in here is k = 3.
-				k = l - 1
-	
-			#the new time intervals for the trajectory interpolated
-			t = [ to_interpolate.start() ]
-			while( t[ len(t) - 1 ] <= to_interpolate.end() ) :
-				t.append( t[ len(t) - 1 ] + delta_t )
-			
-			interpolated_traj.input_values( 
-					name = 't' , 
-					x = t ,
-					unit = to_interpolate.annotations()[ 't_unit' ]
-					)
-	
-			for attribute in to_interpolate.attributes() : 	
-				
-				if attribute in [ 'f' , 'mol' ] :
-	
-					s = UnivariateSpline( to_interpolate.t() , getattr( to_interpolate , '_'+attribute ) , k = k )
-					interpolated_traj.input_values( 
-							name = attribute , 
-							x = s( interpolated_traj.t() )
-							)
-	
-				if attribute == 'coord' :
-
-					s_x = UnivariateSpline( to_interpolate.t() , to_interpolate.coord()[ 0 ] , k = k )
-					s_y = UnivariateSpline( to_interpolate.t() , to_interpolate.coord()[ 1 ] , k = k )
-					interpolated_traj.input_values( 
-							name = 'coord' , 
-							x = [ s_x( interpolated_traj.t() ) , s_y( interpolated_traj.t() ) ],
-							)
-
-			return( interpolated_traj )
-	
-		#the trajectory with the largest delta_t will be the one that will 
-		#be splined. 
-
-		if t1.annotations()[ 'delta_t' ] >= t2.annotations()[ 'delta_t' ] :
-
-			delta_t = float(t2.annotations()[ 'delta_t' ])
-		
-		else :
-			
-			delta_t = float(t1.annotations()[ 'delta_t' ])
-
-		not_nan = [ i for i in range( len( t1 ) ) if t1.f( i ) == t1.f( i ) ]
-		t1_to_interpolate = t1.extract( not_nan )
-
-		not_nan = [ i for i in range( len( t2 ) ) if t2.f( i ) == t2.f( i ) ]
-		t2_to_interpolate = t2.extract( not_nan )
-
-		return( 
-				interpolation( t1_to_interpolate , delta_t ) ,
-				interpolation( t2_to_interpolate , delta_t )
-				)
 
 	def cc( input_t1 , input_t2 ):
 		
