@@ -1461,4 +1461,14 @@ class Traj:
 	def integral( self , what ) :
 
 		x = getattr( self , '_'+what )
-		return( [ x[ 0 ] + x[ i ] for i in range( 1 , len( x ) ) ]
+		xx = []
+		x0 = 0
+
+		for i in range( 0 , len( x ) ) :
+			if x[ i ] == x[ i ] : 
+				xx.append( x0 + x[ i ] )
+				x0 = xx[ -1 ]
+			else : 
+				xx.append( NaN )
+
+		return( xx )
