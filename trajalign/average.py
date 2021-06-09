@@ -345,6 +345,58 @@ def trajectory_average( aligned_trajectories_to_average , r , median , fimax ) :
 
 	return( t )
 #-------------------------------------END-OF-DEFINITION-of-trajectory_average-----------------------------------
+def lie_down( t ):
+	translation_vector = ( - np.nanmedian( t.coord()[0] ) ,- np.nanmedian( t.coord()[1] ) )
+	t.translate( translation_vector )
+	
+	I_xx = np.nansum( t.f() * t.coord()[1] ** 2 )
+	I_yy = np.nansum( t.f() * t.coord()[0] ** 2 )
+	I_xy = np.nansum( t.f() * t.coord()[0] * t.coord()[1] )
+	
+	theta = np.arctan2( 2 * I_xy , I_xx - I_yy ) / 2
+
+	I_x = I_xx + I_xy * np.tan( theta ) 
+	I_y = I_yy - I_xy * np.tan( theta )
+
+	if I_x > I_y : theta = theta - np.pi/2
+	t.rotate( theta )
+
+	with wr.catch_warnings():
+		# if a coord has nan then a waring is outputed when nan > 0 or nan < 0 is asked. Here we suppress such warnings.
+		wr.simplefilter("ignore", category=RuntimeWarning)
+		A = np.nanmedian( t.coord()[0][ t.coord()[0] > 0 ] ** 2 )
+		B = np.nanmedian( t.coord()[0][ t.coord()[0] < 0 ] ** 2 )
+
+		if B > A : 
+			t.rotate( np.pi )
+			theta = theta + np.pi #to ouptput the angle
+	
+	model = linear_model.LinearRegression()	
+	model_RANSACR = linear_model.RANSACRegressor( model , random_state = 42 )
+	
+	l = len( t )
+	
+	j = 0
+	for i in range( l ) :
+		
+		if ( not np.isnan( t.coord()[ 0 ][ i ] ) ) & ( not np.isnan( t.coord()[ 1 ][ i ] ) ) :
+			if j == 0 :
+				X = np.array( [[ t.coord()[ 0 ][ i ] ]] )
+				y = np.array( [ t.coord()[ 1 ][ i ] ] )
+			else :
+				X = np.insert( X , 0 , t.coord()[ 0 ][ i ] , axis = 0 )
+				y = np.insert( y , 0 , t.coord()[ 1 ][ i ] , axis = 0 )
+			j += 1
+
+	with wr.catch_warnings():
+		# also a bug warning occurs from linear models, RANSACR.
+		wr.simplefilter("ignore", category=RuntimeWarning)
+		model_RANSACR.fit( X , y )
+	
+	t.rotate( - np.arctan( model_RANSACR.estimator_.coef_[0] ) )
+
+	return( { 'translation' :  translation_vector , 'angle' : theta - np.arctan( model_RANSACR.estimator_.coef_[0] ) } )
+
 
 def average_trajectories( trajectory_list , output_file = 'average' , median = False , unify_start_end = False , max_frame=[] , fimax = False , fimax_filter = [ -3/35 , 12/35 , 17/35 , 12/35 , -3/35 ] ):
 
@@ -454,59 +506,7 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 						alignments[ len( alignments ) - 1 ][ 'score' ] / np.sqrt( len( sel_t1 ) )
 		return()
 
-	def lie_down( t ):
-		translation_vector = ( - np.nanmedian( t.coord()[0] ) ,- np.nanmedian( t.coord()[1] ) )
-		t.translate( translation_vector )
-		
-		I_xx = np.nansum( t.f() * t.coord()[1] ** 2 )
-		I_yy = np.nansum( t.f() * t.coord()[0] ** 2 )
-		I_xy = np.nansum( t.f() * t.coord()[0] * t.coord()[1] )
-		
-		theta = np.arctan2( 2 * I_xy , I_xx - I_yy ) / 2
-
-		I_x = I_xx + I_xy * np.tan( theta ) 
-		I_y = I_yy - I_xy * np.tan( theta )
-	
-		if I_x > I_y : theta = theta - np.pi/2
-		t.rotate( theta )
-
-		with wr.catch_warnings():
-			# if a coord has nan then a waring is outputed when nan > 0 or nan < 0 is asked. Here we suppress such warnings.
-			wr.simplefilter("ignore", category=RuntimeWarning)
-			A = np.nanmedian( t.coord()[0][ t.coord()[0] > 0 ] ** 2 )
-			B = np.nanmedian( t.coord()[0][ t.coord()[0] < 0 ] ** 2 )
-
-			if B > A : 
-				t.rotate( np.pi )
-				theta = theta + np.pi #to ouptput the angle
-		
-		model = linear_model.LinearRegression()	
-		model_RANSACR = linear_model.RANSACRegressor( model , random_state = 42 )
-		
-		l = len( t )
-		
-		j = 0
-		for i in range( l ) :
-			
-			if ( not np.isnan( t.coord()[ 0 ][ i ] ) ) & ( not np.isnan( t.coord()[ 1 ][ i ] ) ) :
-				if j == 0 :
-					X = np.array( [[ t.coord()[ 0 ][ i ] ]] )
-					y = np.array( [ t.coord()[ 1 ][ i ] ] )
-				else :
-					X = np.insert( X , 0 , t.coord()[ 0 ][ i ] , axis = 0 )
-					y = np.insert( y , 0 , t.coord()[ 1 ][ i ] , axis = 0 )
-				j += 1
-
-		with wr.catch_warnings():
-			# also a bug warning occurs from linear models, RANSACR.
-			wr.simplefilter("ignore", category=RuntimeWarning)
-			model_RANSACR.fit( X , y )
-		
-		t.rotate( - np.arctan( model_RANSACR.estimator_.coef_[0] ) )
-
-		return( { 'translation' :  translation_vector , 'angle' : theta - np.arctan( model_RANSACR.estimator_.coef_[0] ) } )
-	
-	#-------------------------------------END-OF-DEFINITIONS-in-average_trajectories-----------------------------------
+		#-------------------------------------END-OF-DEFINITIONS-in-average_trajectories-----------------------------------
 
 	def compute_transformations( t1 , t1_index , trajectory_list , fimax , fimax_filter ) :
 
