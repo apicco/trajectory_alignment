@@ -21,7 +21,7 @@ def header( version = 1.90 , year = 2020 , printit = True ) :
 	if printit :
 
 		print('|-----------------------------------------------------|')
-		print('| Trajalign version ' + str( version ) +' Copyright ' + str( year ) + ' Andrea Picco. |')
+		print('| Trajalign version ' + str( version ) +' Copyright ' + str( year ) + ' Andrea Picco.  |')
 		print('|   Url: www.apicco.github.io/trajectory_alignment/   |')
 		print('|-----------------------------------------------------|')
 	
