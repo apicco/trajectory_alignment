@@ -1462,9 +1462,9 @@ class Traj:
 
 		x = getattr( self , '_'+what )
 		xx = []
-		x0 = 0
 
 		if x.ndim == 1 :
+			x0 = 0
 			for i in range( 0 , len( x ) ) :
 				if x[ i ] == x[ i ] : 
 					xx.append( x0 + x[ i ] )
@@ -1474,6 +1474,7 @@ class Traj:
 		else :
 			for j in range( 0 , x.ndim ) :
 				xx.append( [] )
+				x0 = 0 # reset the intergal starting value to 0
 				for i in range( 0 , len( x[ j ] ) ) :
 					if x[ j ][ i ] == x[ j ][ i ] : 
 						xx[ j ].append( x0 + x[ j ][ i ] )
