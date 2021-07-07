@@ -1458,7 +1458,7 @@ class Traj:
 			
 			raise TypeError( 'assign_datasetID has not found the trajectory in any dataset. Check that the  path is correct, or that the frame() and coord() defined in the trajectory match the definitions in the dataset.\n assign_dataseID was searching for the string: ' + str( self.frames()[ 0 ] ) + '.+' + str( self.coord()[ 0 ][ 0 ] ) + '.+' + str( self.coord()[ 1 ][ 0 ] ) )
 
-	def integral( self , what ) :
+	def integral( self , what , two_dimentional = False ) :
 
 		x = getattr( self , '_'+what )
 		xx = []
@@ -1472,15 +1472,25 @@ class Traj:
 				else : 
 					xx.append( NaN )
 		else :
-			for j in range( 0 , x.ndim ) :
-				xx.append( [] )
+			if two_dimentional :
 				x0 = 0 # reset the intergal starting value to 0
-				for i in range( 0 , len( x[ j ] ) ) :
-					if x[ j ][ i ] == x[ j ][ i ] : 
-						xx[ j ].append( x0 + x[ j ][ i ] )
-						x0 = xx[ j ][ -1 ]
+				for i in range( 0 , len( x[ 0 ] ) ) :
+
+					if ( ( x[ 0 ][ i ] == x[ 0 ][ i ] ) & ( x[ 1 ][ i ] == x[ 1 ][ i ] ) ) : 
+						xx.append( x0 + sqrt( x[ 0 ][ i ] ** 2 + x[ 1 ][ i ] ** 2 ) )
+						x0 = xx[ -1 ]
+				
 					else : 
-						xx[ j ].append( NaN )
 
-
+						xx.append( NaN )
+			else :
+				for j in range( 0 , x.ndim ) :
+					xx.append( [] )
+					x0 = 0 # reset the intergal starting value to 0
+					for i in range( 0 , len( x[ j ] ) ) :
+						if x[ j ][ i ] == x[ j ][ i ] : 
+							xx[ j ].append( x0 + x[ j ][ i ] )
+							x0 = xx[ j ][ -1 ]
+						else : 
+							xx[ j ].append( NaN )
 		return( xx )
