@@ -1464,11 +1464,22 @@ class Traj:
 		xx = []
 		x0 = 0
 
-		for i in range( 0 , len( x ) ) :
-			if x[ i ] == x[ i ] : 
-				xx.append( x0 + x[ i ] )
-				x0 = xx[ -1 ]
-			else : 
-				xx.append( NaN )
+		if x.ndim == 1 :
+			for i in range( 0 , len( x ) ) :
+				if x[ i ] == x[ i ] : 
+					xx.append( x0 + x[ i ] )
+					x0 = xx[ -1 ]
+				else : 
+					xx.append( NaN )
+		else :
+			for j in range( 0 , x.ndim ) :
+				xx.append( [] )
+				for i in range( 0 , len( x[ j ] ) ) :
+					if x[ j ][ i ] == x[ j ][ i ] : 
+						xx[ j ].append( x0 + x[ j ][ i ] )
+						x0 = xx[ j ][ -1 ]
+					else : 
+						xx[ j ].append( NaN )
+
 
 		return( xx )
