@@ -14,6 +14,7 @@ from numpy import matrix
 from numpy import square
 from numpy import sqrt
 from numpy import sin
+from numpy import sign
 from numpy import cos
 from numpy import insert
 from numpy import NaN
@@ -1458,16 +1459,17 @@ class Traj:
 			
 			raise TypeError( 'assign_datasetID has not found the trajectory in any dataset. Check that the  path is correct, or that the frame() and coord() defined in the trajectory match the definitions in the dataset.\n assign_dataseID was searching for the string: ' + str( self.frames()[ 0 ] ) + '.+' + str( self.coord()[ 0 ][ 0 ] ) + '.+' + str( self.coord()[ 1 ][ 0 ] ) )
 
-	def integral( self , what , two_dimentional = False ) :
+	def integral( self , what , scale = 1 , two_dimentional = False ) :
 
 		x = getattr( self , '_'+what )
+		
 		xx = []
 
 		if x.ndim == 1 :
-			x0 = 0
+			x0 = 0 # reset the intergal starting value to 0
 			for i in range( 0 , len( x ) ) :
 				if x[ i ] == x[ i ] : 
-					xx.append( x0 + x[ i ] )
+					xx.append( x0 + x[ i ] * scale )
 					x0 = xx[ -1 ]
 				else : 
 					xx.append( NaN )
@@ -1477,7 +1479,7 @@ class Traj:
 				for i in range( 0 , len( x[ 0 ] ) ) :
 
 					if ( ( x[ 0 ][ i ] == x[ 0 ][ i ] ) & ( x[ 1 ][ i ] == x[ 1 ][ i ] ) ) : 
-						xx.append( x0 + sqrt( x[ 0 ][ i ] ** 2 + x[ 1 ][ i ] ** 2 ) )
+						xx.append( x0 + sign( x[ 0 ][ i ] ) * sqrt( x[ 0 ][ i ] ** 2 + x[ 1 ][ i ] ** 2 ) * scale )
 						x0 = xx[ -1 ]
 				
 					else : 
@@ -1489,7 +1491,7 @@ class Traj:
 					x0 = 0 # reset the intergal starting value to 0
 					for i in range( 0 , len( x[ j ] ) ) :
 						if x[ j ][ i ] == x[ j ][ i ] : 
-							xx[ j ].append( x0 + x[ j ][ i ] )
+							xx[ j ].append( x0 + x[ j ][ i ] * scale )
 							x0 = xx[ j ][ -1 ]
 						else : 
 							xx[ j ].append( NaN )
