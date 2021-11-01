@@ -1375,12 +1375,12 @@ class Traj:
 		elif 't' in non_empty_attributes: #Are times empty?
 			#Check if there are missing frames
 			time_intervals = self._t[1:]-self._t[0:(len(self._t)-1)]
-			delta_t = min(time_intervals)
+			delta_t = float( self.annotations()[ 'delta_t' ] ) #old version:# min(time_intervals)
 			time_intervals = time_intervals/delta_t
 
-			if max(time_intervals) > 1:
+			if max(time_intervals) >= 2: #before (211101) it was > 1 insteaad of >= 2
 				for i in range(len(time_intervals)-1,-1,-1):
-					while time_intervals[i] > 1:
+					while time_intervals[i] >= 2:
 						for attribute in non_empty_attributes:
 							if attribute == 't' : #insert the missing time point
 								x = insert(getattr(self,'_t'),i+1,self._t[i+1]-delta_t)
