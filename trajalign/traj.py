@@ -249,6 +249,9 @@ class Traj:
 
 
 	#Getters
+	def slots( self ) :
+
+		return self.__slots__[1:]
 
 	def frames(self,*items):
 		if (len(items)==0): return self._frames
