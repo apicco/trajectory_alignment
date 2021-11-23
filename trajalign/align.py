@@ -198,7 +198,7 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 	reference_trajectory = Traj()
 	reference_trajectory.load( path_reference )
 	
-	#################################################################################################################
+    #################################################################################################################
 	#average trajectories are centered on their center of mass and must have been previously lied down 
 	#(lie_down function in trajalign/average.py) so that they are orientad in the same way. The 
 	# average transformation that align the left trajectory to the rigth trajectory (we use the notation in 
