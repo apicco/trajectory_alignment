@@ -67,9 +67,7 @@ def load_directory(path , pattern = '.txt' , sep = None , comment_char = '#' , d
     else : 
         files = [ f for f in sorted( os.listdir(path) ) if pattern in f] #list all the files in path that have pattern
 
-    print( files )
     for file in files:
-        print( file ) 
         trajectory = Traj(experiment = path, path = os.getcwd()+'/'+path, file = file)
         trajectory.load(path+'/'+file,sep = sep, comment_char = comment_char, **attrs)
         if (dt != None):
