@@ -16,7 +16,7 @@ import warnings as wr
 
 from sklearn import linear_model
 
-def header( version = 1.90 , year = 2020 , printit = True ) :
+def header( version = 1.83 , year = 2018 , printit = True ) :
 
 	if printit :
 
@@ -68,8 +68,6 @@ def load_directory(path , pattern = '.txt' , sep = None , comment_char = '#' , d
 		files = [ f for f in os.listdir(path) if pattern in f] #list all the files in path that have pattern
 
 	for file in files:
-
-		print( file ) 
 		trajectory = Traj(experiment = path, path = os.getcwd()+'/'+path, file = file)
 		trajectory.load(path+'/'+file,sep = sep, comment_char = comment_char, **attrs)
 		if (dt != None):
@@ -172,27 +170,6 @@ def nanMAD( x , axis = None , k = 1.4826):
 	MAD = np.nanmedian( np.absolute( x - np.nanmedian( x , axis ) ) , axis )
 	return( k * MAD )
 	
-def unified_start( self ) :
-
-	try :
-
-		return float( self.annotations()[ 'mean_starts' ] ) - 1.96 * float( self.annotations()[ 'std_starts' ] ) / np.sqrt( float( self.annotations()[ 'n_starts' ] ) )
-		
-	except :
-		
-		print( 'Error: one or more of the annotations mean_starts, std_starts, and n_starts is/are missiong' )
-
-def unified_end( self ) :
-
-	try :
-
-		return float( self.annotations()[ 'mean_ends' ] ) + 1.96 * float( self.annotations()[ 'std_ends' ] ) / np.sqrt( float( self.annotations()[ 'n_ends' ] ) )
-		
-	except :
-		
-		print( 'Error: one or more of the annotations mean_ends, std_ends, and n_ends is/are missiong' )
-
-
 def compute_average_start_and_end( trajectories_time_span , aligned_trajectories , max_frame ) :
 	
 	l = len( trajectories_time_span[ 'old_start' ] )
@@ -344,7 +321,7 @@ def trajectory_average( aligned_trajectories_to_average , r , median , fimax ) :
 	return( t )
 #-------------------------------------END-OF-DEFINITION-of-trajectory_average-----------------------------------
 
-def average_trajectories( trajectory_list , output_file = 'average' , median = False , unify_start_end = False , max_frame=[] , fimax = False , fimax_filter = [ -3/35 , 12/35 , 17/35 , 12/35 , -3/35 ] ):
+def average_trajectories( trajectory_list , output_file = 'average' , median = False , unify_start_end = True , max_frame=[] , fimax = False , fimax_filter = [ -3/35 , 12/35 , 17/35 , 12/35 , -3/35 ] ):
 
 	"""
 	average_trajectories( trajectory_list , max_frame = 500 , output_file = 'average' , median = False ): align all the 
@@ -363,7 +340,7 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 	if not max_frame :
 
 		raise TypeError('You need to specify the max_frame, which is the frame number in your movies')
-
+	
 	def R(alpha):
 		"""
 		R(alpha): returns the rotation matrix:
@@ -690,44 +667,21 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 
 			mean_start , std_start , n_start , mean_end , std_end , n_end = compute_average_start_and_end( trajectories_time_span , aligned_trajectories[ r ] , max_frame )
 
-
 			if unify_start_end :
 
 				#uniform start and end of aligned trajectories to mean_start and mean_end
 				for j in range(l):
-
-					#record the standard deviation of the average start and end, so that the user
-					#knows how the start and end timepoints of the raw trajectories are distributed,
-					#once alingned.
-					aligned_trajectories[ r ][ j ].annotations( 'mean_starts' , str( mean_start ) )
-					aligned_trajectories[ r ][ j ].annotations( 'std_starts' , str( std_start ) )
-					aligned_trajectories[ r ][ j ].annotations( 'n_starts' , str( n_start ) )
-					aligned_trajectories[ r ][ j ].annotations( 'mean_ends' , str( mean_end ) )
-					aligned_trajectories[ r ][ j ].annotations( 'std_ends' , str( std_end ) )
-					aligned_trajectories[ r ][ j ].annotations( 'n_ends' , str( n_end ) )
-					aligned_trajectories[ r ][ j ].annotations( 'unify_start_end' , str( unify_start_end ) )
 		
 					#if the unify_start_end is choosen, the average trajectory is started (and ended) from the average 
 					#start (and end) of the trajectory minus (and plus) the 95% CI. This addition (or subtraction) as
 					#been choosen to counter the intrinsic underestimate of the trajectories lifetimes.
-					aligned_trajectories[ r ][ j ].start( unify_start( aligned_trajectories[ r ][ i ] ) )
-					aligned_trajectories[ r ][ j ].end( unify_end( aligned_trajectories[ r ][ i ] ) )
+					aligned_trajectories[ r ][ j ].start( mean_start - 1.96 * std_start / np.sqrt( n_start ) )
+					aligned_trajectories[ r ][ j ].end( mean_end + 1.96 * std_end / np.sqrt( n_end ) ) 
 
 			else :
 
 				for j in range(l):
-	
-					#record the standard deviation of the average start and end, so that the user
-					#knows how the start and end timepoints of the raw trajectories are distributed,
-					#once alingned.
-					aligned_trajectories[ r ][ j ].annotations( 'mean_starts' , str( mean_start ) )
-					aligned_trajectories[ r ][ j ].annotations( 'std_starts' , str( std_start ) )
-					aligned_trajectories[ r ][ j ].annotations( 'n_starts' , str( n_start ) )
-					aligned_trajectories[ r ][ j ].annotations( 'mean_ends' , str( mean_end ) )
-					aligned_trajectories[ r ][ j ].annotations( 'std_ends' , str( std_end ) )
-					aligned_trajectories[ r ][ j ].annotations( 'n_ends' , str( n_end ) )
-					aligned_trajectories[ r ][ j ].annotations( 'unify_start_end' , str( unify_start_end ) )
-		
+				
 					aligned_trajectories[ r ][ j ].start( min( trajectories_time_span[ 'new_start' ] ) )
 					aligned_trajectories[ r ][ j ].end( max( trajectories_time_span[ 'new_end' ] ) )
 	
@@ -738,10 +692,21 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 		
 			ta = trajectory_average( aligned_trajectories[ r ] , r , median , fimax ) 
 			
-#TO DEL			if not unify_start_end :
-#TO DEL
-#TO DEL				ta.annotations( 'unified_start' , mean_start - 1.96 * std_start / np.sqrt( n_start ) )
-#TO DEL				ta.annotations( 'unified_end' , mean_end + 1.96 * std_end / np.sqrt( n_end ) )
+			#record the standard deviation of the average start and end, so that the user
+			#knows how the start and end timepoints of the raw trajectories are distributed,
+			#once alingned.
+
+			ta.annotations( 'mean_starts' , str( mean_start ) )
+			ta.annotations( 'std_starts' , str( std_start ) )
+			ta.annotations( 'n_starts' , str( n_start ) )
+			ta.annotations( 'mean_ends' , str( mean_end ) )
+			ta.annotations( 'std_ends' , str( std_end ) )
+			ta.annotations( 'n_ends' , str( n_end ) )
+
+			if not unify_start_end :
+
+				ta.annotations( 'unified_start' , mean_start - 1.96 * std_start / np.sqrt( n_start ) )
+				ta.annotations( 'unified_end' , mean_end + 1.96 * std_end / np.sqrt( n_end ) )
 			
 			average_trajectory.append( ta )
 
@@ -752,18 +717,10 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 			else :
 				all_m_angles = np.vstack([ all_m_angles , m_angles ])
 				all_m_lags = np.vstack([ all_m_lags , m_lags ])
-	
-			# make a copy of the average trajectory ta, and unify its start and end 
-			# to compute a mean precision that reflects the invagination dynamice
-			# and not how well noisy and/or excessively long trajectories might
-			# align.
-			ta_tmp = cp.deepcopy( ta )
-			ta_tmp.start( unified_start( ta_tmp ) )
-			ta_tmp.end( unified_end( ta_tmp ) )
-
+			
 			mean_precision =  np.sqrt(
 					np.nanmean( 
-						ta_tmp.coord_err()[ 0 ] ** 2 + ta_tmp.coord_err()[ 1 ] ** 2 
+						average_trajectory[ r ].coord_err()[ 0 ] ** 2 + average_trajectory[ r ].coord_err()[ 1 ] ** 2 
 						)
 					)
 			alignment_precision.append(mean_precision)
@@ -792,8 +749,6 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 
 	header() 
 
-	print( '\nunify_start_end = ' + str( unify_start_end ) )
-	
 	#define the list where transformations are stored
 	transformations = {
 			'angles' : np.array( [] ),
@@ -881,26 +836,24 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 		# chosen if unify_start_end = True, i.e. the part of trajectory comprised between
 		# the annotations unified_start and unified_end
 		average_trajectory_tmp = cp.deepcopy( average_trajectory[ best_average ] )
-		average_trajectory_tmp.start( unified_start( average_trajectory_tmp ) )
-		average_trajectory_tmp.end( unified_end( average_trajectory_tmp ) )
-#TO DEL		average_trajectory_tmp.start( float( average_trajectory_tmp.annotations()[ 'unified_start' ] ) )
-#TO DEL		average_trajectory_tmp.end( float( average_trajectory_tmp.annotations()[ 'unified_end' ] ) )
+		average_trajectory_tmp.start( float( average_trajectory_tmp.annotations()[ 'unified_start' ] ) )
+		average_trajectory_tmp.end( float( average_trajectory_tmp.annotations()[ 'unified_end' ] ) )
 		lie_down_transform = lie_down( average_trajectory_tmp )
+
+		# lie_down modified average_trajectory_tmp with the transformations in dict lie_down_transform
+		# we apply these transformations to average_trajectory[ best_average ]
+		average_trajectory[ best_average ].translate( lie_down_transform[ 'translation' ] )
+		average_trajectory[ best_average ].rotate( lie_down_transform[ 'angle' ] )
 
 	else :
 	
 		lie_down_transform = lie_down( average_trajectory[ best_average ] )
-
-	# lie_down transformations applied to average_trajectory[ best_average ]
-	average_trajectory[ best_average ].translate( lie_down_transform[ 'translation' ] )
-	average_trajectory[ best_average ].rotate( lie_down_transform[ 'angle' ] )
 
 	average_trajectory[ best_average ].annotations()[ 'trajalign_version' ] = header( printit = False )
 	average_trajectory[ best_average ].save( output_file )
 
 	#save the trajectories use to compute the average, lied down as the average trajectory
 	for i in range(l):
-
 		aligned_trajectories[ best_average ][ i ].translate( lie_down_transform[ 'translation' ] )
 		aligned_trajectories[ best_average ][ i ].rotate( lie_down_transform[ 'angle' ] )
 		aligned_trajectories[ best_average ][ i ].annotations()[ 'trajalign_version' ] = header( printit = False )
@@ -921,5 +874,5 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 	
 	f.close()
 
-	return( average_trajectory[ best_average ] , average_trajectory[ worst_average ] , { 'best_score' : aligned_trajectories[ best_average ] , 'worst_score' : aligned_trajectories[ worst_average ] } )
+	return( average_trajectory[ best_average ] , average_trajectory[ worst_average ] , aligned_trajectories[ best_average ] )
 

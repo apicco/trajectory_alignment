@@ -13,12 +13,11 @@ from trajalign.average import load_directory
 from trajalign.average import MSD
 from trajalign.average import nanMAD 
 from trajalign.average import header
-from trajalign.average import unified_start , unified_end
 from scipy.interpolate import UnivariateSpline #need to install py35-scikit-learn
 import numpy as np
 import copy as cp
 
-def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = False , fimax_filter = [ -3/35 , 12/35 , 17/35 , 12/35 , -3/35 ] , unify_start_end_in_alignment = True , unify_start_end_in_output = False ):
+def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = False , fimax_filter = [ -3/35 , 12/35 , 17/35 , 12/35 , -3/35 ] ):
 
 	"""
 	align( path_target , path_reference , ch1 , ch2 , ):
@@ -198,7 +197,7 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 	reference_trajectory = Traj()
 	reference_trajectory.load( path_reference )
 	
-    #################################################################################################################
+	#################################################################################################################
 	#average trajectories are centered on their center of mass and must have been previously lied down 
 	#(lie_down function in trajalign/average.py) so that they are orientad in the same way. The 
 	# average transformation that align the left trajectory to the rigth trajectory (we use the notation in 
@@ -207,6 +206,10 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 	#Picco et al. 2015, Material and Methods, Two color alignment procedure, Estimate of the average trasformations).
 	#################################################################################################################
 	
+#	t1_center_of_mass = t1.center_mass()
+#	t1.translate( - t1_center_of_mass )
+#	t2.translate( - t2.center_mass() )
+
 	if ( fimax1 ) :
 
 		print( 'fimax1 = True ; the software uses only the information of the target trajectory up to its peak of fluorescence intensity.' )
@@ -215,7 +218,10 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 	
 	else :
 
-		t1 = cp.deepcopy( target_trajectory )
+		t1 = target_trajectory
+
+	t1_center_mass = t1.center_mass()
+	t1.translate( - t1_center_mass )
 
 	if ( fimax2 ) :
 		
@@ -225,66 +231,11 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 	
 	else :
 
-		t2 = cp.deepcopy( reference_trajectory )
-
-	print( "unify_start_end_in_output : " + str( unify_start_end_in_output ) )
-	
-	if unify_start_end_in_alignment :
-
-		#if the input average trajectories have not unified start and end (unify_start_end = False), then unify the start and end for the sake of the alignment.
-
-		if t1.annotations()[ 'unify_start_end' ] is 'False' :
-			
-			t1.start( unified_start( t1 ) )
-			t1.end( unified_end( t1 ) )
-
-			print( '\nunify_start_end_in_alignment = True ; the target average trajectory new start and end are ' + str( unify_start( t1 ) ) + ' ' + t1.annotations()[ 't_unit' ] + ' and ' + str( unify_end( t1 ) ) + ' ' + t1.annotations()[ 't_unit' ] + '.\n' )
-
-		else :
-
-			print( '\nunify_start_end_in_alignment = ' + str( unify_start_end_in_alignment ) + '. The target average trajectory had already unified start and end values.\n' )
-	
-		
-		if t2.annotations()[ 'unify_start_end' ] is 'False' :
-			
-			t2.start( unified_start( t2 ) )
-			t2.end( unified_end( t2 ) )
-
-			print( 'unify_start_end_in_alignment = True ; the reference average trajectory new start and end are ' + str( unify_start( t2 ) ) + ' ' + t2.annotations()[ 't_unit' ] + ' and ' + str( unify_end( t2 ) ) + ' ' + t2.annotations()[ 't_unit' ] + '.\n' )
-		
-		else :
-
-			print( 'unify_start_end_in_alignment = ' + str( unify_start_end_in_alignment ) + '. The reference average trajectory had already unified start and end values.\n' )
-	
-	else :	
-	
-		if t1.annotations()[ 'unify_start_end' ] is 'True' :
-
-			print( '\nunify_start_end_in_alignment = False but the target average trajectory was computed with unify_start_end = True. I cannot perform this operation. unify_start_end_in_alignment set to True for the target trajectory.\n' )
-		
-		else :
-
-			print( '\nunify_start_end_in_alignment = ' + str( unify_start_end_in_alignment ) + '\n' )
-	
-		if t2.annotations()[ 'unify_start_end' ] is 'True' :
-
-			print( 'unify_start_end_in_alignment = False but the reference average trajectory was computed with unify_start_end = True. I cannot perform this operation. unify_start_end_in_alignment set to True for the reference trajectory\n' )
-		
-		else :
-
-			print( 'unify_start_end_in_alignment = ' + str( unify_start_end_in_alignment ) + '\n' )
-
-	t1_center_mass = t1.center_mass()
-	t1.translate( - t1_center_mass )
+		t2 = reference_trajectory
 
 	t2_center_mass = t2.center_mass()
 	t2.translate( - t2_center_mass )
 	
-	print( "------------------DEBUG---------------------------")
-	print( "t1 cm = " + str( t1_center_mass ) + "; target_trajectory cm =" + str( target_trajectory.center_mass() ) )
-	print( "t2 cm = " + str( t2_center_mass ) + "; reference_trajectory cm =" + str( reference_trajectory.center_mass() ) )
-	print( "------------------DEBUG---------------------------")
-
 	l = len( ch1 )
 	
 	#control that the dataset of loaded trajectories is complete
@@ -336,6 +287,7 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 		#
 		#where align_ch1_to_t1[ 'rc' ], align_ch1_to_t1[ 'lc' ], align_ch2_to_t2[ 'rc' ] and align_ch2_to_t2[ 'lc' ] are 
 		#the estimates of the center of masses with the weight mean convention used in MSD.
+		#Finally, the target and reference trajectory were initially shifted by 
 		#
 		# - t2_center_mass 
 		#
@@ -367,32 +319,10 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 		T[ 'translation' ].append( np.array( 
 				- R( T[ 'angle' ][ -1 ] ) @ align_ch1_to_t1[ 'rc' ]\
 						+ R( align_ch2_to_t2[ 'angle' ] ) @ ( align_ch1_to_t1[ 'lc' ] - align_ch2_to_t2[ 'lc' ] )\
-						+ align_ch2_to_t2[ 'rc' ] #+ t2_center_mass + t1_center_mass
+						+ align_ch2_to_t2[ 'rc' ] + t2_center_mass 
 				)[ 0 ] ) #the [ 0 ] is because otherwise it would be [[ x , y ]] instead of [ x , y ]
-#bkp		T[ 'translation' ].append( np.array( 
-#bkp				- R( T[ 'angle' ][ -1 ] ) @ align_ch1_to_t1[ 'rc' ]\
-#bkp						+ R( align_ch2_to_t2[ 'angle' ] ) @ ( align_ch1_to_t1[ 'lc' ] - align_ch2_to_t2[ 'lc' ] )\
-#bkp						+ align_ch2_to_t2[ 'rc' ] #+ t2_center_mass + t1_center_mass
-#bkp				)[ 0 ] ) #the [ 0 ] is because otherwise it would be [[ x , y ]] instead of [ x , y ]
 		T[ 'lag' ].append( ch2_lag - ch1_lag )
-
-		#debug
-		print( "------------------DEBUG---------------------------")
-		tmp1 =  np.array( 
-				- R( T[ 'angle' ][ -1 ] ) @ align_ch1_to_t1[ 'rc' ]\
-						+ R( align_ch2_to_t2[ 'angle' ] ) @ ( align_ch1_to_t1[ 'lc' ] - align_ch2_to_t2[ 'lc' ] )\
-						+ align_ch2_to_t2[ 'rc' ] 
-				)[ 0 ] #the [ 0 ] is because otherwise it would be [[ x , y ]] instead of [ x , y ]
-		print( "T" )
-		print( T[ 'translation' ][ len(  T[ 'translation' ] ) - 1 ] )
-		print( "T tmp1" )
-		print( tmp1 )
-
-		print( "center mass t1: "+ str( t1_center_mass ) ) 
-		print( "target center mass : "+ str( target_trajectory.center_mass() ) )
-		print( "center mass t2: "+ str( t2_center_mass ) ) 
-		print( "ref center mass : "+ str( reference_trajectory.center_mass() ) )
-		print( "------------------DEBUG---------------------------")
+	
 	#compute the median and the standard error (SE) of the transformations.
 	#NOTE that if fimax2 is used, the center of mass of reference trajectory does not 
 	#correspond to the center of mass of the trajectory to which the target trajectory 
@@ -432,19 +362,8 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 	target_trajectory.annotations( 'alignment_angle_SE' , str( T_median[ 'angle_SE' ] ) + ' rad' )
 	target_trajectory.annotations( 'alignment_translation' , str( T_median[ 'translation' ] ) + ' ' + target_trajectory.annotations()[ 'coord_unit' ] )
 	target_trajectory.annotations( 'alignment_translation_SE' , str( T_median[ 'translation_SE' ] ) + ' ' + target_trajectory.annotations()[ 'coord_unit' ] )
-#	target_trajectory.annotations( 'starting_center_mass' , str( t1_center_mass )  + ' ' + target_trajectory.annotations()[ 'coord_unit' ] )
 	target_trajectory.annotations( 'alignment_lag' , str( T_median[ 'lag' ] ) + ' ' + target_trajectory.annotations()[ 't_unit' ] )
 	target_trajectory.annotations( 'alignment_lag_SE' , str( T_median[ 'lag_SE' ] ) + ' ' + target_trajectory.annotations()[ 't_unit' ] )
-	target_trajectory.annotations( 'unify_start_end_in_alignment_output' , str( unify_start_end_in_output ) )
-
-	# update the mean_starts and mean_ends, which are used for unify_start and unify_end.
-	target_trajectory.annotations( 'mean_starts' , str( float( target_trajectory.annotations()[ 'mean_starts' ] ) + T_median[ 'lag' ] ) )
-	target_trajectory.annotations( 'mean_ends' , str( float( target_trajectory.annotations()[ 'mean_ends' ] ) + T_median[ 'lag' ] ) )
-
-	if unify_start_end_in_output :
-
-		target_trajectory.start( unified_start( target_trajectory ) )
-		target_trajectory.end( unified_end( target_trajectory ) )
 
 	target_trajectory.save( file_name )
 

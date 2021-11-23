@@ -19,13 +19,11 @@ from numpy import insert
 from numpy import NaN
 from numpy import insert
 from numpy import nanmean
-from numpy import nanstd
 from numpy import nanmax
 from numpy import nanmin
 from numpy import float64 
 from numpy import convolve
 from numpy import isclose
-from numpy import isnan
 from numpy import round
 import copy as cp
 
@@ -128,8 +126,8 @@ class Traj:
 
 		"""
 	
-	__slots__ = ['_annotations','_frames','_t','_coord','_f','_mol','_n','_m2', '_m3' , '_m4' , '_m5' , '_u02' , '_u20' , '_u11' , '_t_err','_coord_err','_f_err','_mol_err' , '_m2_err' , '_m3_err', '_m4_err', '_m5_err', '_u02_err', '_u20_err', '_u11_err' ]
-	
+	__slots__ = ['_annotations','_frames','_t','_coord','_f','_mol','_n','_m2', '_t_err','_coord_err','_f_err','_mol_err' , '_m2_err' ]
+	 
 
 	def __init__(self,**annotations):
 
@@ -141,13 +139,7 @@ class Traj:
 		self._f = array([],dtype='float64')
 		self._mol = array([],dtype='float64')
 		self._n = array([],dtype='float64')
-		self._m2 = array([],dtype='float64') # second moment of brightness (f is the first)
-		self._m3 = array([],dtype='float64') # third moment of brightness 
-		self._m4 = array([],dtype='float64') # fourth moment of brightness 
-		self._m5 = array([],dtype='float64') # fifth moment of brightness 
-		self._u02 = array([],dtype='float64') # second moment of brightness along y 
-		self._u20 = array([],dtype='float64') #	second moment of brightness along x
-		self._u11 = array([],dtype='float64') # covariance brightness 
+		self._m2 = array([],dtype='float64') #second moment of brightness (f is the first)
 
 		#Trajectory error attributes
 		self._t_err = array([],dtype='float64')
@@ -155,12 +147,6 @@ class Traj:
 		self._f_err = array([],dtype='float64')
 		self._mol_err = array([],dtype='float64')
 		self._m2_err = array([],dtype='float64')
-		self._m3_err = array([],dtype='float64')
-		self._m4_err = array([],dtype='float64')
-		self._m5_err = array([],dtype='float64')
-		self._u02_err = array([],dtype='float64')
-		self._u20_err = array([],dtype='float64')
-		self._u11_err = array([],dtype='float64')
 
 
 	def __dict__(self):
@@ -188,31 +174,24 @@ class Traj:
 					if s in ('_coord','_coord_err'):
 						#x coord
 						table.append(x[0])
-
-						try :
+						if len(self._annotations['coord_unit']) > 0:
 							names.append('x' + s[6:] + ' (' + self._annotations['coord_unit'] + ')')
-						except :
+						else:
 							names.append('x' + s[6:])
-
 						#y coord	
 						table.append(x[1])
-						
-						try :
+						if len(self._annotations['coord_unit']) > 0:
 							names.append('y' + s[6:] + ' (' + self._annotations['coord_unit'] + ')')
-						except:
+						else:
 							names.append('y' + s[6:])
 					else: 
 						table.append(x)
-# old						if s[1:] + '_unit' in self._annotations.keys():
-# old							if len(self._annotations[ s[1:] + '_unit' ]) > 0:
-# old								names.append( s[1:] + ' (' + self._annotations[s[1:] + '_unit' ] + ')' )
-# old							else: 
-# old								names.append(s[1:])
-# old						else:
-# old							names.append(s[1:])
-						try :
-							names.append( s[1:] + ' (' + self._annotations[s[1:] + '_unit' ] + ')' )
-						except :
+						if s[1:] + '_unit' in self._annotations.keys():
+							if len(self._annotations[ s[1:] + '_unit' ]) > 0:
+								names.append( s[1:] + ' (' + self._annotations[s[1:] + '_unit' ] + ')' )
+							else: 
+								names.append(s[1:])
+						else:
 							names.append(s[1:])
 			#find the best column width for the table
 			table_col_width = max(len(str(elmnt)) \
@@ -321,60 +300,6 @@ class Traj:
 			except IndexError:
 				print('Indexes in Traj().m2 are out of bounds')
 
-	def m3(self,*items):
-		if (len(items)==0): return self._m3
-		elif len(items) == 1 : return self._m3[ items ]
-		else: 
-			try:
-				return(self._m3[[item for item in items]])
-			except IndexError:
-				print('Indexes in Traj().m3 are out of bounds')
-
-	def m4(self,*items):
-		if (len(items)==0): return self._m4
-		elif len(items) == 1 : return self._m4[ items ]
-		else: 
-			try:
-				return(self._m4[[item for item in items]])
-			except IndexError:
-				print('Indexes in Traj().m4 are out of bounds')
-
-	def m5(self,*items):
-		if (len(items)==0): return self._m5
-		elif len(items) == 1 : return self._m5[ items ]
-		else: 
-			try:
-				return(self._m5[[item for item in items]])
-			except IndexError:
-				print('Indexes in Traj().m5 are out of bounds')
-
-	def u02(self,*items):
-		if (len(items)==0): return self._u02
-		elif len(items) == 1 : return self._u02[ items ]
-		else: 
-			try:
-				return(self._u02[[item for item in items]])
-			except IndexError:
-				print('Indexes in Traj().u02 are out of bounds')
-
-	def u20(self,*items):
-		if (len(items)==0): return self._u20
-		elif len(items) == 1 : return self._u20[ items ]
-		else: 
-			try:
-				return(self._u20[[item for item in items]])
-			except IndexError:
-				print('Indexes in Traj().u20 are out of bounds')
-
-	def u11(self,*items):
-		if (len(items)==0): return self._u11
-		elif len(items) == 1 : return self._u11[ items ]
-		else: 
-			try:
-				return(self._u11[[item for item in items]])
-			except IndexError:
-				print('Indexes in Traj().u11 are out of bounds')
-
 	def t_err(self,*items):
 		if (len(items)==0): return self._t_err
 		elif len(items) == 1 : return self._t_err[ items ]
@@ -435,60 +360,6 @@ class Traj:
 			except IndexError:
 				print('Indexes in Traj().f_err are out of bounds')
 	
-	def m3_err(self,*items):
-		if (len(items)==0): return self._m3_err
-		elif len(items) == 1 : return self._m3_err[ items ]
-		else: 
-			try:
-				return(self._m3_err[[item for item in items]])
-			except IndexError:
-				print('Indexes in Traj().m3_err are out of bounds')
-
-	def m4_err(self,*items):
-		if (len(items)==0): return self._m4_err
-		elif len(items) == 1 : return self._m4_err[ items ]
-		else: 
-			try:
-				return(self._m4_err[[item for item in items]])
-			except IndexError:
-				print('Indexes in Traj().m4_err are out of bounds')
-
-	def m5_err(self,*items):
-		if (len(items)==0): return self._m5_err
-		elif len(items) == 1 : return self._m5_err[ items ]
-		else: 
-			try:
-				return(self._m5_err[[item for item in items]])
-			except IndexError:
-				print('Indexes in Traj().m5_err are out of bounds')
-
-	def u02_err(self,*items):
-		if (len(items)==0): return self._u02_err
-		elif len(items) == 1 : return self._u02_err[ items ]
-		else: 
-			try:
-				return(self._u02_err[[item for item in items]])
-			except IndexError:
-				print('Indexes in Traj().u02_err are out of bounds')
-
-	def u20_err(self,*items):
-		if (len(items)==0): return self._u20_err
-		elif len(items) == 1 : return self._u20_err[ items ]
-		else: 
-			try:
-				return(self._u20_err[[item for item in items]])
-			except IndexError:
-				print('Indexes in Traj().u20_err are out of bounds')
-
-	def u11_err(self,*items):
-		if (len(items)==0): return self._u11_err
-		elif len(items) == 1 : return self._u11_err[ items ]
-		else: 
-			try:
-				return(self._u11_err[[item for item in items]])
-			except IndexError:
-				print('Indexes in Traj().u11_err are out of bounds')
-
 	def extract(self,*items):
 		
 		"""
@@ -523,7 +394,7 @@ class Traj:
 				output = Traj(range = str(new_items))
 			#inherit the annotations
 			for a in self.annotations().keys():
-				if a != 'range':
+				if a is not 'range':
 					output.annotations(a,self._annotations[a])
 			try:
 				for a in self.attributes():
@@ -606,39 +477,6 @@ class Traj:
 		output.annotations( 'fimax' , 'TRUE' )
 
 		return output
-
-	def msd( self ) :
-
-		#check that the attribute .coord is not empty
-		if len( self.coord() ) != 2 : 
-
-			raise AttributeError( 'The size of the .coord() attribute does not match expectation, does your trajectory have a x and y coordinates?' ) 
-
-		else :
-
-			m = [ ]
-			sem = [ ]
-		
-			l = len( self.coord()[ 0 ] )
-			ss = 1  #initiate the step size
-
-			while( ss < l ) :
-
-				x1 = self.coord()[ 0 ][ ss : ]
-				x2 = self.coord()[ 0 ][ : l - ss ]
-				
-				y1 = self.coord()[ 1 ][ ss : ]
-				y2 = self.coord()[ 1 ][ : l - ss ]
-
-				d = [ ( x1[ i ] - x2[ i ] ) ** 2  + ( y1[ i ] - y2[ i ] ) ** 2 for i in range( l - ss ) ] 
-
-				m.append( nanmean( d ) )
-				sem.append( nanstd( d ) / sqrt( sum( ~isnan( d ) ) ) ) #sem, dividing by the square root of the number of not nan items
-
-				ss = ss + 1 
-
-			return array( [ [ i + 1  for i in range( len( m ) ) ] , m , sem ] )
-
 
 	#Setters
 	#Input values in the Traj object as arrays. Array length must be equal to the length of frames and time
@@ -1015,144 +853,6 @@ class Traj:
 			f.write(repr(self))
 		f.close()
 	
-	def load2( self , file_name , sep=None , coord_unit = '' , t_unit = '' , comment_char='#' , **attrs ):
-
-		# define the columns that will be exctracted from the file based on the number of attributes requested to load
-		
-		columns = {}
-
-		for a in attrs.keys() :
-
-			if '_' + a in self.__slots__[ 1 : ] :
-
-				if ( a == 'coord' ) | ( a == 'coord_err' ) :
-
-					columns[ a + '_x' ] = []
-					columns[ a + '_y' ] = []
-
-				else :
-
-					columns[ a ] = []
-					
-			else :
-
-				raise TypeError( 'The attribute ' + a + ' is ill defined does not have a correspondance in self.__slots__' )
-
-		#load the file content
-
-		with open( file_name , 'r' ) as file :
-	
-			for line in file :
-	
-				# load Annotations
-				if comment_char in line :
-				
-					line_elements = line.split( sep )
-					
-					# if the first element of the line is the comment_char, as for the Annotations
-					if line_elements[ 0 ][ 0 : len( comment_char ) ] == comment_char :
-		
-						# and there is more than one element in the line,
-						if len( line_elements ) > 1 :
-						
-							# and the second element is the name of an annotation, therefore with no-0 length
-							if len( line_elements[ 1 ] ) > 0 :
-							
-								# and ending with ":"
-								if line_elements[ 1 ][ -1 ] == ":" :
-		
-									annotation_name = line_elements[ 1 ][ : -1 ]
-									
-									annotation = str("")
-									
-									for i in range( 2 , len( line_elements ) - 1 ) :
-			
-										annotation = annotation + str( line_elements[ i ] ) + " " 
-			
-									annotation = annotation + str( line_elements[ len( line_elements ) - 1 ] ) #the last element has no sep following
-
-									# assign Annotations
-									
-									self.annotations( annotation_name , annotation )
-
-				# load Trajectory
-
-				else :
-					
-					line_elements = line.split( sep )
-				
-					if len( line_elements ) > 0 : 
-
-						for a in attrs.keys() :
-	
-							if ( a == 'coord' ) | ( a == 'coord_err' ) :
-	
-								columns[ a + '_x' ].append( float(  line_elements[ attrs[ a ][ 0 ] ] ) )
-								columns[ a + '_y' ].append( float(  line_elements[ attrs[ a ][ 1 ] ] ) )
-							
-							elif ( a == 'frames' ) :
-								
-								columns[ a ].append( int( line_elements[ attrs[ a ] ] ) )
-	
-							else :
-								
-								try :
-							
-									columns[ a ].append( float(  line_elements[ attrs[ a ] ] ) )
-								
-								except : 
-								
-									raise TypeError( 'The attrs ' + a + ' expects only one value' )
-
-		# control that the inputs are correct, namely that if t and coord are inputed then the user specifies their units
-	
-		if ( 'coord' in attrs.keys() ) & ( len( coord_unit ) == 0 ) :
-				
-			try :
-				
-				coord_unit = self.annotations()[ 'coord_unit' ]
-
-			except :
-				
-				raise AttributeError( 'Please, specify the coordinate unit \'coord_unit\' in load' )
-				
-		if ( 't' in attrs.keys() ) & ( len( t_unit ) == 0 ) :
-				
-			try :
-				
-				t_unit = self.annotations()[ 't_unit' ]
-
-			except :
-				
-				raise AttributeError( 'Please, specify the t unit \'t_unit\' in load' )
-				
-
-		# assign Trajectory values to Traj object
-
-		for a in attrs.keys() :
-
-			if ( a == 'coord' ) | ( a == 'coord_err' ) :
-					
-				self.input_values( a , [ columns[ a + '_x' ] ,  columns[ a + '_y' ] ] , unit = coord_unit )
-			
-			elif a == 't' :
-					
-					self.input_values( a , columns[ a ] , unit = t_unit )
-
-			elif a == 'frames' :
-
-				try: 
-				
-					self.input_values( a , columns[ a ] )
-				
-				except:
-			
-					raise AttributeError('.load_data: chronological disorder in trajectory "' + file_name + '".')
-
-			else : 
-
-				self.input_values( a , columns[ a ] )
-
 	def load(self,file_name,sep=None,comment_char='#',**attrs):
 		"""
 		.load(file_name,sep=None,comment_char='#',**attribute_names): loads data from a txt table.
@@ -1353,3 +1053,4 @@ class Traj:
 				self._annotations[annotation] = string
 		else:
 			self._annotations[annotation] = string
+
