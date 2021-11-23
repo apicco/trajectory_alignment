@@ -394,7 +394,7 @@ class Traj:
 				output = Traj(range = str(new_items))
 			#inherit the annotations
 			for a in self.annotations().keys():
-				if a is not 'range':
+				if a != 'range':
 					output.annotations(a,self._annotations[a])
 			try:
 				for a in self.attributes():
