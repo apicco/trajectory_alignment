@@ -34,13 +34,17 @@ If you use this software, please cite:
 
 ## External links:
 
+[ Colaboratory page with the examples above ](https://colab.research.google.com/drive/1GqecepdVNjqx1J_IOnTO00x63HLb6u42?usp=sharing)
+
 [ Github software repository ](https://github.com/apicco/trajectory_alignment)
 
+[ SpotQuant ](https://github.com/apicco/spotquant) A software for the quantification of the number of molecules from fluorescence intensity ratiometric measurements between diffraction limited spots, imaged by fluorescence microscopy.
 [ Python ](https://docs.python.org/3/)
 
 [ Kaksonen laboratory ](http://cms.unige.ch/sciences/biochimie/-Marko-Kaksonen-.html)
 
 ## References:
+[Picco, Kukulski, _et al._, MBoC 2018](https://doi.org/10.1091/mbc.E17-11-0688)
 
 [Picco and Kaksonen, Methods in Cell Biology 2017](http://www.sciencedirect.com/science/article/pii/S0091679X16301546) 
 
