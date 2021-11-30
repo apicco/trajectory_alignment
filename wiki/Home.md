@@ -41,7 +41,7 @@ If you use this software, please cite:
 
 ## External links:
 
-[ Colaboratory page with the examples above ](https://colab.research.google.com/drive/1GqecepdVNjqx1J_IOnTO00x63HLb6u42?usp=sharing)
+[ Colaboratory page with the examples above ](https://colab.research.google.com/drive/1GqecepdVNjqx1J_IOnTO00x63HLb6u42)
 
 [ Github software repository ](https://github.com/apicco/trajectory_alignment)
 
