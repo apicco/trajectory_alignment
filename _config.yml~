@@ -1,0 +1,36 @@
+#title: trajalign package
+name: Andrea Picco
+theme: minima
+#email: andrea.picco@unige.ch
+description: Align in space and in time, and average, trajectories of diffraction limited object, which are recorded with fluorescence microscopy.
+
+baseurl: '/trajectory_alignment'
+twitter_username: g_trevize
+github_username: apicco
+
+# Build settings
+
+exclude:
+    - Gemfile
+    - Gemfile.lock
+##
+## Parameters for WikiToJekyll
+## Used by Rake:wikisub, Rake:wiki and wikiLinks generator plugin
+###
+
+wikiToJekyll:
+    # your user Github Name
+    user_name: apicco
+
+    # your repository Name
+    repository_name: trajectory_alignment
+
+    deploy_remote: "origin"
+    deploy_branch: "gh-pages"
+
+    wiki_source: "_wiki"
+    wiki_dest: "wiki"
+
+    commit_and_push: false
+
+

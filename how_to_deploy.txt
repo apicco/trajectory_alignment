@@ -1,0 +1,5 @@
+rake deploy #probably unecessary
+rake wiki
+git commit -a
+git push
+
