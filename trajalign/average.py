@@ -826,8 +826,8 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
     #compute the average transformation using each trajectory as possible reference
     aligned_trajectories , average_trajectory , alignment_precision = compute_average( trajectory_list , transformations , median , fimax , max_frame , unify_start_end )
 
-    best_average = alignment_precision.index( min( alignment_precision ) ) 
-    worst_average = alignment_precision.index( max( alignment_precision ) ) 
+    best_average = alignment_precision.index( np.nanmin( alignment_precision ) ) 
+    worst_average = alignment_precision.index( np.nanmax( alignment_precision ) ) 
 
     if not unify_start_end :
 
