@@ -810,6 +810,13 @@ class Traj:
         else :
             raise TypeError('shift in lag() must be integer')
 
+    def tshift( self , t0 ) :
+        
+        if len( self._t ) == 0 :
+            raise AttributeError('There is no time to be shifted' )
+        else :
+            self._t += t0
+
     def start(self,t=None):
 
         """
