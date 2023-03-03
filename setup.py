@@ -1,7 +1,7 @@
 from distutils.core import setup
 
 setup( name = 'trajectory alignment' ,
-		version = '1.86' ,
+		version = '1.87' ,
 		description = 'Utilities to Align and Average Trajectories' ,
 		author = 'Andrea Picco',
 		author_email = 'andrea.picco@unige.ch',

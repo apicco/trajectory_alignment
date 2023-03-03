@@ -26,6 +26,7 @@ from numpy import convolve
 from numpy import isclose
 from numpy import round
 from numpy import polyfit
+from numpy import inf
 import copy as cp
 
 class Traj:
