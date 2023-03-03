@@ -25,6 +25,7 @@ from numpy import float64
 from numpy import convolve
 from numpy import isclose
 from numpy import round
+from numpy import polyfit
 import copy as cp
 
 class Traj:
@@ -478,6 +479,132 @@ class Traj:
 
 		return output
 
+    # Mean Square Displacement utils
+    def msd( self , scale = 1 ) :
+
+		#check that the attribute .coord is not empty
+		if len( self.coord() ) != 2 : 
+
+			raise AttributeError( 'The size of the .coord() attribute does not match expectation, does your trajectory have a x and y coordinates?' ) 
+		
+		# check that the annotation delta_t is not emplty
+		if not self.annotations()[ 'delta_t' ] :
+			
+			raise AttributeError( 'msd: The trajectory has no annotation delta_t!' ) 
+
+		else :
+
+			# fill the trajectory, it is important that missing gaps are filled
+			self.fill()
+		
+			# msd units:
+			if ( ( scale == 1 ) & ( self.annotations()[ 'coord_unit' ] == 'pxl' ) ):
+	
+				raise AttributeError( 'coordinates are in pxl units, add a scaling factor' )
+			
+			elif ( ( scale != 1 ) & ( self.annotations()[ 'coord_unit' ] != 'pxl' ) ) :
+			
+				raise AttributeError( 'coordinates are in units, you do not need a scaling factor' )
+		
+			m = [ 0 ]
+			sem = [ inf ]
+		
+			l = len( self.coord()[ 0 ] )
+			ss = 1  #initiate the step size
+
+			while( ss < l ) :
+
+				x1 = self.coord()[ 0 ][ ss : ] * scale
+				x2 = self.coord()[ 0 ][ : l - ss ] * scale
+				
+				y1 = self.coord()[ 1 ][ ss : ] * scale
+				y2 = self.coord()[ 1 ][ : l - ss ] * scale
+
+				d = [ ( x1[ i ] - x2[ i ] ) ** 2  + ( y1[ i ] - y2[ i ] ) ** 2 for i in range( l - ss ) ] 
+
+				m.append( nanmean( d ) )
+				sem.append( nanstd( d ) / sqrt( sum( ~isnan( d ) ) ) ) #sem, dividing by the square root of the number of not nan items
+
+				ss = ss + 1 
+			
+			return array( [ 
+				[ i * float( self.annotations()[ 'delta_t' ] ) for i in range( len( m ) ) ] ,
+				m , 
+				sem ] 
+				)
+
+    def msdfit( self , sel = None , scale = 1 , deg = 2 , return_data = False ) :
+
+		if sel == None :
+			sel = len( self )
+
+		# output dt , msd , msd_err into m
+		m = self.msd( scale ) 
+		t = m[ 0 ][ 0 : sel ]
+		y = m[ 1 ][ 0 : sel ]
+		y_err = m[ 2 ][ 0 : sel ]
+		
+		# compute the msd polyfit of deg 
+		try: 
+
+			p , cov = polyfit( t , y , w = 1/y_err , deg = deg , cov = True )
+		
+		except :
+
+			p , cov = polyfit( t , y , deg = deg , cov = True )
+
+		v = [ sqrt( p[ 0 ] ) , sqrt( cov[ 0 , 0 ] ) / ( 2 * sqrt( p[ 0 ] ) ) ]
+
+		D = [ p[ 1 ] / 4 , cov[ 1 , 1 ] / 4 ]
+	
+		if return_data :
+	
+			data = { 'x' : t , 'y' : y , 'err' : y_err , 'p' : p , 'cov' : cov }
+			
+			return v , D , data
+
+		else : 
+			
+			return v , D
+
+    # Integral calculator
+	def integral( self , what , scale = 1 , two_dimentional = False ) :
+
+		x = getattr( self , '_'+what )
+		
+		xx = []
+
+		if x.ndim == 1 :
+			x0 = 0 # reset the intergal starting value to 0
+			for i in range( 0 , len( x ) ) :
+				if x[ i ] == x[ i ] : 
+					xx.append( x0 + x[ i ] * scale )
+					x0 = xx[ -1 ]
+				else : 
+					xx.append( NaN )
+		else :
+			if two_dimentional :
+				x0 = 0 # reset the intergal starting value to 0
+				for i in range( 0 , len( x[ 0 ] ) ) :
+
+					if ( ( x[ 0 ][ i ] == x[ 0 ][ i ] ) & ( x[ 1 ][ i ] == x[ 1 ][ i ] ) ) : 
+						xx.append( x0 + sign( x[ 0 ][ i ] ) * sqrt( x[ 0 ][ i ] ** 2 + x[ 1 ][ i ] ** 2 ) * scale )
+						x0 = xx[ -1 ]
+				
+					else : 
+
+						xx.append( NaN )
+			else :
+				for j in range( 0 , x.ndim ) :
+					xx.append( [] )
+					x0 = 0 # reset the intergal starting value to 0
+					for i in range( 0 , len( x[ j ] ) ) :
+						if x[ j ][ i ] == x[ j ][ i ] : 
+							xx[ j ].append( x0 + x[ j ][ i ] * scale )
+							x0 = xx[ j ][ -1 ]
+						else : 
+							xx[ j ].append( NaN )
+		r
 	#Setters
 	#Input values in the Traj object as arrays. Array length must be equal to the length of frames and time
 	def input_values(self,name,x,unit=''):
