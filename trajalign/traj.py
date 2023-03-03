@@ -19,6 +19,7 @@ from numpy import insert
 from numpy import NaN
 from numpy import insert
 from numpy import nanmean
+from numpy import nanstd
 from numpy import nanmax
 from numpy import nanmin
 from numpy import float64 
