@@ -25,6 +25,7 @@ from numpy import nanmin
 from numpy import float64 
 from numpy import convolve
 from numpy import isclose
+from numpy import isnan
 from numpy import round
 from numpy import polyfit
 from numpy import inf
