@@ -815,7 +815,13 @@ class Traj:
         if len( self._t ) == 0 :
             raise AttributeError('There is no time to be shifted' )
         else :
+            # shift the time
             self._t += t0
+            # and shift the mean start and end accordingly, if present
+            if 'mean_starts' in  self.annotations().keys() :
+                self.annotations()[ 'mean_starts' ] = t0 + self.annotations()[ 'mean_starts' ]
+            if 'mean_ends' in  self.annotations().keys() :
+                self.annotations()[ 'mean_ends' ] = t0 + self.annotations()[ 'mean_ends' ]
 
     def start(self,t=None):
 
