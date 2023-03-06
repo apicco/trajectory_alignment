@@ -819,9 +819,9 @@ class Traj:
             self._t += t0
             # and shift the mean start and end accordingly, if present
             if 'mean_starts' in  self.annotations().keys() :
-                self.annotations()[ 'mean_starts' ] = t0 + self.annotations()[ 'mean_starts' ]
+                self.annotations()[ 'mean_starts' ] = t0 + float( self.annotations()[ 'mean_starts' ] )
             if 'mean_ends' in  self.annotations().keys() :
-                self.annotations()[ 'mean_ends' ] = t0 + self.annotations()[ 'mean_ends' ]
+                self.annotations()[ 'mean_ends' ] = t0 + float( self.annotations()[ 'mean_ends' ] )
 
     def start(self,t=None):
 
