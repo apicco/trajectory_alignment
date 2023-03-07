@@ -876,22 +876,27 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 
     return( average_trajectory[ best_average ] , average_trajectory[ worst_average ] , aligned_trajectories[ best_average ] )
 
-def unified_start( t ) :
+def unified_start( t , 95CI = True ) :
 
     try :
 
-        return float( t.annotations()[ 'mean_starts' ] ) - 1.96 * float( t.annotations()[ 'std_starts' ] ) / np.sqrt( float( t.annotations()[ 'n_starts' ] ) )
+        if 95CI : 
+            return float( t.annotations()[ 'mean_starts' ] ) - 1.96 * float( t.annotations()[ 'std_starts' ] ) / np.sqrt( float( t.annotations()[ 'n_starts' ] ) )
+        else : 
+            return float( t.annotations()[ 'mean_starts' ] )
 
     except :
 
         print( 'Error: one or more of the annotations mean_starts, std_starts, and n_starts is/are missiong' )
 
-def unified_end( t ) :
+def unified_end( t , 95CI = True ) :
 
     try :
 
-        return float( t.annotations()[ 'mean_ends' ] ) + 1.96 * float( t.annotations()[ 'std_ends' ] ) / np.sqrt( float( t.annotations()[ 'n_ends' ] ) )
-
+        if 95CI : 
+            return float( t.annotations()[ 'mean_ends' ] ) + 1.96 * float( t.annotations()[ 'std_ends' ] ) / np.sqrt( float( t.annotations()[ 'n_ends' ] ) )
+        else : 
+            return float( t.annotations()[ 'mean_ends' ] )
     except :
 
         print( 'Error: one or more of the annotations mean_ends, std_ends, and n_ends is/are missiong' )
