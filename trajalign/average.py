@@ -16,7 +16,7 @@ import warnings as wr
 
 from sklearn import linear_model
 
-def header( version = 1.95 , year = 2018 , printit = True ) :
+def header( version = 1.96 , year = 2018 , printit = True ) :
 
     if printit :
 
@@ -885,8 +885,9 @@ def unified_start( t , add_CI = True , correct_lag = True ) :
         else : 
             ustart = float( t.annotations()[ 'mean_starts' ] )
 
+        print( t.annotations() )
         if ( 'alignment_lag' in t.annotations().keys() ) & correct_lag :
-            return ustart + float( t.annotations()[ 'alignment_lag' ] )
+            return ustart + float( t.annotations()[ 'alignment_lag' ].split()[ 0 ] )
         else :
             return ustart
 
@@ -905,7 +906,7 @@ def unified_end( t , add_CI = True , correct_lag = True ) :
             uend = float( t.annotations()[ 'mean_ends' ] )
 
         if ( 'alignment_lag' in t.annotations().keys() ) & correct_lag :
-            return uend + float( t.annotations()[ 'alignment_lag' ] )
+            return uend + float( t.annotations()[ 'alignment_lag' ].split()[ 0 ] )
         else :
             return uend
 
