@@ -876,27 +876,39 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
 
     return( average_trajectory[ best_average ] , average_trajectory[ worst_average ] , aligned_trajectories[ best_average ] )
 
-def unified_start( t , add_CI = True ) :
+def unified_start( t , add_CI = True , correct_lag = True ) :
 
     try :
 
         if add_CI : 
-            return float( t.annotations()[ 'mean_starts' ] ) - 1.96 * float( t.annotations()[ 'std_starts' ] ) / np.sqrt( float( t.annotations()[ 'n_starts' ] ) )
+            ustart =  float( t.annotations()[ 'mean_starts' ] ) - 1.96 * float( t.annotations()[ 'std_starts' ] ) / np.sqrt( float( t.annotations()[ 'n_starts' ] ) )
         else : 
-            return float( t.annotations()[ 'mean_starts' ] )
+            ustart = float( t.annotations()[ 'mean_starts' ] )
+
+        if ( 'alignment_lag' in t.annotations().keys() ) & correct_lag :
+            return ustart + float( t.annotations()[ 'alignment_lag' ] )
+        else :
+            return ustart
+
 
     except :
 
         print( 'Error: one or more of the annotations mean_starts, std_starts, and n_starts is/are missiong' )
 
-def unified_end( t , add_CI = True ) :
+def unified_end( t , add_CI = True , correct_lag = True ) :
 
     try :
 
         if add_CI : 
-            return float( t.annotations()[ 'mean_ends' ] ) + 1.96 * float( t.annotations()[ 'std_ends' ] ) / np.sqrt( float( t.annotations()[ 'n_ends' ] ) )
+            uend = float( t.annotations()[ 'mean_ends' ] ) + 1.96 * float( t.annotations()[ 'std_ends' ] ) / np.sqrt( float( t.annotations()[ 'n_ends' ] ) )
         else : 
-            return float( t.annotations()[ 'mean_ends' ] )
+            uend = float( t.annotations()[ 'mean_ends' ] )
+
+        if ( 'alignment_lag' in t.annotations().keys() ) & correct_lag :
+            return uend + float( t.annotations()[ 'alignment_lag' ] )
+        else :
+            return uend
+
     except :
 
         print( 'Error: one or more of the annotations mean_ends, std_ends, and n_ends is/are missiong' )
