@@ -17,6 +17,160 @@ from scipy.interpolate import UnivariateSpline #need to install py35-scikit-lear
 import numpy as np
 import copy as cp
 
+def spline( t1 , t2 ) :
+
+	"""
+	interpolate t1 or t2 with a spline.
+	"""
+
+	#the interpolation function
+	def interpolation( to_interpolate , delta_t , k = 3 ) :
+	
+		interpolated_traj = Traj( interpolated = 'True' )
+		interpolated_traj.annotations( to_interpolate.annotations() )
+		interpolated_traj.annotations()[ 'delta_t' ] = delta_t
+
+		l = len( to_interpolate )
+
+		if not l > k :
+			
+			#UnivariateSpline requires that m > k, where m is the number of points interpolated 
+			#and k is the degree of smoothing spline. Default in UnivatiateSpline and in here is k = 3.
+			k = l - 1
+
+		#the new time intervals for the trajectory interpolated
+		t = [ to_interpolate.start() ]
+		while( t[ len(t) - 1 ] <= to_interpolate.end() ) :
+			t.append( t[ len(t) - 1 ] + delta_t )
+		
+		interpolated_traj.input_values( 
+				name = 't' , 
+				x = t ,
+				unit = to_interpolate.annotations()[ 't_unit' ]
+				)
+
+		for attribute in to_interpolate.attributes() : 	
+			
+			if attribute in [ 'f' , 'mol' ] :
+
+				s = UnivariateSpline( to_interpolate.t() , getattr( to_interpolate , '_'+attribute ) , k = k )
+				interpolated_traj.input_values( 
+						name = attribute , 
+						x = s( interpolated_traj.t() )
+						)
+
+			if attribute == 'coord' :
+
+				s_x = UnivariateSpline( to_interpolate.t() , to_interpolate.coord()[ 0 ] , k = k )
+				s_y = UnivariateSpline( to_interpolate.t() , to_interpolate.coord()[ 1 ] , k = k )
+				interpolated_traj.input_values( 
+						name = 'coord' , 
+						x = [ s_x( interpolated_traj.t() ) , s_y( interpolated_traj.t() ) ],
+						)
+
+		return( interpolated_traj )
+
+	#the trajectory with the largest delta_t will be the one that will 
+	#be splined. 
+
+	if t1.annotations()[ 'delta_t' ] >= t2.annotations()[ 'delta_t' ] :
+
+		delta_t = float(t2.annotations()[ 'delta_t' ])
+	
+	else :
+		
+		delta_t = float(t1.annotations()[ 'delta_t' ])
+
+	not_nan = [ i for i in range( len( t1 ) ) if t1.f( i ) == t1.f( i ) ]
+	t1_to_interpolate = t1.extract( not_nan )
+
+	not_nan = [ i for i in range( len( t2 ) ) if t2.f( i ) == t2.f( i ) ]
+	t2_to_interpolate = t2.extract( not_nan )
+
+	return( 
+			interpolation( t1_to_interpolate , delta_t ) ,
+			interpolation( t2_to_interpolate , delta_t )
+			)
+
+def cc( input_t1 , input_t2 ):
+	
+	"""
+	cc( input_t1 , input_t2 ) returns the time lag between the trajectory input_t1 and the trajectory input_t2,
+	computed from the cross correlation of the fluorescence intensities of the two trajectories. 
+	The trajectory input_t2 will be aligned in time to input_t1 by adding the output of cc to input_t2.t()
+	"""
+
+	t1 = cp.deepcopy( input_t1 )
+	t2 = cp.deepcopy( input_t2 )
+
+	if t1.annotations()[ 'delta_t' ] != t2.annotations()[ 'delta_t' ] :
+		raise AttributeError('The two trajectories have different \'delta_t\' ') 
+	else: 
+		delta_t = t1.annotations()[ 'delta_t' ]
+	
+	#extend t1 to be as long as to include the equivalent
+	#of t2 lifetime as NA before and after it:
+
+	t1.start( t1.start() - t2.lifetime() )
+	t1.end( t1.end() + t2.lifetime() )
+	
+	#align the two trajectories to the same start point
+	lag0 = t1.start() - t2.start()
+	t2.input_values( 't' , t2.t() + lag0 )
+
+	output = []
+	while t2.end() <= t1.end() :
+
+		#because of rounding errors I cannot use:
+		#f1 = [ t1.f( i ) for i in range( len( t1 ) ) if ( t1.t( i ) >= t2.start() ) & ( t1.t( i ) <= t2.end() ) ] 
+		#but the following, where instead of greater than... I use >< delta_t / 2
+		f1 = [ t1.f( i ) for i in range( len( t1 ) ) if ( t1.t( i ) - t2.start() > - delta_t / 2 ) & ( t1.t( i ) - t2.end() < delta_t / 2 ) ] 
+		
+		if len( f1 ) != len( t2 ) : raise IndexError( "There is a problem with the selection of t1 fluorescence intensities and t2 length in the cross-correlation function cc. The lengths do not match.")
+
+		output.append( 
+				sum( [ f1[ i ] * t2.f( i ) for i in range( len( t2 ) ) if ( f1[ i ] == f1[ i ] ) & ( t2.f( i ) == t2.f( i ) ) ] )
+				)
+		
+		t2.lag( 1 )
+
+	return( lag0 + output.index( max( output ) ) * t1.annotations()[ 'delta_t' ] )
+
+def unify_start_and_end( t1 , t2 ):
+
+	"""
+	Uniform the start and the end of two trajectories that overlap
+	in time, so that the overlapping time points can be used to compute the
+	rotation and translation that aligns the two trajectories together.
+	"""
+	
+	if t1.annotations()[ 'delta_t' ] != t2.annotations()[ 'delta_t' ] : 
+		raise AttributeError('The trajectoires inputed in unify_start_and_end \
+				have different delta_t')
+	if t1.start() >= t2.end() : 
+		raise AttributeError('The trajectory t1 inputed in unify_start_and_end \
+				starts after the trajectory t2. The two trajectories must significantly overlap')
+	if t2.start() >= t1.end() : 
+		raise AttributeError('The trajectory t2 inputed in unify_start_and_end \
+				starts after the trajectory t2. The two trajectories must significantly overlap')
+
+	if t1.start() < t2.start() :
+		t1.start( t2.start() )
+	else :
+		t2.start( t1.start() )
+	if t1.end() < t2.end() :
+		t2.end( t1.end() )
+	else :
+		t1.end( t2.end() )
+
+	return()
+
+def R( angle ) : 
+
+	return( np.matrix( [[ np.cos( angle ) , - np.sin( angle ) ] , [ np.sin( angle ) , np.cos( angle ) ]] , dtype = 'float64' ) )
+
+#-------------------------END-OF-DEFINITIONS--------------------------------
+
 def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = False , fimax_filter = [ -3/35 , 12/35 , 17/35 , 12/35 , -3/35 ] ):
 
 	"""
@@ -34,160 +188,6 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 	is used to compute where the peak of fluorescence intensity is. If no filter is desired, set 
 	fimax_filer = [ 1 ].
 	"""
-
-	def spline( t1 , t2 ) :
-
-		"""
-		interpolate t1 or t2 with a spline.
-		"""
-
-		#the interpolation function
-		def interpolation( to_interpolate , delta_t , k = 3 ) :
-		
-			interpolated_traj = Traj( interpolated = 'True' )
-			interpolated_traj.annotations( to_interpolate.annotations() )
-			interpolated_traj.annotations()[ 'delta_t' ] = delta_t
-
-			l = len( to_interpolate )
-
-			if not l > k :
-				
-				#UnivariateSpline requires that m > k, where m is the number of points interpolated 
-				#and k is the degree of smoothing spline. Default in UnivatiateSpline and in here is k = 3.
-				k = l - 1
-	
-			#the new time intervals for the trajectory interpolated
-			t = [ to_interpolate.start() ]
-			while( t[ len(t) - 1 ] <= to_interpolate.end() ) :
-				t.append( t[ len(t) - 1 ] + delta_t )
-			
-			interpolated_traj.input_values( 
-					name = 't' , 
-					x = t ,
-					unit = to_interpolate.annotations()[ 't_unit' ]
-					)
-	
-			for attribute in to_interpolate.attributes() : 	
-				
-				if attribute in [ 'f' , 'mol' ] :
-	
-					s = UnivariateSpline( to_interpolate.t() , getattr( to_interpolate , '_'+attribute ) , k = k )
-					interpolated_traj.input_values( 
-							name = attribute , 
-							x = s( interpolated_traj.t() )
-							)
-	
-				if attribute == 'coord' :
-
-					s_x = UnivariateSpline( to_interpolate.t() , to_interpolate.coord()[ 0 ] , k = k )
-					s_y = UnivariateSpline( to_interpolate.t() , to_interpolate.coord()[ 1 ] , k = k )
-					interpolated_traj.input_values( 
-							name = 'coord' , 
-							x = [ s_x( interpolated_traj.t() ) , s_y( interpolated_traj.t() ) ],
-							)
-
-			return( interpolated_traj )
-	
-		#the trajectory with the largest delta_t will be the one that will 
-		#be splined. 
-
-		if t1.annotations()[ 'delta_t' ] >= t2.annotations()[ 'delta_t' ] :
-
-			delta_t = float(t2.annotations()[ 'delta_t' ])
-		
-		else :
-			
-			delta_t = float(t1.annotations()[ 'delta_t' ])
-
-		not_nan = [ i for i in range( len( t1 ) ) if t1.f( i ) == t1.f( i ) ]
-		t1_to_interpolate = t1.extract( not_nan )
-
-		not_nan = [ i for i in range( len( t2 ) ) if t2.f( i ) == t2.f( i ) ]
-		t2_to_interpolate = t2.extract( not_nan )
-
-		return( 
-				interpolation( t1_to_interpolate , delta_t ) ,
-				interpolation( t2_to_interpolate , delta_t )
-				)
-
-	def cc( input_t1 , input_t2 ):
-		
-		"""
-		cc( input_t1 , input_t2 ) returns the time lag between the trajectory input_t1 and the trajectory input_t2,
-		computed from the cross correlation of the fluorescence intensities of the two trajectories. 
-		The trajectory input_t2 will be aligned in time to input_t1 by adding the output of cc to input_t2.t()
-		"""
-
-		t1 = cp.deepcopy( input_t1 )
-		t2 = cp.deepcopy( input_t2 )
-
-		if t1.annotations()[ 'delta_t' ] != t2.annotations()[ 'delta_t' ] :
-			raise AttributeError('The two trajectories have different \'delta_t\' ') 
-		else: 
-			delta_t = t1.annotations()[ 'delta_t' ]
-		
-		#extend t1 to be as long as to include the equivalent
-		#of t2 lifetime as NA before and after it:
-
-		t1.start( t1.start() - t2.lifetime() )
-		t1.end( t1.end() + t2.lifetime() )
-		
-		#align the two trajectories to the same start point
-		lag0 = t1.start() - t2.start()
-		t2.input_values( 't' , t2.t() + lag0 )
-
-		output = []
-		while t2.end() <= t1.end() :
-
-			#because of rounding errors I cannot use:
-			#f1 = [ t1.f( i ) for i in range( len( t1 ) ) if ( t1.t( i ) >= t2.start() ) & ( t1.t( i ) <= t2.end() ) ] 
-			#but the following, where instead of greater than... I use >< delta_t / 2
-			f1 = [ t1.f( i ) for i in range( len( t1 ) ) if ( t1.t( i ) - t2.start() > - delta_t / 2 ) & ( t1.t( i ) - t2.end() < delta_t / 2 ) ] 
-			
-			if len( f1 ) != len( t2 ) : raise IndexError( "There is a problem with the selection of t1 fluorescence intensities and t2 length in the cross-correlation function cc. The lengths do not match.")
-
-			output.append( 
-					sum( [ f1[ i ] * t2.f( i ) for i in range( len( t2 ) ) if ( f1[ i ] == f1[ i ] ) & ( t2.f( i ) == t2.f( i ) ) ] )
-					)
-			
-			t2.lag( 1 )
-
-		return( lag0 + output.index( max( output ) ) * t1.annotations()[ 'delta_t' ] )
-
-	def unify_start_and_end( t1 , t2 ):
-	
-		"""
-		Uniform the start and the end of two trajectories that overlap
-		in time, so that the overlapping time points can be used to compute the
-		rotation and translation that aligns the two trajectories together.
-		"""
-		
-		if t1.annotations()[ 'delta_t' ] != t2.annotations()[ 'delta_t' ] : 
-			raise AttributeError('The trajectoires inputed in unify_start_and_end \
-					have different delta_t')
-		if t1.start() >= t2.end() : 
-			raise AttributeError('The trajectory t1 inputed in unify_start_and_end \
-					starts after the trajectory t2. The two trajectories must significantly overlap')
-		if t2.start() >= t1.end() : 
-			raise AttributeError('The trajectory t2 inputed in unify_start_and_end \
-					starts after the trajectory t2. The two trajectories must significantly overlap')
-	
-		if t1.start() < t2.start() :
-			t1.start( t2.start() )
-		else :
-			t2.start( t1.start() )
-		if t1.end() < t2.end() :
-			t2.end( t1.end() )
-		else :
-			t1.end( t2.end() )
-
-		return()
-
-	def R( angle ) : 
-
-		return( np.matrix( [[ np.cos( angle ) , - np.sin( angle ) ] , [ np.sin( angle ) , np.cos( angle ) ]] , dtype = 'float64' ) )
-	
-	#-------------------------END-OF-DEFINITIONS--------------------------------
 
 	header() 
 
