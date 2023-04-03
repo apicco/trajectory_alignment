@@ -370,7 +370,7 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 
     print( 'The trajectory aligned to ' + path_reference + ' has been saved as ' + file_name )
 
-def align_raw( path_reference , ch1 , ch2 , fimax2 = False , fimax_filter = [ -3/35 , 12/35 , 17/35 , 12/35 , -3/35 ] , destination_folder = './aligned' ):
+def align_raw( path_reference , ch1 , ch2 , fimax2 = False , fimax_filter = [ -3/35 , 12/35 , 17/35 , 12/35 , -3/35 ] , destination_folder = 'aligned' ):
 
     """
     align( path_reference , ch1 , ch2 , ):
@@ -389,8 +389,10 @@ def align_raw( path_reference , ch1 , ch2 , fimax2 = False , fimax_filter = [ -3
     """
 
     header() 
-    
-    os.mkdir( destination_folder )
+   
+    d = os.listdir()
+    if destination_folder not in d : 
+        os.mkdir( destination_folder )
     
     reference_trajectory = Traj()
     reference_trajectory.load( path_reference )
@@ -410,7 +412,6 @@ def align_raw( path_reference , ch1 , ch2 , fimax2 = False , fimax_filter = [ -3
     if ( fimax2 ) :
         
         print( 'fimax2 = True ; the software uses only the information of the reference trajectory up to its peak of fluorescence intensity.' )
-        
         t2 = reference_trajectory.fimax( fimax_filter )
     
     else :
@@ -430,7 +431,7 @@ def align_raw( path_reference , ch1 , ch2 , fimax2 = False , fimax_filter = [ -3
 
     #compute the transformations that align t1 and t2 together.
     for i in range( l ) :
-
+        
         print( "Align " + ch1[ i ].annotations()[ 'file' ] + " by aligning " + ch2[ i ].annotations()[ 'file' ] + " to " + path_reference ) 
 
         #spline the trajectories, to reduce the noise
@@ -441,7 +442,6 @@ def align_raw( path_reference , ch1 , ch2 , fimax2 = False , fimax_filter = [ -3
 
         #lag t2
         ch_lag = cc( spline_t2 , spline_ch2 )
-        print( ch_lag )
         spline_ch2.input_values( 't' , spline_ch2.t() + ch_lag )
 
         #unify the start and the end of the trajectory splines that are paired to compute the rotation and translation.
@@ -475,5 +475,4 @@ def align_raw( path_reference , ch1 , ch2 , fimax2 = False , fimax_filter = [ -3
         ch1[ i ].save( destination_folder + '/' + ch1[ i ].annotations()[ 'file' ] )
         ch2[ i ].save( destination_folder + '/' + ch2[ i ].annotations()[ 'file' ] )
 
-    print( 'The trajectories aligned to ' + path_reference + ' have been saved in ' + destinatin_folder )
-
+    print( 'The trajectories aligned to ' + path_reference + ' have been saved in ' + destination_folder )
