@@ -16,6 +16,7 @@ from trajalign.average import header
 from scipy.interpolate import UnivariateSpline #need to install py35-scikit-learn
 import numpy as np
 import copy as cp
+import os
 
 def spline( t1 , t2 ) :
 
@@ -369,7 +370,7 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
 
     print( 'The trajectory aligned to ' + path_reference + ' has been saved as ' + file_name )
 
-def align_raw( path_reference , ch1 , ch2 , fimax1 = False , fimax2 = False , fimax_filter = [ -3/35 , 12/35 , 17/35 , 12/35 , -3/35 ] ):
+def align_raw( path_reference , ch1 , ch2 , fimax2 = False , fimax_filter = [ -3/35 , 12/35 , 17/35 , 12/35 , -3/35 ] , destination_folder = './aligned' ):
 
     """
     align( path_reference , ch1 , ch2 , ):
@@ -388,7 +389,9 @@ def align_raw( path_reference , ch1 , ch2 , fimax1 = False , fimax2 = False , fi
     """
 
     header() 
-
+    
+    os.mkdir( destination_folder )
+    
     reference_trajectory = Traj()
     reference_trajectory.load( path_reference )
     
@@ -428,7 +431,7 @@ def align_raw( path_reference , ch1 , ch2 , fimax1 = False , fimax2 = False , fi
     #compute the transformations that align t1 and t2 together.
     for i in range( l ) :
 
-        print( "Align " + path_target + " to " + ch1[ i ].annotations()[ 'file' ] + " and " + path_reference + " to " + ch2[ i ].annotations()[ 'file' ] ) 
+        print( "Align " + ch1[ i ].annotations()[ 'file' ] + " by aligning " + ch2[ i ].annotations()[ 'file' ] + " to " + path_reference ) 
 
         #spline the trajectories, to reduce the noise
         if ( fimax2 ) :
@@ -437,8 +440,9 @@ def align_raw( path_reference , ch1 , ch2 , fimax1 = False , fimax2 = False , fi
             spline_t2 , spline_ch2 = spline( t2 , ch2[ i ] )
 
         #lag t2
-        ch2_lag = cc( spline_t2 , spline_ch2 )
-        spline_ch2.input_values( 't' , spline_ch2.t() + ch2_lag )
+        ch_lag = cc( spline_t2 , spline_ch2 )
+        print( ch_lag )
+        spline_ch2.input_values( 't' , spline_ch2.t() + ch_lag )
 
         #unify the start and the end of the trajectory splines that are paired to compute the rotation and translation.
         unify_start_and_end( spline_t2 , spline_ch2 )
@@ -446,18 +450,30 @@ def align_raw( path_reference , ch1 , ch2 , fimax1 = False , fimax2 = False , fi
         #NOTE: the weight used in Picco et al., 2015 is slightly different. To use the same weight one should replace spline_t1.f() with spline_t1.f() / ( spline_t1.coord_err()[ 0 ] * spline_t1.coord_err()[ 1 ] )
         align_ch2_to_t2 = MSD( spline_t2 , spline_ch2 )
 
-        ch1[ i ].rotate[ align_ch2_to_t2[ 'angle' ] )
+        ch1[ i ].rotate( align_ch2_to_t2[ 'angle' ] )
+        ch2[ i ].rotate( align_ch2_to_t2[ 'angle' ] )
         T = np.array( align_ch2_to_t2[ 'rc' ] + t2_center_mass\
             - R( align_ch2_to_t2[ 'angle' ] ) @ ( align_ch2_to_t2[ 'lc' ] )
-            )[ 0 ] ) #the [ 0 ] is because otherwise it would be [[ x , y ]] instead of [ x , y ]
+            )[ 0 ] #the [ 0 ] is because otherwise it would be [[ x , y ]] instead of [ x , y ]
         ch1[ i ].translate( T )
-        ch1[ i ].lag( ch2_lag )
+        ch2[ i ].translate( T )
+        ch1[ i ].input_values( 't' , ch1[ i ].t() + ch_lag )
+        ch2[ i ].input_values( 't' , ch2[ i ].t() + ch_lag )
 
         # annotations
-	    ch1[ i ].annotations( 'aligned_to' , str( path_reference ) )
-	    ch1[ i ].annotations( 'alignment_angle' , str( align_ch2_to_t2[ 'angle' ] ) + ' rad' )
-	    ch1[ i ].annotations( 'alignment_translation' , str( T ) + ' ' + target_trajectory.annotations()[ 'coord_unit' ] )
-	    ch1[ i ].annotations( 'alignment_lag' , str( ch2_lag ) + ' ' + target_trajectory.annotations()[ 't_unit' ] )
+        ch1[ i ].annotations( 'aligned_to' , str( path_reference ) )
+        ch1[ i ].annotations( 'alignment_angle' , str( align_ch2_to_t2[ 'angle' ] ) + ' rad' )
+        ch1[ i ].annotations( 'alignment_translation' , str( T ) + ' ' + reference_trajectory.annotations()[ 'coord_unit' ] )
+        ch1[ i ].annotations( 'alignment_lag' , str( ch_lag ) + ' ' + reference_trajectory.annotations()[ 't_unit' ] )
 
-    print( 'The trajectory aligned to ' + path_reference + ' has been saved as ' + file_name )
+        ch2[ i ].annotations( 'aligned_to' , str( path_reference ) )
+        ch2[ i ].annotations( 'alignment_angle' , str( align_ch2_to_t2[ 'angle' ] ) + ' rad' )
+        ch2[ i ].annotations( 'alignment_translation' , str( T ) + ' ' + reference_trajectory.annotations()[ 'coord_unit' ] )
+        ch2[ i ].annotations( 'alignment_lag' , str( ch_lag ) + ' ' + reference_trajectory.annotations()[ 't_unit' ] )
+
+        # saving
+        ch1[ i ].save( destination_folder + '/' + ch1[ i ].annotations()[ 'file' ] )
+        ch2[ i ].save( destination_folder + '/' + ch2[ i ].annotations()[ 'file' ] )
+
+    print( 'The trajectories aligned to ' + path_reference + ' have been saved in ' + destinatin_folder )
 
