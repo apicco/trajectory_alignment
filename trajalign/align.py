@@ -207,8 +207,8 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
     #################################################################################################################
 
     # the two following lines could be commented
-    target_trajectory.translate( - target_trajectory.center_mass() )
-    reference_trajectory.translate( - reference_trajectory.center_mass() )
+    # target_trajectory.translate( - target_trajectory.center_mass() )
+    # reference_trajectory.translate( - reference_trajectory.center_mass() )
 
     if ( fimax1 ) :
 
@@ -366,6 +366,98 @@ def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = 
     target_trajectory.annotations( 'alignment_lag_SE' , str( T_median[ 'lag_SE' ] ) + ' ' + target_trajectory.annotations()[ 't_unit' ] )
 
     target_trajectory.save( file_name )
+
+    print( 'The trajectory aligned to ' + path_reference + ' has been saved as ' + file_name )
+
+def align_raw( path_reference , ch1 , ch2 , fimax1 = False , fimax2 = False , fimax_filter = [ -3/35 , 12/35 , 17/35 , 12/35 , -3/35 ] ):
+
+    """
+    align( path_reference , ch1 , ch2 , ):
+    aligns in space and in time the trajectories to path_reference,
+    which is the reference trajectory. As a convention within the align function trajectories 
+    labeled with 1 are the target trajectories that need to be ligned to the reference 
+    trajectories, which are labelled with 2.The alignment uses the trajectories in ch1 
+    and ch2, which have been acquired simultaneously and whose alignment has been 
+    corrected for chormatic aberrations and imaging misalignments. 'ch1' refers to 
+    the trajectories that need to be aligned. 
+    'ch2' refers to 'path_reference'. Both the target and the reference trajectories can be
+    aligned using only the trajectory information up to the peak of fluorescence intensity by 
+    setting fimax1 and fimax2 to True, respectively. If fimax1 and/or fimax2 are true, then fimax_filer
+    is used to compute where the peak of fluorescence intensity is. If no filter is desired, set 
+    fimax_filer = [ 1 ].
+    """
+
+    header() 
+
+    reference_trajectory = Traj()
+    reference_trajectory.load( path_reference )
+    
+    #################################################################################################################
+    #average trajectories are centered on their center of mass and must have been previously lied down 
+    #(lie_down function in trajalign/average.py) so that they are orientad in the same way. The 
+    # average transformation that align the left trajectory to the rigth trajectory (we use the notation in 
+    #Horn 1987 and Picco 2015) is only true for small rotations and it is important to minimise inaccuracies
+    #that can derive from the approximation of the rotation and traslation. For more details see 
+    #Picco et al. 2015, Material and Methods, Two color alignment procedure, Estimate of the average trasformations).
+    #################################################################################################################
+
+    # the two following lines could be commented
+    # reference_trajectory.translate( - reference_trajectory.center_mass() )
+
+    if ( fimax2 ) :
+        
+        print( 'fimax2 = True ; the software uses only the information of the reference trajectory up to its peak of fluorescence intensity.' )
+        
+        t2 = reference_trajectory.fimax( fimax_filter )
+    
+    else :
+
+        t2 = reference_trajectory
+
+    t2_center_mass = t2.center_mass()
+    t2.translate( - t2_center_mass )
+    
+    l = len( ch1 )
+    
+    #control that the dataset of loaded trajectories is complete
+    if l != len( ch2 ) : raise IndexError( 'The number of trajectories for ch1 and for ch2 differ.' )
+
+    #define the dictionary where the transformations will be stored
+    T = { 'angle' : [] , 'translation' : [] , 'lag' : [] }
+
+    #compute the transformations that align t1 and t2 together.
+    for i in range( l ) :
+
+        print( "Align " + path_target + " to " + ch1[ i ].annotations()[ 'file' ] + " and " + path_reference + " to " + ch2[ i ].annotations()[ 'file' ] ) 
+
+        #spline the trajectories, to reduce the noise
+        if ( fimax2 ) :
+            spline_t2 , spline_ch2 = spline( t2 , ch2[ i ].fimax( fimax_filter ) )
+        else :
+            spline_t2 , spline_ch2 = spline( t2 , ch2[ i ] )
+
+        #lag t2
+        ch2_lag = cc( spline_t2 , spline_ch2 )
+        spline_ch2.input_values( 't' , spline_ch2.t() + ch2_lag )
+
+        #unify the start and the end of the trajectory splines that are paired to compute the rotation and translation.
+        unify_start_and_end( spline_t2 , spline_ch2 )
+    
+        #NOTE: the weight used in Picco et al., 2015 is slightly different. To use the same weight one should replace spline_t1.f() with spline_t1.f() / ( spline_t1.coord_err()[ 0 ] * spline_t1.coord_err()[ 1 ] )
+        align_ch2_to_t2 = MSD( spline_t2 , spline_ch2 )
+
+        ch1[ i ].rotate[ align_ch2_to_t2[ 'angle' ] )
+        T = np.array( align_ch2_to_t2[ 'rc' ] + t2_center_mass\
+            - R( align_ch2_to_t2[ 'angle' ] ) @ ( align_ch2_to_t2[ 'lc' ] )
+            )[ 0 ] ) #the [ 0 ] is because otherwise it would be [[ x , y ]] instead of [ x , y ]
+        ch1[ i ].translate( T )
+        ch1[ i ].lag( ch2_lag )
+
+        # annotations
+	    ch1[ i ].annotations( 'aligned_to' , str( path_reference ) )
+	    ch1[ i ].annotations( 'alignment_angle' , str( align_ch2_to_t2[ 'angle' ] ) + ' rad' )
+	    ch1[ i ].annotations( 'alignment_translation' , str( T ) + ' ' + target_trajectory.annotations()[ 'coord_unit' ] )
+	    ch1[ i ].annotations( 'alignment_lag' , str( ch2_lag ) + ' ' + target_trajectory.annotations()[ 't_unit' ] )
 
     print( 'The trajectory aligned to ' + path_reference + ' has been saved as ' + file_name )
 
