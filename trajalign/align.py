@@ -19,353 +19,353 @@ import copy as cp
 
 def spline( t1 , t2 ) :
 
-	"""
-	interpolate t1 or t2 with a spline.
-	"""
+    """
+    interpolate t1 or t2 with a spline.
+    """
 
-	#the interpolation function
-	def interpolation( to_interpolate , delta_t , k = 3 ) :
-	
-		interpolated_traj = Traj( interpolated = 'True' )
-		interpolated_traj.annotations( to_interpolate.annotations() )
-		interpolated_traj.annotations()[ 'delta_t' ] = delta_t
+    #the interpolation function
+    def interpolation( to_interpolate , delta_t , k = 3 ) :
+    
+        interpolated_traj = Traj( interpolated = 'True' )
+        interpolated_traj.annotations( to_interpolate.annotations() )
+        interpolated_traj.annotations()[ 'delta_t' ] = delta_t
 
-		l = len( to_interpolate )
+        l = len( to_interpolate )
 
-		if not l > k :
-			
-			#UnivariateSpline requires that m > k, where m is the number of points interpolated 
-			#and k is the degree of smoothing spline. Default in UnivatiateSpline and in here is k = 3.
-			k = l - 1
+        if not l > k :
+            
+            #UnivariateSpline requires that m > k, where m is the number of points interpolated 
+            #and k is the degree of smoothing spline. Default in UnivatiateSpline and in here is k = 3.
+            k = l - 1
 
-		#the new time intervals for the trajectory interpolated
-		t = [ to_interpolate.start() ]
-		while( t[ len(t) - 1 ] <= to_interpolate.end() ) :
-			t.append( t[ len(t) - 1 ] + delta_t )
-		
-		interpolated_traj.input_values( 
-				name = 't' , 
-				x = t ,
-				unit = to_interpolate.annotations()[ 't_unit' ]
-				)
+        #the new time intervals for the trajectory interpolated
+        t = [ to_interpolate.start() ]
+        while( t[ len(t) - 1 ] <= to_interpolate.end() ) :
+            t.append( t[ len(t) - 1 ] + delta_t )
+        
+        interpolated_traj.input_values( 
+                name = 't' , 
+                x = t ,
+                unit = to_interpolate.annotations()[ 't_unit' ]
+                )
 
-		for attribute in to_interpolate.attributes() : 	
-			
-			if attribute in [ 'f' , 'mol' ] :
+        for attribute in to_interpolate.attributes() :     
+            
+            if attribute in [ 'f' , 'mol' ] :
 
-				s = UnivariateSpline( to_interpolate.t() , getattr( to_interpolate , '_'+attribute ) , k = k )
-				interpolated_traj.input_values( 
-						name = attribute , 
-						x = s( interpolated_traj.t() )
-						)
+                s = UnivariateSpline( to_interpolate.t() , getattr( to_interpolate , '_'+attribute ) , k = k )
+                interpolated_traj.input_values( 
+                        name = attribute , 
+                        x = s( interpolated_traj.t() )
+                        )
 
-			if attribute == 'coord' :
+            if attribute == 'coord' :
 
-				s_x = UnivariateSpline( to_interpolate.t() , to_interpolate.coord()[ 0 ] , k = k )
-				s_y = UnivariateSpline( to_interpolate.t() , to_interpolate.coord()[ 1 ] , k = k )
-				interpolated_traj.input_values( 
-						name = 'coord' , 
-						x = [ s_x( interpolated_traj.t() ) , s_y( interpolated_traj.t() ) ],
-						)
+                s_x = UnivariateSpline( to_interpolate.t() , to_interpolate.coord()[ 0 ] , k = k )
+                s_y = UnivariateSpline( to_interpolate.t() , to_interpolate.coord()[ 1 ] , k = k )
+                interpolated_traj.input_values( 
+                        name = 'coord' , 
+                        x = [ s_x( interpolated_traj.t() ) , s_y( interpolated_traj.t() ) ],
+                        )
 
-		return( interpolated_traj )
+        return( interpolated_traj )
 
-	#the trajectory with the largest delta_t will be the one that will 
-	#be splined. 
+    #the trajectory with the largest delta_t will be the one that will 
+    #be splined. 
 
-	if t1.annotations()[ 'delta_t' ] >= t2.annotations()[ 'delta_t' ] :
+    if t1.annotations()[ 'delta_t' ] >= t2.annotations()[ 'delta_t' ] :
 
-		delta_t = float(t2.annotations()[ 'delta_t' ])
-	
-	else :
-		
-		delta_t = float(t1.annotations()[ 'delta_t' ])
+        delta_t = float(t2.annotations()[ 'delta_t' ])
+    
+    else :
+        
+        delta_t = float(t1.annotations()[ 'delta_t' ])
 
-	not_nan = [ i for i in range( len( t1 ) ) if t1.f( i ) == t1.f( i ) ]
-	t1_to_interpolate = t1.extract( not_nan )
+    not_nan = [ i for i in range( len( t1 ) ) if t1.f( i ) == t1.f( i ) ]
+    t1_to_interpolate = t1.extract( not_nan )
 
-	not_nan = [ i for i in range( len( t2 ) ) if t2.f( i ) == t2.f( i ) ]
-	t2_to_interpolate = t2.extract( not_nan )
+    not_nan = [ i for i in range( len( t2 ) ) if t2.f( i ) == t2.f( i ) ]
+    t2_to_interpolate = t2.extract( not_nan )
 
-	return( 
-			interpolation( t1_to_interpolate , delta_t ) ,
-			interpolation( t2_to_interpolate , delta_t )
-			)
+    return( 
+            interpolation( t1_to_interpolate , delta_t ) ,
+            interpolation( t2_to_interpolate , delta_t )
+            )
 
 def cc( input_t1 , input_t2 ):
-	
-	"""
-	cc( input_t1 , input_t2 ) returns the time lag between the trajectory input_t1 and the trajectory input_t2,
-	computed from the cross correlation of the fluorescence intensities of the two trajectories. 
-	The trajectory input_t2 will be aligned in time to input_t1 by adding the output of cc to input_t2.t()
-	"""
+    
+    """
+    cc( input_t1 , input_t2 ) returns the time lag between the trajectory input_t1 and the trajectory input_t2,
+    computed from the cross correlation of the fluorescence intensities of the two trajectories. 
+    The trajectory input_t2 will be aligned in time to input_t1 by adding the output of cc to input_t2.t()
+    """
 
-	t1 = cp.deepcopy( input_t1 )
-	t2 = cp.deepcopy( input_t2 )
+    t1 = cp.deepcopy( input_t1 )
+    t2 = cp.deepcopy( input_t2 )
 
-	if t1.annotations()[ 'delta_t' ] != t2.annotations()[ 'delta_t' ] :
-		raise AttributeError('The two trajectories have different \'delta_t\' ') 
-	else: 
-		delta_t = t1.annotations()[ 'delta_t' ]
-	
-	#extend t1 to be as long as to include the equivalent
-	#of t2 lifetime as NA before and after it:
+    if t1.annotations()[ 'delta_t' ] != t2.annotations()[ 'delta_t' ] :
+        raise AttributeError('The two trajectories have different \'delta_t\' ') 
+    else: 
+        delta_t = t1.annotations()[ 'delta_t' ]
+    
+    #extend t1 to be as long as to include the equivalent
+    #of t2 lifetime as NA before and after it:
 
-	t1.start( t1.start() - t2.lifetime() )
-	t1.end( t1.end() + t2.lifetime() )
-	
-	#align the two trajectories to the same start point
-	lag0 = t1.start() - t2.start()
-	t2.input_values( 't' , t2.t() + lag0 )
+    t1.start( t1.start() - t2.lifetime() )
+    t1.end( t1.end() + t2.lifetime() )
+    
+    #align the two trajectories to the same start point
+    lag0 = t1.start() - t2.start()
+    t2.input_values( 't' , t2.t() + lag0 )
 
-	output = []
-	while t2.end() <= t1.end() :
+    output = []
+    while t2.end() <= t1.end() :
 
-		#because of rounding errors I cannot use:
-		#f1 = [ t1.f( i ) for i in range( len( t1 ) ) if ( t1.t( i ) >= t2.start() ) & ( t1.t( i ) <= t2.end() ) ] 
-		#but the following, where instead of greater than... I use >< delta_t / 2
-		f1 = [ t1.f( i ) for i in range( len( t1 ) ) if ( t1.t( i ) - t2.start() > - delta_t / 2 ) & ( t1.t( i ) - t2.end() < delta_t / 2 ) ] 
-		
-		if len( f1 ) != len( t2 ) : raise IndexError( "There is a problem with the selection of t1 fluorescence intensities and t2 length in the cross-correlation function cc. The lengths do not match.")
+        #because of rounding errors I cannot use:
+        #f1 = [ t1.f( i ) for i in range( len( t1 ) ) if ( t1.t( i ) >= t2.start() ) & ( t1.t( i ) <= t2.end() ) ] 
+        #but the following, where instead of greater than... I use >< delta_t / 2
+        f1 = [ t1.f( i ) for i in range( len( t1 ) ) if ( t1.t( i ) - t2.start() > - delta_t / 2 ) & ( t1.t( i ) - t2.end() < delta_t / 2 ) ] 
+        
+        if len( f1 ) != len( t2 ) : raise IndexError( "There is a problem with the selection of t1 fluorescence intensities and t2 length in the cross-correlation function cc. The lengths do not match.")
 
-		output.append( 
-				sum( [ f1[ i ] * t2.f( i ) for i in range( len( t2 ) ) if ( f1[ i ] == f1[ i ] ) & ( t2.f( i ) == t2.f( i ) ) ] )
-				)
-		
-		t2.lag( 1 )
+        output.append( 
+                sum( [ f1[ i ] * t2.f( i ) for i in range( len( t2 ) ) if ( f1[ i ] == f1[ i ] ) & ( t2.f( i ) == t2.f( i ) ) ] )
+                )
+        
+        t2.lag( 1 )
 
-	return( lag0 + output.index( max( output ) ) * t1.annotations()[ 'delta_t' ] )
+    return( lag0 + output.index( max( output ) ) * t1.annotations()[ 'delta_t' ] )
 
 def unify_start_and_end( t1 , t2 ):
 
-	"""
-	Uniform the start and the end of two trajectories that overlap
-	in time, so that the overlapping time points can be used to compute the
-	rotation and translation that aligns the two trajectories together.
-	"""
-	
-	if t1.annotations()[ 'delta_t' ] != t2.annotations()[ 'delta_t' ] : 
-		raise AttributeError('The trajectoires inputed in unify_start_and_end \
-				have different delta_t')
-	if t1.start() >= t2.end() : 
-		raise AttributeError('The trajectory t1 inputed in unify_start_and_end \
-				starts after the trajectory t2. The two trajectories must significantly overlap')
-	if t2.start() >= t1.end() : 
-		raise AttributeError('The trajectory t2 inputed in unify_start_and_end \
-				starts after the trajectory t2. The two trajectories must significantly overlap')
+    """
+    Uniform the start and the end of two trajectories that overlap
+    in time, so that the overlapping time points can be used to compute the
+    rotation and translation that aligns the two trajectories together.
+    """
+    
+    if t1.annotations()[ 'delta_t' ] != t2.annotations()[ 'delta_t' ] : 
+        raise AttributeError('The trajectoires inputed in unify_start_and_end \
+                have different delta_t')
+    if t1.start() >= t2.end() : 
+        raise AttributeError('The trajectory t1 inputed in unify_start_and_end \
+                starts after the trajectory t2. The two trajectories must significantly overlap')
+    if t2.start() >= t1.end() : 
+        raise AttributeError('The trajectory t2 inputed in unify_start_and_end \
+                starts after the trajectory t2. The two trajectories must significantly overlap')
 
-	if t1.start() < t2.start() :
-		t1.start( t2.start() )
-	else :
-		t2.start( t1.start() )
-	if t1.end() < t2.end() :
-		t2.end( t1.end() )
-	else :
-		t1.end( t2.end() )
+    if t1.start() < t2.start() :
+        t1.start( t2.start() )
+    else :
+        t2.start( t1.start() )
+    if t1.end() < t2.end() :
+        t2.end( t1.end() )
+    else :
+        t1.end( t2.end() )
 
-	return()
+    return()
 
 def R( angle ) : 
 
-	return( np.matrix( [[ np.cos( angle ) , - np.sin( angle ) ] , [ np.sin( angle ) , np.cos( angle ) ]] , dtype = 'float64' ) )
+    return( np.matrix( [[ np.cos( angle ) , - np.sin( angle ) ] , [ np.sin( angle ) , np.cos( angle ) ]] , dtype = 'float64' ) )
 
 #-------------------------END-OF-DEFINITIONS--------------------------------
 
 def align( path_target , path_reference , ch1 , ch2 , fimax1 = False , fimax2 = False , fimax_filter = [ -3/35 , 12/35 , 17/35 , 12/35 , -3/35 ] ):
 
-	"""
-	align( path_target , path_reference , ch1 , ch2 , ):
-	aligns in space and in time the trajectories identified by path_target to path_reference,
-	which is the reference trajectory. As a convention within the align function trajectories 
-	labeled with 1 are the target trajectories that need to be ligned to the reference 
-	trajectories, which are labelled with 2.The alignment uses the trajectories in ch1 
-	and ch2, which have been acquired simultaneously and whose alignment has been 
-	corrected for chormatic aberrations and imaging misalignments. 'ch1' refers to 
-	the trajectories that need to be aligned to the average trajectory in 'path_target'. 
-	'ch2' refers to 'path_reference'. Both the target and the reference trajectories can be
-	aligned using only the trajectory information up to the peak of fluorescence intensity by 
-	setting fimax1 and fimax2 to True, respectively. If fimax1 and/or fimax2 are true, then fimax_filer
-	is used to compute where the peak of fluorescence intensity is. If no filter is desired, set 
-	fimax_filer = [ 1 ].
-	"""
+    """
+    align( path_target , path_reference , ch1 , ch2 , ):
+    aligns in space and in time the trajectories identified by path_target to path_reference,
+    which is the reference trajectory. As a convention within the align function trajectories 
+    labeled with 1 are the target trajectories that need to be ligned to the reference 
+    trajectories, which are labelled with 2.The alignment uses the trajectories in ch1 
+    and ch2, which have been acquired simultaneously and whose alignment has been 
+    corrected for chormatic aberrations and imaging misalignments. 'ch1' refers to 
+    the trajectories that need to be aligned to the average trajectory in 'path_target'. 
+    'ch2' refers to 'path_reference'. Both the target and the reference trajectories can be
+    aligned using only the trajectory information up to the peak of fluorescence intensity by 
+    setting fimax1 and fimax2 to True, respectively. If fimax1 and/or fimax2 are true, then fimax_filer
+    is used to compute where the peak of fluorescence intensity is. If no filter is desired, set 
+    fimax_filer = [ 1 ].
+    """
 
-	header() 
+    header() 
 
-	target_trajectory = Traj()
-	target_trajectory.load( path_target )
+    target_trajectory = Traj()
+    target_trajectory.load( path_target )
 
-	reference_trajectory = Traj()
-	reference_trajectory.load( path_reference )
-	
-	#################################################################################################################
-	#average trajectories are centered on their center of mass and must have been previously lied down 
-	#(lie_down function in trajalign/average.py) so that they are orientad in the same way. The 
-	# average transformation that align the left trajectory to the rigth trajectory (we use the notation in 
-	#Horn 1987 and Picco 2015) is only true for small rotations and it is important to minimise inaccuracies
-	#that can derive from the approximation of the rotation and traslation. For more details see 
-	#Picco et al. 2015, Material and Methods, Two color alignment procedure, Estimate of the average trasformations).
-	#################################################################################################################
-	
-#	t1_center_of_mass = t1.center_mass()
-#	t1.translate( - t1_center_of_mass )
-#	t2.translate( - t2.center_mass() )
+    reference_trajectory = Traj()
+    reference_trajectory.load( path_reference )
+    
+    #################################################################################################################
+    #average trajectories are centered on their center of mass and must have been previously lied down 
+    #(lie_down function in trajalign/average.py) so that they are orientad in the same way. The 
+    # average transformation that align the left trajectory to the rigth trajectory (we use the notation in 
+    #Horn 1987 and Picco 2015) is only true for small rotations and it is important to minimise inaccuracies
+    #that can derive from the approximation of the rotation and traslation. For more details see 
+    #Picco et al. 2015, Material and Methods, Two color alignment procedure, Estimate of the average trasformations).
+    #################################################################################################################
 
-	if ( fimax1 ) :
+    # the two following lines could be commented
+    target_trajectory.translate( - target_trajectory.center_mass() )
+    reference_trajectory.translate( - reference_trajectory.center_mass() )
 
-		print( 'fimax1 = True ; the software uses only the information of the target trajectory up to its peak of fluorescence intensity.' )
-		
-		t1 = target_trajectory.fimax( fimax_filter )
-	
-	else :
+    if ( fimax1 ) :
 
-		t1 = target_trajectory
+        print( 'fimax1 = True ; the software uses only the information of the target trajectory up to its peak of fluorescence intensity.' )
+        
+        t1 = target_trajectory.fimax( fimax_filter )
+    
+    else :
 
-	t1_center_mass = t1.center_mass()
-	t1.translate( - t1_center_mass )
+        t1 = target_trajectory
 
-	if ( fimax2 ) :
-		
-		print( 'fimax2 = True ; the software uses only the information of the reference trajectory up to its peak of fluorescence intensity.' )
-		
-		t2 = reference_trajectory.fimax( fimax_filter )
-	
-	else :
+    t1_center_mass = t1.center_mass()
+    t1.translate( - t1_center_mass )
 
-		t2 = reference_trajectory
+    if ( fimax2 ) :
+        
+        print( 'fimax2 = True ; the software uses only the information of the reference trajectory up to its peak of fluorescence intensity.' )
+        
+        t2 = reference_trajectory.fimax( fimax_filter )
+    
+    else :
 
-	t2_center_mass = t2.center_mass()
-	t2.translate( - t2_center_mass )
-	
-	l = len( ch1 )
-	
-	#control that the dataset of loaded trajectories is complete
-	if l != len( ch2 ) : raise IndexError( 'The number of trajectories for ch1 and for ch2 differ.' )
+        t2 = reference_trajectory
 
-	#define the dictionary where the transformations will be stored
-	T = { 'angle' : [] , 'translation' : [] , 'lag' : [] }
+    t2_center_mass = t2.center_mass()
+    t2.translate( - t2_center_mass )
+    
+    l = len( ch1 )
+    
+    #control that the dataset of loaded trajectories is complete
+    if l != len( ch2 ) : raise IndexError( 'The number of trajectories for ch1 and for ch2 differ.' )
 
-	#compute the transformations that align t1 and t2 together.
-	for i in range( l ) :
+    #define the dictionary where the transformations will be stored
+    T = { 'angle' : [] , 'translation' : [] , 'lag' : [] }
 
-		print( "Align " + path_target + " to " + ch1[ i ].annotations()[ 'file' ] + " and " + path_reference + " to " + ch2[ i ].annotations()[ 'file' ] ) 
+    #compute the transformations that align t1 and t2 together.
+    for i in range( l ) :
 
-		#spline the trajectories, to reduce the noise
-		if ( fimax1 ) :
-			spline_t1 , spline_ch1 = spline( t1 , ch1[ i ].fimax( fimax_filter ) )
-		else :
-			spline_t1 , spline_ch1 = spline( t1 , ch1[ i ] )
+        print( "Align " + path_target + " to " + ch1[ i ].annotations()[ 'file' ] + " and " + path_reference + " to " + ch2[ i ].annotations()[ 'file' ] ) 
 
-		if ( fimax2 ) :
-			spline_t2 , spline_ch2 = spline( t2 , ch2[ i ].fimax( fimax_filter ) )
-		else :
-			spline_t2 , spline_ch2 = spline( t2 , ch2[ i ] )
+        #spline the trajectories, to reduce the noise
+        if ( fimax1 ) :
+            spline_t1 , spline_ch1 = spline( t1 , ch1[ i ].fimax( fimax_filter ) )
+        else :
+            spline_t1 , spline_ch1 = spline( t1 , ch1[ i ] )
 
-		#lag t1
-		ch1_lag = cc( spline_t1 , spline_ch1 )
-		spline_ch1.input_values( 't' , spline_ch1.t() + ch1_lag )
-		
-		#lag t2
-		ch2_lag = cc( spline_t2 , spline_ch2 )
-		spline_ch2.input_values( 't' , spline_ch2.t() + ch2_lag )
+        if ( fimax2 ) :
+            spline_t2 , spline_ch2 = spline( t2 , ch2[ i ].fimax( fimax_filter ) )
+        else :
+            spline_t2 , spline_ch2 = spline( t2 , ch2[ i ] )
 
-		#unify the start and the end of the trajectory splines that are paired to compute the rotation and translation.
-		unify_start_and_end( spline_t1 , spline_ch1 )
-		unify_start_and_end( spline_t2 , spline_ch2 )
-	
-		#NOTE: the weight used in Picco et al., 2015 is slightly different. To use the same weight one should replace spline_t1.f() with spline_t1.f() / ( spline_t1.coord_err()[ 0 ] * spline_t1.coord_err()[ 1 ] )
-		align_ch1_to_t1 = MSD( spline_t1 , spline_ch1 ) 
-		align_ch2_to_t2 = MSD( spline_t2 , spline_ch2 )
+        #lag t1
+        ch1_lag = cc( spline_t1 , spline_ch1 )
+        spline_ch1.input_values( 't' , spline_ch1.t() + ch1_lag )
+        
+        #lag t2
+        ch2_lag = cc( spline_t2 , spline_ch2 )
+        spline_ch2.input_values( 't' , spline_ch2.t() + ch2_lag )
 
-		#The tranformation that aligns t1 to t2 will be the transformation that align ch2 to t2 and the 
-		#inverse of the transformation that aligns ch1 to t1.
-		#
-		# R_2 @ R_1^{-1} @ ( t1 - t1.center_mass() ) + R_2 @ ( ch1.center_mass() - ch2.center_mass() ) + t2.center_mass()
-		#
-		#As the mean in MSD is weighted (see MSD in trajalign/average.py) the equation becomes
-		#
-		# R_2 @ R_1^{-1} @ ( t1 - align_ch1_to_t1[ 'rc' ] ) + R_2 @ ( align_ch1_to_t1[ 'lc' ] - align_ch2_to_t2[ 'lc' ] ) + align_ch2_to_t2[ 'rc' ] 
-		#
-		#where align_ch1_to_t1[ 'rc' ], align_ch1_to_t1[ 'lc' ], align_ch2_to_t2[ 'rc' ] and align_ch2_to_t2[ 'lc' ] are 
-		#the estimates of the center of masses with the weight mean convention used in MSD.
-		#Finally, the target and reference trajectory were initially shifted by 
-		#
-		# - t2_center_mass 
-		#
-		#and
-		#
-		# - t1_center_mass 
-		#
-		#Therefore, the final transformation that align the target trajectory to the reference trajectory must be corrected for this initial shifts
-		#
-		# R_2 @ R_1^{-1} @ ( t1 - align_ch1_to_t1[ 'rc' ] ) + R_2 @ ( align_ch1_to_t1[ 'lc' ] - align_ch2_to_t2[ 'lc' ] ) + align_ch2_to_t2[ 'rc' ] +
-		# + t2_center_mass + t1_center_mass
-		#
-		#NOTE: in eLife we used the geometrical center of mass, t1.center_mass(), and not the 
-		#approximation of the center of mass that best align t1 and ch1 under the weight convention in MSD, which is align_ch1_to_t1[ 'rc' ].
-		#Therefore, in Picco et al, 2015
-		#
-		#	- R( T[ 'angle' ][ -1 ] ) @ align_ch1_to_t1[ 'rc' ]
-		#
-		#woud become 
-		#
-		#	- R( T[ 'angle' ][ -1 ] ) @ t1.center_mass()
-		#
-		
-		#Compute the angle as the atan2 of the sin( align_ch2_to_t2[ 'angle' ] - align_ch1_to_t1[ 'angle' ] ) 
-		#and cos( align_ch2_to_t2[ 'angle' ] - align_ch1_to_t1[ 'angle' ] ) 
-		a = np.sin( align_ch2_to_t2[ 'angle' ] ) * np.cos( align_ch1_to_t1[ 'angle' ] ) -  np.cos( align_ch2_to_t2[ 'angle' ] ) * np.sin( align_ch1_to_t1[ 'angle' ] )  
-		b = np.cos( align_ch2_to_t2[ 'angle' ] ) * np.cos( align_ch1_to_t1[ 'angle' ] ) +  np.sin( align_ch2_to_t2[ 'angle' ] ) * np.sin( align_ch1_to_t1[ 'angle' ] )  
-		T[ 'angle' ].append( np.arctan2( a , b ) )
-		T[ 'translation' ].append( np.array( 
-				- R( T[ 'angle' ][ -1 ] ) @ align_ch1_to_t1[ 'rc' ]\
-						+ R( align_ch2_to_t2[ 'angle' ] ) @ ( align_ch1_to_t1[ 'lc' ] - align_ch2_to_t2[ 'lc' ] )\
-						+ align_ch2_to_t2[ 'rc' ] + t2_center_mass 
-				)[ 0 ] ) #the [ 0 ] is because otherwise it would be [[ x , y ]] instead of [ x , y ]
-		T[ 'lag' ].append( ch2_lag - ch1_lag )
-	
-	#compute the median and the standard error (SE) of the transformations.
-	#NOTE that if fimax2 is used, the center of mass of reference trajectory does not 
-	#correspond to the center of mass of the trajectory to which the target trajectory 
-	#is aligned. The target trajectory, in fact, is aligned to the center of mass of
-	T_median = { 
-			'angle' : np.median( T[ 'angle' ] ) ,
-			'angle_SE' : nanMAD( T[ 'angle' ] ) / np.sqrt( l ) ,
-			'translation' : [
-				np.median( [ T[ 'translation' ][ i ][ 0 ] for i in range( l ) ] ) ,
-				np.median( [ T[ 'translation' ][ i ][ 1 ] for i in range( l ) ] )
-				] ,
-			'translation_SE' : [
-				nanMAD( [ T[ 'translation' ][ i ][ 0 ] for i in range( l ) ] ) / np.sqrt( l ),
-				nanMAD( [ T[ 'translation' ][ i ][ 1 ] for i in range( l ) ] ) / np.sqrt( l ) 
-				] ,
-			'lag' : np.median( T[ 'lag' ] ) , 
-			'lag_SE' : nanMAD( T[ 'lag' ] ) / np.sqrt( l ) ,
-			'n' : l
-			}
+        #unify the start and the end of the trajectory splines that are paired to compute the rotation and translation.
+        unify_start_and_end( spline_t1 , spline_ch1 )
+        unify_start_and_end( spline_t2 , spline_ch2 )
+    
+        #NOTE: the weight used in Picco et al., 2015 is slightly different. To use the same weight one should replace spline_t1.f() with spline_t1.f() / ( spline_t1.coord_err()[ 0 ] * spline_t1.coord_err()[ 1 ] )
+        align_ch1_to_t1 = MSD( spline_t1 , spline_ch1 ) 
+        align_ch2_to_t2 = MSD( spline_t2 , spline_ch2 )
 
-	target_trajectory.rotate( T_median[ 'angle' ] , 
-			angle_err = T_median[ 'angle_SE' ]
-			)
-	target_trajectory.translate( T_median[ 'translation' ] , 
-			v_err = ( T_median[ 'translation_SE' ][ 0 ] , T_median[ 'translation_SE' ][ 1 ] )
-			)
-	target_trajectory.input_values( 't' , target_trajectory.t() + T_median[ 'lag' ] )
+        #The tranformation that aligns t1 to t2 will be the transformation that align ch2 to t2 and the 
+        #inverse of the transformation that aligns ch1 to t1.
+        #
+        # R_2 @ R_1^{-1} @ ( t1 - t1.center_mass() ) + R_2 @ ( ch1.center_mass() - ch2.center_mass() ) + t2.center_mass()
+        #
+        #As the mean in MSD is weighted (see MSD in trajalign/average.py) the equation becomes
+        #
+        # R_2 @ R_1^{-1} @ ( t1 - align_ch1_to_t1[ 'rc' ] ) + R_2 @ ( align_ch1_to_t1[ 'lc' ] - align_ch2_to_t2[ 'lc' ] ) + align_ch2_to_t2[ 'rc' ] 
+        #
+        #where align_ch1_to_t1[ 'rc' ], align_ch1_to_t1[ 'lc' ], align_ch2_to_t2[ 'rc' ] and align_ch2_to_t2[ 'lc' ] are 
+        #the estimates of the center of masses with the weight mean convention used in MSD.
+        #Finally, the target and reference trajectory were initially shifted by 
+        #
+        # - t2_center_mass 
+        #
+        #and
+        #
+        # - t1_center_mass 
+        #
+        #Therefore, the final transformation that align the target trajectory to the reference trajectory must be corrected for this initial shifts
+        #
+        # R_2 @ R_1^{-1} @ ( t1 - align_ch1_to_t1[ 'rc' ] ) + R_2 @ ( align_ch1_to_t1[ 'lc' ] - align_ch2_to_t2[ 'lc' ] ) + align_ch2_to_t2[ 'rc' ] +
+        # + t2_center_mass + t1_center_mass
+        #
+        #NOTE: in eLife we used the geometrical center of mass, t1.center_mass(), and not the 
+        #approximation of the center of mass that best align t1 and ch1 under the weight convention in MSD, which is align_ch1_to_t1[ 'rc' ].
+        #Therefore, in Picco et al, 2015
+        #
+        #    - R( T[ 'angle' ][ -1 ] ) @ align_ch1_to_t1[ 'rc' ]
+        #
+        #woud become 
+        #
+        #    - R( T[ 'angle' ][ -1 ] ) @ t1.center_mass()
+        #
+        
+        #Compute the angle as the atan2 of the sin( align_ch2_to_t2[ 'angle' ] - align_ch1_to_t1[ 'angle' ] ) 
+        #and cos( align_ch2_to_t2[ 'angle' ] - align_ch1_to_t1[ 'angle' ] ) 
+        a = np.sin( align_ch2_to_t2[ 'angle' ] ) * np.cos( align_ch1_to_t1[ 'angle' ] ) -  np.cos( align_ch2_to_t2[ 'angle' ] ) * np.sin( align_ch1_to_t1[ 'angle' ] )  
+        b = np.cos( align_ch2_to_t2[ 'angle' ] ) * np.cos( align_ch1_to_t1[ 'angle' ] ) +  np.sin( align_ch2_to_t2[ 'angle' ] ) * np.sin( align_ch1_to_t1[ 'angle' ] )  
+        T[ 'angle' ].append( np.arctan2( a , b ) )
+        T[ 'translation' ].append( np.array( 
+                - R( T[ 'angle' ][ -1 ] ) @ align_ch1_to_t1[ 'rc' ]\
+                        + R( align_ch2_to_t2[ 'angle' ] ) @ ( align_ch1_to_t1[ 'lc' ] - align_ch2_to_t2[ 'lc' ] )\
+                        + align_ch2_to_t2[ 'rc' ] + t2_center_mass 
+                )[ 0 ] ) #the [ 0 ] is because otherwise it would be [[ x , y ]] instead of [ x , y ]
+        T[ 'lag' ].append( ch2_lag - ch1_lag )
+    
+    #compute the median and the standard error (SE) of the transformations.
+    #NOTE that if fimax2 is used, the center of mass of reference trajectory does not 
+    #correspond to the center of mass of the trajectory to which the target trajectory 
+    #is aligned. The target trajectory, in fact, is aligned to the center of mass of
+    T_median = { 
+            'angle' : np.median( T[ 'angle' ] ) ,
+            'angle_SE' : nanMAD( T[ 'angle' ] ) / np.sqrt( l ) ,
+            'translation' : [
+                np.median( [ T[ 'translation' ][ i ][ 0 ] for i in range( l ) ] ) ,
+                np.median( [ T[ 'translation' ][ i ][ 1 ] for i in range( l ) ] )
+                ] ,
+            'translation_SE' : [
+                nanMAD( [ T[ 'translation' ][ i ][ 0 ] for i in range( l ) ] ) / np.sqrt( l ),
+                nanMAD( [ T[ 'translation' ][ i ][ 1 ] for i in range( l ) ] ) / np.sqrt( l ) 
+                ] ,
+            'lag' : np.median( T[ 'lag' ] ) , 
+            'lag_SE' : nanMAD( T[ 'lag' ] ) / np.sqrt( l ) ,
+            'n' : l
+            }
 
-	dot_positions = [ i for i in range(len( path_target )) if path_target[i] == '.' ]
-	file_ending = dot_positions[ len(dot_positions) - 1 ] #there could be more than one dot in the file name. Pick the last.
-	file_name =  path_target[ 0 : file_ending ] + '_aligned' + path_target[ file_ending : len( path_target ) ]
+    target_trajectory.rotate( T_median[ 'angle' ] , 
+            angle_err = T_median[ 'angle_SE' ]
+            )
+    target_trajectory.translate( T_median[ 'translation' ] , 
+            v_err = ( T_median[ 'translation_SE' ][ 0 ] , T_median[ 'translation_SE' ][ 1 ] )
+            )
+    target_trajectory.input_values( 't' , target_trajectory.t() + T_median[ 'lag' ] )
 
-	# annotations
-	target_trajectory.annotations( 'aligned_to' , str( path_reference ) )
-	target_trajectory.annotations( 'original_file' , str( path_target ) )
-	target_trajectory.annotations( 'alignment_angle' , str( T_median[ 'angle' ] ) + ' rad' )
-	target_trajectory.annotations( 'alignment_angle_SE' , str( T_median[ 'angle_SE' ] ) + ' rad' )
-	target_trajectory.annotations( 'alignment_translation' , str( T_median[ 'translation' ] ) + ' ' + target_trajectory.annotations()[ 'coord_unit' ] )
-	target_trajectory.annotations( 'alignment_translation_SE' , str( T_median[ 'translation_SE' ] ) + ' ' + target_trajectory.annotations()[ 'coord_unit' ] )
-	target_trajectory.annotations( 'alignment_lag' , str( T_median[ 'lag' ] ) + ' ' + target_trajectory.annotations()[ 't_unit' ] )
-	target_trajectory.annotations( 'alignment_lag_SE' , str( T_median[ 'lag_SE' ] ) + ' ' + target_trajectory.annotations()[ 't_unit' ] )
+    dot_positions = [ i for i in range(len( path_target )) if path_target[i] == '.' ]
+    file_ending = dot_positions[ len(dot_positions) - 1 ] #there could be more than one dot in the file name. Pick the last.
+    file_name =  path_target[ 0 : file_ending ] + '_aligned' + path_target[ file_ending : len( path_target ) ]
 
-	target_trajectory.save( file_name )
+    # annotations
+    target_trajectory.annotations( 'aligned_to' , str( path_reference ) )
+    target_trajectory.annotations( 'original_file' , str( path_target ) )
+    target_trajectory.annotations( 'alignment_angle' , str( T_median[ 'angle' ] ) + ' rad' )
+    target_trajectory.annotations( 'alignment_angle_SE' , str( T_median[ 'angle_SE' ] ) + ' rad' )
+    target_trajectory.annotations( 'alignment_translation' , str( T_median[ 'translation' ] ) + ' ' + target_trajectory.annotations()[ 'coord_unit' ] )
+    target_trajectory.annotations( 'alignment_translation_SE' , str( T_median[ 'translation_SE' ] ) + ' ' + target_trajectory.annotations()[ 'coord_unit' ] )
+    target_trajectory.annotations( 'alignment_lag' , str( T_median[ 'lag' ] ) + ' ' + target_trajectory.annotations()[ 't_unit' ] )
+    target_trajectory.annotations( 'alignment_lag_SE' , str( T_median[ 'lag_SE' ] ) + ' ' + target_trajectory.annotations()[ 't_unit' ] )
 
-	print( 'The trajectory aligned to ' + path_reference + ' has been saved as ' + file_name )
+    target_trajectory.save( file_name )
+
+    print( 'The trajectory aligned to ' + path_reference + ' has been saved as ' + file_name )
 
