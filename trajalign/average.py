@@ -504,7 +504,7 @@ def average_trajectories( trajectory_list , output_file = 'average' , median = F
                             'lc' : np.array([0,0]),
                             'lag' : 0,
                             'lag_unit' : 'frames',
-                            'score' : np.NaN
+                            'score' : np.nan
                             })
     
                 else :
