@@ -8,4 +8,4 @@ For exhaustive documentation and examples, please visit http://apicco.github.io/
 
 For questions, discussion or to report bugs, please email:
 
- andrea [ D0T ] picco [ AT ] unige [ DOT ] ch
+ andrea [ D0T ] picco [ AT ] mida [ DOT ] science
