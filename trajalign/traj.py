@@ -16,7 +16,7 @@ from numpy import sqrt
 from numpy import sin
 from numpy import cos
 from numpy import insert
-from numpy import NaN
+from numpy import nan as NaN
 from numpy import insert
 from numpy import nanmean
 from numpy import nanstd
